@@ -1,0 +1,30 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="PsycologicalWebTest.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="Port" Type="System.String" Scope="User">
+      <Value Profile="(Default)">8888</Value>
+    </Setting>
+    <Setting Name="PathToResults" Type="System.String" Scope="User">
+      <Value Profile="(Default)">D:\\TestResults\\</Value>
+    </Setting>
+    <Setting Name="ParticipantsFile" Type="System.String" Scope="User">
+      <Value Profile="(Default)">D:\\TestResults\\participants.json</Value>
+    </Setting>
+    <Setting Name="TestsFile" Type="System.String" Scope="User">
+      <Value Profile="(Default)">tests.json</Value>
+    </Setting>
+    <Setting Name="SessionsSecret" Type="System.String" Scope="User">
+      <Value Profile="(Default)">somesecretkey</Value>
+    </Setting>
+    <Setting Name="PathToStatic" Type="System.String" Scope="User">
+      <Value Profile="(Default)">../../static</Value>
+    </Setting>
+    <Setting Name="PathToTemplates" Type="System.String" Scope="User">
+      <Value Profile="(Default)">../../Templates</Value>
+    </Setting>
+    <Setting Name="Protocol" Type="System.String" Scope="User">
+      <Value Profile="(Default)">http</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

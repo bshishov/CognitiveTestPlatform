@@ -71,18 +71,30 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ParticipantManager.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
     <Compile Include="Test.cs" />
     <Compile Include="TestsManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
-    <None Include="Templates\_home.liquid" />
-    <None Include="Templates\_layout.liquid" />
-    <None Include="Templates\_results.liquid" />
-    <None Include="Templates\_start.liquid" />
-    <None Include="Templates\_test.liquid" />
-    <None Include="tests.json" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <EmbeddedResource Include="Templates\_home.liquid" />
+    <EmbeddedResource Include="Templates\_layout.liquid" />
+    <EmbeddedResource Include="Templates\_results.liquid" />
+    <EmbeddedResource Include="Templates\_start.liquid" />
+    <EmbeddedResource Include="Templates\_test.liquid" />
+    <EmbeddedResource Include="Templates\_list.liquid" />
+    <None Include="tests.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

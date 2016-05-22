@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Configuration;
 using System.Linq;
+using System.Reflection;
+using PsycologicalWebTest.Properties;
 using Shine;
 using Shine.Middleware.Session;
 using Shine.Responses;
@@ -13,30 +16,43 @@ namespace PsycologicalWebTest
     class Program
     {
         private static readonly ParticipantManager Participants = 
-            new ParticipantManager("D:\\TestResults\\participants.json");
+            new ParticipantManager($"{Settings.Default.ParticipantsFile}");
 
         private static readonly TestsManager TestsManager =
-            new TestsManager("../../tests.json", "D:\\TestResults\\");
+            new TestsManager($"{Settings.Default.TestsFile}", $"{Settings.Default.PathToResults}");
          
         static void Main(string[] args)
         {
             var rootRouter = new Router();
-            rootRouter.Bind("^/static", new StaticServeRouter("../../static"));
+            rootRouter.Bind("^/static", new StaticServeRouter($"{Settings.Default.PathToStatic}"));
             rootRouter.Bind("^/favicon.ico", request => null);
             rootRouter.Bind("^/$", Home);
             rootRouter.Bind("^/start", Start);
+            rootRouter.Bind("^/list", List);
             rootRouter.Bind("^/result", Result);
             rootRouter.Bind("^/test/(.+)", Test);
 
-            var templateEngine = new DotLiquidTemplateProcessor("../../Templates");
+            DotLiquidTemplateProcessor templateEngine;
+#if DEBUG
+            templateEngine = new DotLiquidTemplateProcessor($"{Settings.Default.PathToTemplates}");
+#else
+            templateEngine = new DotLiquidTemplateProcessor(Assembly.GetExecutingAssembly(), "Templates");
+#endif
+
             templateEngine.RegisterSafeType<Test>();
             templateEngine.RegisterSafeType<Participant>();
 
             var app = new App(rootRouter);
             app.SetTemplateProcessor(templateEngine);
-            app.RegisterMiddleware(new SessionMiddleware("SECRET KEY"));
+            app.RegisterMiddleware(new SessionMiddleware($"{Settings.Default.SessionsSecret}"));
 
-            var server = new HttpListenerServer($"http://+:8888/");
+            app.ErrorHandler = (request, code, exception) =>
+            {
+                Console.WriteLine(exception);
+                return new HttpResponse($"<h1>Error {code}</h1><br>{exception}");
+            };
+
+            var server = new HttpListenerServer($"{Settings.Default.Protocol}://+:{Settings.Default.Port}/");
             server.Run(app);
         }
 
@@ -79,6 +95,14 @@ namespace PsycologicalWebTest
             }
 
             return new RedirectResponse("/test/" + TestsManager.Tests.First().Id);
+        }
+
+        static Response List(IRequest request)
+        {
+            return new TemplatedResponse("list", new
+            {
+                Tests = TestsManager.Tests.ToArray(),
+            });
         }
 
         static Response Test(IRequest request, string[] args)

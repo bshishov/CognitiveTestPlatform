@@ -1,0 +1,28 @@
+﻿{% extends 'layout' %}
+
+{% block title %}Список тестов{% endblock %}
+
+{% block content %}
+<div class="ui container">	
+	<div class="ui link cards">
+		{% for test in Tests %}
+			<a class="ui card" href="/test/{{ test.Id }}">
+			  <div class="content">
+				<div class="header">{{ test.Name }}</div>
+				<div class="meta">
+				  <span class="category">{{ test.Version }}</span>
+				</div>
+				<div class="description">
+				  <p>{{ test.Instructions }}</p>
+				</div>
+			  </div>
+			  <div class="extra content">
+				{% if test.RecordAudio == true %}<div class="right floated ui label">Аудио</div>{% endif %}
+				{% if test.RecordVideo == true %}<div class="right floated ui label">Видео</div>{% endif %}				
+			  </div>
+			</a>
+		{% endfor %}
+	</div>
+</div>
+
+{% endblock %}
