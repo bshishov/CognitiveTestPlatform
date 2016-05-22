@@ -1,0 +1,103 @@
+﻿{% extends 'layout' %}
+
+{% block content %}
+<div class="ui text container">
+	<form class="ui form" method="POST">
+	  <div class="field">
+		<label>Имя</label>
+		<input type="text" name="name" placeholder="Ваше имя"  value="{{ Participant.Name }}">
+		{{ Participant.Name }}
+	  </div>
+	   <div class="two fields">
+		  <div class="field">
+			<label>Возраст</label>
+			<input type="number" name="age" placeholder="Ваш возраст" value="{{ Participant.Age }}">
+		  </div>
+		  <div class="field">
+			<label>Пол</label>
+			<select class="ui dropdown" name="gender">			  
+			  <option value="1">Мужской</option>
+			  <option value="0">Женский</option>
+			</select>
+		  </div>
+	  </div>
+	  <div class="field">
+		<div class="ui checkbox">
+		  <input type="checkbox" name="allow">
+		  <label>Я даю согласие на использование моих данных в научных работах</label>
+		</div>
+	  </div>
+
+	  <table class="ui compact two column table" id="support">		
+		  <tbody>
+		  </tbody>
+	  </table>
+
+	  <button class="ui primary  huge button" type="submit">Начать тест</button>
+	  <div class="ui error message"></div>		
+
+	</form>
+</div>
+
+<script type="text/javascript">
+$('.ui.form')
+  .form({
+    fields: {
+      name: {
+        identifier: 'name',
+        rules: [
+          {
+            type   : 'empty',
+            prompt : 'Укажите имя'
+          }
+        ]
+      },
+      age: {
+        identifier: 'age',
+        rules: [
+          {
+            type   : 'empty',
+            prompt : 'Укажите возраст'
+          }
+        ]
+      },
+      gender: {
+        identifier: 'gender',
+        rules: [
+          {
+            type   : 'empty',
+            prompt : 'Укажите пол'
+          }
+        ]
+      }
+    }
+  });
+
+function check(name, status, messageOk, messageFail) {
+	var html = "";	
+		
+	if(messageOk == undefined) messageOk = "";
+	if(messageFail == undefined) messageFail = "";
+
+	if(status) {
+		html = '<tr class="positive"><td>' + name + '</td><td><i class="icon checkmark"></i> ' + messageOk + '</td>';
+	} else {
+		html = '<tr class="negative"><td>' + name + '</td><td><i class="icon close"></i> ' + messageFail + '</td>';		
+	}
+
+	$("#support tbody").append(html);
+};
+
+
+DetectRTC.load(function() {
+	var speechApi =  ('SpeechRecognition' in window) || ('webkitSpeechRecognition' in window) || false;
+
+	check("Веб камера", DetectRTC.hasWebcam, "Работает", "<strong>Не обнаружена</strong><br>подключите камеру и перезагрузите страницу");	
+	check("Микрофон", DetectRTC.hasMicrophone, "Работает", "<strong>Не обнаружен</strong><br>подключите микрофон и перезагрузите страницу");
+	check("Система распознавания речи", speechApi, "Работает", "<strong>Не поддерживается данным браузером</strong><br>пожалуйста, используйте Chrome или Firefox последней версии");
+});
+
+
+ </script>
+
+{% endblock %}
