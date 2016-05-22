@@ -22,6 +22,12 @@ var images = [
     'compass',
     'flag',
     'balance',
+
+    'briefcase',
+    'calculator',
+    'office-chair',
+    'woman',
+    'medal',
 ];
 
 var canClick = false;

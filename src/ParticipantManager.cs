@@ -38,7 +38,7 @@ namespace PsycologicalWebTest
                 _participants = new List<Participant>();
         }
 
-        private void Save()
+        public void Save()
         {
             File.WriteAllText(_fileName, JsonConvert.SerializeObject(_participants, new JsonSerializerSettings()
             {

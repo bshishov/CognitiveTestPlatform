@@ -1,14 +1,15 @@
-var colors = ['red', 'green', 'yellow', 'cyan', 'blue',  'black'];
-var colorNames = ['красный', 'зеленый', 'желтый', 'голубой', 'синий', 'черный'];
-var colorButtonRadius = 80;
-var colorButtonPadding = 10;
+var colors = ['red', 'green', 'yellow', 'cyan', 'blue'];
+var colorNames = ['красный', 'зеленый', 'желтый', 'голубой', 'синий'];
+var colorButtonRadius = 100;
+var colorButtonPadding = 100;
 var startTimeout = 2000;
 var attempts = 10;
-var random = new Math.seedrandom('someRandomSeed');
+var random = new Math.seedrandom('123');
 
 
 var speechRecognitionAvailable = (SpeechRecognition != undefined) || ('webkitSpeechRecognition' in window) || false;
-var showControls = true; // = !speechRecognitionAvailable;
+//var showControls = true; // = !speechRecognitionAvailable;
+var showControls = !speechRecognitionAvailable;
 
 var current;
 var currentAttempt = 0;
@@ -31,6 +32,13 @@ statusText.font({
     leading: 1,
 });
 
+var controlsFont = {
+    family: 'Georgia',
+    size: 32,
+    anchor: 'middle',
+    leading: 1,
+};
+
 
 function getRandomInt(min, max) {
   return Math.floor(random() * (max - min)) + min;
@@ -47,6 +55,9 @@ function getRandomText() {
 }
 
 function select(colorName) {
+    if(!canSelect)
+        return;
+
     if(colorNames.indexOf(colorName) < 0)
         return;
 
@@ -75,7 +86,7 @@ function select(colorName) {
 }
 
 function start() {
-    statusText.plain("Какой цвет надписи?");
+    statusText.plain("Назовите цвет надписи?");
     canSelect = true;
 
     current = getRandomText();
@@ -98,14 +109,17 @@ if(showControls)
 
     for (var i = 0; i < colors.length; i++) {
         let colorName = colorNames[i];
-        group.circle(colorButtonRadius)
+        //group.circle(colorButtonRadius)
+        group.plain(colorName)
+            .font(controlsFont)
+
             .click(function() {
                 console.log("click", colorName);
                 select(colorName);
             })
-            .fill(colors[i])
+            //.fill(colors[i])
             .style('cursor', 'pointer')
-            .x((i - colors.length / 2.0) * (colorButtonRadius + colorButtonPadding));
+            .x((i - (colors.length - 1) / 2.0) * (colorButtonRadius + colorButtonPadding));
     }
 
     group.move("50%", "80%");
@@ -143,12 +157,23 @@ if(speechRecognitionAvailable)
       var color = event.results[0][0].transcript;
       //diagnostic.textContent = 'Result received: ' + color + '.';
       //bg.style.backgroundColor = color;
-        if(colorNames.indexOf(color) >= 0)
+        if(colorNames.indexOf(color) >= 0) {
             select(color);
+        }
         else {
-            statusText.plain("Не могу распознать");
-            test.log("notrecognized", color);
-            recognition.stop();
+            var found = false;
+            colorNames.forEach(function(e) {
+                if(color.indexOf(e) > -1){
+                    found = true;
+                    select(e);
+                }
+            });
+
+            if(!found){
+                statusText.plain("Не могу распознать");
+                test.log("notrecognized", color);
+                recognition.stop();
+            }
         }
       console.log(color, 'Confidence: ' + event.results[0][0].confidence);
     }

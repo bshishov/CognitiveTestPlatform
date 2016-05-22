@@ -2,6 +2,7 @@
 using System.Configuration;
 using System.Linq;
 using System.Reflection;
+using System.Security.Policy;
 using PsycologicalWebTest.Properties;
 using Shine;
 using Shine.Middleware.Session;
@@ -149,6 +150,12 @@ namespace PsycologicalWebTest
             var participant = Participants.GetBySession(request.Session.Key);
             if (participant == null)
                 return new RedirectResponse("/start");
+
+            if (request.Method == "POST")
+            {
+                participant.Email = request.PostArgs["email"];
+                Participants.Save();
+            }
 
             return new TemplatedResponse("results", new
             {

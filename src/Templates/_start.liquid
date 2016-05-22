@@ -2,6 +2,12 @@
 
 {% block content %}
 <div class="ui text container">
+	{% if Participant %}
+	<div class="ui info message">		
+		<p>Похоже, что вы уже проходили этот тест, но вы можете пройти его еще раз.</p>
+	</div>	
+	{% endif %}
+
 	<form class="ui form" method="POST">
 	  <div class="field">
 		<label>Имя</label>
