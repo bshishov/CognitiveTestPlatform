@@ -14,8 +14,8 @@
     "version": "0.1",
     "name": "«Бегущая строка»",
     "instructions": "Вам представлен текст в форме бегущей строки. Скорость показа будет постепенно ускоряться. Ваша задача – читать текст вслух с выражением.",
-    "record_audio": false,
-    "record_video": false,
+    "record_audio": true,
+    "record_video": true,
     "record_mouse": true,
     "scripts": [ "tests/reading.js" ]
   },
@@ -25,7 +25,7 @@
     "name": "Тест на скорость реакции",
     "instructions": "Это тест для измерения скорости вашей реакции. Когда на экране появится темный круг – вы должны кликнуть по нему. Будьте внимательны! Два фальстарта сбросят ваш результат.",
     "record_audio": false,
-    "record_video": false,
+    "record_video": true,
     "record_mouse": true,
     "scripts": [ "tests/reaction.js" ]
   },
@@ -34,8 +34,8 @@
     "version": "0.1",
     "name": "Тест на пластичность",
     "instructions": "Вам предлагаются сочетания названий основных цветов, где значение слова и цвет шрифта частью совпадают, частью нет. Нужно быстро читать про себя слова и называть вслух цвет шрифта. Затем нужно выбрать кнопку с названием цвета шрифта слова.",
-    "record_audio": false,
-    "record_video": false,
+    "record_audio": true,
+    "record_video": true,
     "record_mouse": true,
     "scripts": [ "tests/plasticity.js" ]
   },
@@ -45,7 +45,7 @@
     "name": "Тест на оперативность мышления",
     "instructions": "Вам предлагается два числовых выражения, нужно выбрать наибольшее по значению и кликнуть на него. Тест не ограничен по времени, однако его продолжительность влияет на полученные вами баллы.",
     "record_audio": false,
-    "record_video": false,
+    "record_video": true,
     "record_mouse": true,
     "scripts": [ "tests/operation.js" ]
   },
@@ -55,7 +55,7 @@
     "name": "Тест для оценки памяти",
     "instructions": "Вам будут предлагаться различные изображения, всегда нужно выбирать то изображение, которое вы не выбирали до этого. Не торопитесь, этот тест НЕ на скорость, а на внимательность.",
     "record_audio": false,
-    "record_video": false,
+    "record_video": true,
     "record_mouse": true,
     "scripts": [ "tests/memory.js" ]
   },
@@ -65,7 +65,7 @@
     "name": "Тест на память в стрессовой ситуации",
     "instructions": "Вам предлагаются 4 квадрата с изображениями. Если изображения в квадрате 1 и 4 совпадают -  нажимайте «ДА», если не совпадают – «НЕТ». Этот тест на время – постарайтесь отвечать быстро и правильно.",
     "record_audio": false,
-    "record_video": false,
+    "record_video": true,
     "record_mouse": true,
     "scripts": [ "tests/memorystress.js" ]
   },

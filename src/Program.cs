@@ -36,7 +36,7 @@ namespace PsycologicalWebTest
 #if DEBUG
             templateEngine = new DotLiquidTemplateProcessor($"{Settings.Default.PathToTemplates}");
 #else
-            templateEngine = new DotLiquidTemplateProcessor(Assembly.GetExecutingAssembly(), "Templates");
+            templateEngine = new DotLiquidTemplateProcessor(Assembly.GetExecutingAssembly(), "PsycologicalWebTest.Templates");
 #endif
 
             templateEngine.RegisterSafeType<Test>();

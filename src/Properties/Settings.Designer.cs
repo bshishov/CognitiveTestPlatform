@@ -23,99 +23,75 @@ namespace PsycologicalWebTest.Properties {
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("8888")]
         public string Port {
             get {
                 return ((string)(this["Port"]));
             }
-            set {
-                this["Port"] = value;
-            }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("D:\\\\TestResults\\\\")]
         public string PathToResults {
             get {
                 return ((string)(this["PathToResults"]));
             }
-            set {
-                this["PathToResults"] = value;
-            }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("D:\\\\TestResults\\\\participants.json")]
         public string ParticipantsFile {
             get {
                 return ((string)(this["ParticipantsFile"]));
             }
-            set {
-                this["ParticipantsFile"] = value;
-            }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("tests.json")]
         public string TestsFile {
             get {
                 return ((string)(this["TestsFile"]));
             }
-            set {
-                this["TestsFile"] = value;
-            }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("somesecretkey")]
         public string SessionsSecret {
             get {
                 return ((string)(this["SessionsSecret"]));
             }
-            set {
-                this["SessionsSecret"] = value;
-            }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("../../static")]
         public string PathToStatic {
             get {
                 return ((string)(this["PathToStatic"]));
             }
-            set {
-                this["PathToStatic"] = value;
-            }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("../../Templates")]
         public string PathToTemplates {
             get {
                 return ((string)(this["PathToTemplates"]));
             }
-            set {
-                this["PathToTemplates"] = value;
-            }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("http")]
         public string Protocol {
             get {
                 return ((string)(this["Protocol"]));
-            }
-            set {
-                this["Protocol"] = value;
             }
         }
     }
