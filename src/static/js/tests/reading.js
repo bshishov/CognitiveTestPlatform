@@ -1,14 +1,15 @@
-var startSpeed = 5;
-var endSpeed = 15;
+var startSpeed = 300;
+var endSpeed = 900;
 var startPosition = 1000;
+var fontSize = 50;
 
 var text = "Немногим более 50 лет прошло с тех пор, как появилась первая электронная вычислительная машина. За этот короткий для развития общества период сменилось несколько поколений вычислительных машин, а первые ЭВМ сегодня являются музейной редкостью. Сама история развития вычислительной техники представляет немалый интерес, показывая тесную взаимосвязь математики с физикой (прежде всего с физикой твердого тела, полупроводников, электроникой) и современной технологией, уровнем развития которой во многом определяется прогресс в производстве средств вычислительной техники.";
 
-var isAnimating = false;
+
 var textObject = draw.plain(text).move(1000, '50%')
 textObject.font({
     family: 'Georgia',
-    size: 48,
+    size: fontSize,
     anchor: 'left',
     leading: 1,
 });
@@ -23,11 +24,10 @@ var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAni
                           window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 
 
-var move = function() {
+var move = function(delta) {
     var p = progress();
     var speed = startSpeed + p * (endSpeed - startSpeed);
-
-    textObject.dx(-speed);
+    textObject.dx(-speed  * delta * 0.001);
     if(p > 1.0) {
         complete();
     }
@@ -38,15 +38,21 @@ var complete = function() {
     test.complete();
 }
 
+var isAnimating = false;
+var lastFrame = 0;
+
 var anim = function(timestamp) {
     if(isAnimating) {
-        move();
-        requestAnimationFrame(anim);
-    }
-}
+        var delta = timestamp - lastFrame;
+        move(delta);
 
-test.on("start", function() {
-    textObject.move(1000, '50%');
+    }
     requestAnimationFrame(anim);
+    lastFrame = timestamp;
+}
+textObject.move(startPosition, '50%');
+
+requestAnimationFrame(anim);
+test.on("start", function() {
     isAnimating = true;
 });
