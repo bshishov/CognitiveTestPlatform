@@ -41,14 +41,14 @@ var complete = function() {
 var isAnimating = false;
 var lastFrame = 0;
 
-var anim = function(timestamp) {
+var anim = function() {
     if(isAnimating) {
-        var delta = timestamp - lastFrame;
+        var delta = Date.now() - lastFrame;
         move(delta);
 
     }
     requestAnimationFrame(anim);
-    lastFrame = timestamp;
+    lastFrame = Date.now();
 }
 textObject.move(startPosition, '50%');
 

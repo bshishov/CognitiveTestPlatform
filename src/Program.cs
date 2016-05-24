@@ -30,6 +30,8 @@ namespace PsycologicalWebTest
             rootRouter.Bind("^/$", Home);
             rootRouter.Bind("^/start", Start);
             rootRouter.Bind("^/list", List);
+            rootRouter.Bind("^/first", First);
+            rootRouter.Bind("^/check", Check);
             rootRouter.Bind("^/result", Result);
             rootRouter.Bind("^/test/(.+)", Test);
 
@@ -60,6 +62,18 @@ namespace PsycologicalWebTest
         static Response Home(IRequest request)
         {
             return new TemplatedResponse("home", null);
+        }
+
+        static Response Check(IRequest request)
+        {
+            var participant = Participants.GetBySession(request.Session.Key);
+            if(participant == null)
+                return new RedirectResponse("/start");
+
+            return new TemplatedResponse("check", new
+            {
+                Participant = participant
+            });
         }
 
         static Response Start(IRequest request)
@@ -95,6 +109,11 @@ namespace PsycologicalWebTest
                 
             }
 
+            return new RedirectResponse("/check");
+        }
+
+        static Response First(IRequest request)
+        {
             return new RedirectResponse("/test/" + TestsManager.Tests.First().Id);
         }
 

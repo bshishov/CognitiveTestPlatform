@@ -92,6 +92,7 @@
     <EmbeddedResource Include="Templates\_start.liquid" />
     <EmbeddedResource Include="Templates\_test.liquid" />
     <EmbeddedResource Include="Templates\_list.liquid" />
+    <None Include="Templates\_check.liquid" />
     <None Include="tests.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
