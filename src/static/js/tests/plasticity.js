@@ -8,8 +8,8 @@ var random = new Math.seedrandom('123');
 
 
 var speechRecognitionAvailable = (SpeechRecognition != undefined) || ('webkitSpeechRecognition' in window) || false;
-//var showControls = true; // = !speechRecognitionAvailable;
-var showControls = !speechRecognitionAvailable;
+var showControls = true; // = !speechRecognitionAvailable;
+//var showControls = !speechRecognitionAvailable;
 
 var current;
 var currentAttempt = 0;

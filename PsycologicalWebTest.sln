@@ -5,6 +5,10 @@ VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PsycologicalWebTest", "src\PsycologicalWebTest.csproj", "{B560419D-BD48-4316-8A85-C48F7F8F8581}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AudioProcessing", "AudioProcessing\AudioProcessing.csproj", "{DA408459-6E59-40BA-AAFD-E6D25578A997}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AudioProcessingUI", "AudioProcessingUI\AudioProcessingUI.csproj", "{C120725D-E13D-4563-BC66-0F1B5CA430E7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{B560419D-BD48-4316-8A85-C48F7F8F8581}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B560419D-BD48-4316-8A85-C48F7F8F8581}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B560419D-BD48-4316-8A85-C48F7F8F8581}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA408459-6E59-40BA-AAFD-E6D25578A997}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA408459-6E59-40BA-AAFD-E6D25578A997}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA408459-6E59-40BA-AAFD-E6D25578A997}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA408459-6E59-40BA-AAFD-E6D25578A997}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C120725D-E13D-4563-BC66-0F1B5CA430E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C120725D-E13D-4563-BC66-0F1B5CA430E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C120725D-E13D-4563-BC66-0F1B5CA430E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C120725D-E13D-4563-BC66-0F1B5CA430E7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
