@@ -4,11 +4,18 @@ using System.Linq;
 using System.Numerics;
 using Accord.Audio;
 using Accord.Audio.Windows;
+using Accord.Math;
+using Accord.Math.Transforms;
+using AForge.Math;
+using Tools = Accord.Audio.Tools;
 
 namespace AudioProcessing
 {
     public class SpeechAnalyzer
     {
+        /// <summary>
+        ///  Информация о сегменте речевого сигнала
+        /// </summary>
         public struct SegmentInfo
         {
             public bool IsVocalized;
@@ -16,6 +23,7 @@ namespace AudioProcessing
             public double FundamentalPeriod;
             public int PeakIndex;
             public double PeakPower;
+            public double HighFrequencyEnergy;
         }
 
 
@@ -28,6 +36,8 @@ namespace AudioProcessing
         private readonly int _minStationaryVoiceSamples;
         private readonly int _minFreqSample;
         private readonly int _maxFreqSample;
+        private readonly int _minHFEnergyFreqSample;
+        private readonly int _maxHFEnergyFreqSample;
         private readonly double _powerThreshold;
         private readonly int _overlapSamples;
         private readonly double[] _freqs;
@@ -42,8 +52,8 @@ namespace AudioProcessing
             // Предполагаем что за 26.5мс голос статичен
             _minStationaryVoiceSamples = GetSamplesCountByTime(26.5);
 
-            // Количество перекрывающих сэмплов (20% перекрытия)
-            _overlapSamples = (int)(_minStationaryVoiceSamples * 0.2);
+            // Количество перекрывающих сэмплов (50% перекрытия)
+            _overlapSamples = (int)(_minStationaryVoiceSamples * 0.5);
 
             // Граница амплитуды кепстра при которой сегмент считается вокализированным
             _powerThreshold = 0.1;
@@ -57,13 +67,19 @@ namespace AudioProcessing
             // Максимальный индекс частоты основного тона, для 400Гц, для разной частоты дискретизации
             _maxFreqSample = GetSampleIndexByFreq(400);
 
+            // Минимальный индекс начала высокочастотного участка (109Гц), для данного ДПФ
+            _minHFEnergyFreqSample = GetSampleIndexByFreq(109);
+
+            // Максимальный индекс начала высокочастотного участка (1012Гц), для данного ДПФ
+            _maxHFEnergyFreqSample = GetSampleIndexByFreq(1012);
+
             // Вектор частот для данной частоты дискретизации
             _freqs = Accord.Audio.Tools.GetFrequencyVector(_nfft, _signal.SampleRate);
 
             // Окно Хэмминга для лучшей обработки краев сегмента
             _window = RaisedCosineWindow.Hamming(_minStationaryVoiceSamples);
-            //var window = RaisedCosineWindow.Hann(minStationaryVoiceSamples);
-            //var window = RaisedCosineWindow.Rectangular(minStationaryVoiceSamples);
+            //_window = RaisedCosineWindow.Hann(_minStationaryVoiceSamples);
+            //_window = RaisedCosineWindow.Rectangular(_minStationaryVoiceSamples);
 
 
             _segments = new List<SegmentInfo>(SegmentsCount);
@@ -97,6 +113,68 @@ namespace AudioProcessing
             }
         }
 
+        private SegmentInfo ProceedSegment(Complex[] segment)
+        {
+            //var cepstrum = Tools.GetPowerCepstrum((Complex[])segment.Clone());
+
+            // Применяем ДПФ преобразование
+            FourierTransform.FFT(segment, FourierTransform.Direction.Forward);
+
+            // Вычислем кепстр, (мощность от частоты)
+            var cepstrum = GetPowerCepstrumFromFFT(segment);
+
+            // Найдем пик в заданном интервале
+            var peakPower = 0.0;
+            var peakIndex = 0;
+            for (var i = _minFreqSample; i < _maxFreqSample; i++)
+            {
+                // Деление на nfft - это костыль (не нашел обоснования). Суть получается та же что и если делать через Tools.GetPowerCepstrum
+                // но, ощутимо быстрее, т.к. не делаем лишний преобразований. В библиотечной функции - другой порядок дпф, сначала ifft, потом fft
+                var power = Math.Abs(cepstrum[(int) i] / _nfft); 
+                if (power > peakPower)
+                {
+                    peakIndex = (int)i;
+                    peakPower = power;
+                }
+            }
+
+            // Находим высокочастотную энергию
+            // Получим АЧХ (Апмлитуда от частоты)
+            var magnitude = Tools.GetMagnitudeSpectrum(segment);
+
+            // Вычислим среднее значение высокочастотной энергии (в Дб)
+            var volumeSum = 0.0;
+            for (int i = _minHFEnergyFreqSample; i < _maxHFEnergyFreqSample; i++)
+                volumeSum += GetVolumeFromMagnitude(magnitude[i]);
+
+            var averageHfEnergy = volumeSum / (double)(_maxHFEnergyFreqSample - _minHFEnergyFreqSample);
+
+
+            // Записываем результаты вычисление параметров сегмента
+            var segmentInfo = new SegmentInfo()
+            {
+                // Сигнал вокализирован если амплитуда пика выше порога
+                IsVocalized = peakPower > _powerThreshold,
+
+                // Частота основного тона
+                FundamentalFrequency = _freqs[peakIndex],
+
+                // Период основного тона
+                FundamentalPeriod = 1 / _freqs[peakIndex],
+
+                // Амплитуда пика
+                PeakPower = peakPower,
+
+                // Индекс пика
+                PeakIndex = peakIndex + _minFreqSample,
+
+                // Высокочастотная энергия
+                HighFrequencyEnergy = averageHfEnergy
+            };
+
+            return segmentInfo;
+        }
+
         public double GetFrequencyMean()
         {
             return Accord.Statistics.Tools.Mean(
@@ -107,6 +185,12 @@ namespace AudioProcessing
         {
             return Accord.Statistics.Tools.StandardDeviation(
                 _segments.Where(s => s.IsVocalized).Select(s => s.FundamentalFrequency).ToArray());
+        }
+
+        public double GetMeanHighFrequencyEnergy()
+        {
+            return Accord.Statistics.Tools.Mean(
+               _segments.Where(s => s.IsVocalized).Select(s => s.HighFrequencyEnergy).ToArray());
         }
 
         public void GetRelativeJitterShimmer(out double jitter, out double shimmer)
@@ -135,45 +219,7 @@ namespace AudioProcessing
             jitter = (periodDeltaSum / (n - 1)) / (periodSum / n);
             shimmer = (powerDeltaSum / (n - 1)) / (powerSum / n);
         }
-
-        private SegmentInfo ProceedSegment(Complex[] segment)
-        {
-            // Вычислем кепстр
-            var cepstrum = Tools.GetPowerCepstrum(segment);
-
-            // Найдем пик в заданном интервале
-            var peakPower = -100.0;
-            var peakIndex = 0;
-            for (var i = _minFreqSample; i < _maxFreqSample; i++)
-            {
-                if (cepstrum[(int)i] > peakPower)
-                {
-                    peakIndex = (int)i;
-                    peakPower = cepstrum[(int)i];
-                }
-            }
-
-            // Записываем результаты вычисление параметров сегмента
-            var segmentInfo = new SegmentInfo()
-            {
-                // Сигнал вокализирован если амплитуда пика выше порога
-                IsVocalized = peakPower > _powerThreshold,
-
-                // Частота основного тона
-                FundamentalFrequency = _freqs[peakIndex],
-
-                // Период основного тона
-                FundamentalPeriod = 1/_freqs[peakIndex],
-
-                // Амплитуда пика
-                PeakPower = peakPower,
-
-                PeakIndex = peakIndex + _minFreqSample
-            };
-
-            return segmentInfo;
-        }
-
+        
         public int GetSampleIndexByFreq(double frequency)
         {
             return (int) Math.Ceiling(frequency/(_signal.SampleRate/(double) _nfft));
@@ -182,6 +228,25 @@ namespace AudioProcessing
         public int GetSamplesCountByTime(double time)
         {
             return (int)Math.Ceiling(time * _signal.SampleRate / 1000.0);
+        }
+
+        public static double GetVolumeFromMagnitude(double amplitude, double reference = 1.0)
+        {
+            return 20*Math.Log10(amplitude / reference);
+        }
+
+        private static double[] GetPowerCepstrumFromFFT(Complex[] fft)
+        {
+            if (fft == null)
+                throw new ArgumentNullException("signal");
+
+            Complex[] logabs = new Complex[fft.Length];
+            for (int i = 0; i < logabs.Length; i++)
+                //logabs[i] = new Complex(System.Math.Log(fft[i].Magnitude), 0);
+                logabs[i] = Math.Log(fft[i].Magnitude);
+
+            FourierTransform.FFT(logabs, FourierTransform.Direction.Backward);
+            return logabs.Re();
         }
     }
 }
