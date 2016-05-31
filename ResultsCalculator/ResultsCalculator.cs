@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using ResultsCalculator.Calculators;
@@ -22,6 +23,7 @@ namespace ResultsCalculator
                 new OperationCalculator(), 
                 new MemoryCalculator(),
                 new MemoryStressCalculator(), 
+                new ReadingCalculator(), 
             };
         }
 
@@ -33,8 +35,9 @@ namespace ResultsCalculator
                 {
                     res = calculator.Compute(_rootPath, res);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    Debug.WriteLine(ex.Message);
                 }
             }
             

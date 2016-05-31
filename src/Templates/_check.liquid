@@ -8,6 +8,7 @@
 
 {% block content %}
 <div class="ui text container">
+	<!--
 	<div class="ui section">
 		<h1 class="ui header">Проверьте камеру</h1>
 		<div class="ui hidden error message" id="camerror">	
@@ -20,7 +21,7 @@
 			<li>Если темно - настройте освещение</li>
 		</ul>		
 	</div>
-	<div class="ui divider"></div>
+	<div class="ui divider"></div> -->
 	<div class="ui section">
 		<h1 class="ui header">Проверьте микрофон</h1>
 		<div class="ui hidden error message" id="micerror">	
@@ -58,13 +59,14 @@ var constraints = {
 var initializeStream = function(stream) {
     mediaStream = stream;
  
+ /*
     var video = document.getElementById('videoTag');
     if (typeof (video.srcObject) !== 'undefined') {
         video.srcObject = mediaStream;
     }
     else {
         video.src = URL.createObjectURL(mediaStream);
-    }    
+    }    */
 
 	var AudioContext = window.AudioContext || AudioContext;
 	var ctx = new AudioContext;

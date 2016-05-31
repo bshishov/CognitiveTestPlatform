@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using Accord.Audio;
 using Accord.Audio.Windows;
 using Accord.Math;
-using Accord.Math.Transforms;
 using AForge.Math;
 using Tools = Accord.Audio.Tools;
 
 namespace AudioProcessing
 {
-    public class SpeechAnalyzer
+    class SpeechAnalyzer : IDisposable
     {
         /// <summary>
         ///  Информация о сегменте речевого сигнала
@@ -247,6 +247,11 @@ namespace AudioProcessing
 
             FourierTransform.FFT(logabs, FourierTransform.Direction.Backward);
             return logabs.Re();
+        }
+
+        public void Dispose()
+        {
+            _signal?.Dispose();
         }
     }
 }

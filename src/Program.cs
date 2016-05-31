@@ -155,8 +155,6 @@ namespace PsycologicalWebTest
             {
                 // Save results
                 test.Save(TestsManager.BaseFolder, participant, request);
-
-                Console.WriteLine("Files: " + request.Files.Count());
                 return new HttpResponse("OK");
             }
 

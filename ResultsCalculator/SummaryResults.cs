@@ -7,6 +7,12 @@
         public string Name;
         public int Age;
 
+        public double ReadingF0Mean;
+        public double ReadingF0Std;
+        public double ReadingJitter;
+        public double ReadingShimmer;
+        public double ReadingHFEnergy;
+
         public double ReactionAverage;
         public double ReactionMin;
         public double ReactionMax;

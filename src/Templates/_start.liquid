@@ -98,7 +98,7 @@ function check(name, status, messageOk, messageFail) {
 DetectRTC.load(function() {
 	var speechApi =  ('SpeechRecognition' in window) || ('webkitSpeechRecognition' in window) || false;
 
-	check("Веб камера", DetectRTC.hasWebcam, "Работает", "<strong>Не обнаружена</strong><br>подключите камеру и перезагрузите страницу");	
+	//check("Веб камера", DetectRTC.hasWebcam, "Работает", "<strong>Не обнаружена</strong><br>подключите камеру и перезагрузите страницу");	
 	check("Микрофон", DetectRTC.hasMicrophone, "Работает", "<strong>Не обнаружен</strong><br>подключите микрофон и перезагрузите страницу");
 	check("Система распознавания речи", speechApi, "Работает", "<strong>Не поддерживается данным браузером</strong><br>пожалуйста, используйте Chrome или Firefox последней версии");
 });

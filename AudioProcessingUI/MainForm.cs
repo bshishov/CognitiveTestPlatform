@@ -27,15 +27,6 @@ namespace AudioProcessingUI
 
         private SpeechResult Analyze(string path)
         {
-            Signal rawsignal;
-            using (var reader = new WaveReader())
-            {
-                reader.Open(File.OpenRead(path));
-                rawsignal = reader.Decode();
-            }
-
-            var speech = new SpeechAnalyzer(rawsignal);
-            speech.Compute();
             //WavechartBox.Show(speech.Segments.Select(s => s.IsVocalized ? (float)s.FundamentalFrequency : float.NaN).ToArray(), "F0", nonBlocking: true);
             //WavechartBox.Show(speech.Segments.Select(s => (float)s.PeakPower).ToArray(), "PeakPower", nonBlocking: true);
             //WavechartBox.Show(speech.Segments.Select(s => (float)s.FundamentalFrequency).ToArray(), "FundamentalFrequency", nonBlocking: true);
@@ -43,12 +34,14 @@ namespace AudioProcessingUI
             //WavechartBox.Show(speech.Segments.Select(s => s.IsVocalized ? (float)s.FundamentalPeriod : float.NaN).ToArray(), "FundamentalPeriod");
             //WavechartBox.Show(speech.Segments.Select(s => s.IsVocalized ? (float)s.HighFrequencyEnergy : float.NaN).ToArray(), "HighFrequencyEnergy");
 
-            var mean = speech.GetFrequencyMean();
-            var std = speech.GetFrequencyStd();
-            var hfEnergy = speech.GetMeanHighFrequencyEnergy();
-            double jitter, shimmer;
-            speech.GetRelativeJitterShimmer(out jitter, out shimmer);
+            var speech = SpeechProcessing.ProcessWav(path);
 
+            var mean = speech.FundamentalFrequencyMean;
+            var std = speech.FundamentalFrequencyStd;
+            var hfEnergy = speech.HighFrequencyEnergy;
+            double jitter = speech.Jitter;
+            double shimmer = speech.Shimmer;
+            
 
             var classIndex = -1;
             var className = "";
