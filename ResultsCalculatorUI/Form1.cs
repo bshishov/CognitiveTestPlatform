@@ -25,16 +25,13 @@ namespace ResultsCalculatorUI
 
         private void button1_Click(object sender, EventArgs e)
         {
-            var testsFolder = "D:\\TestResultsFromWeb\\";
+            var testsFolder = "D:\\results\\";
             var participantsRaw = JsonConvert.DeserializeObject(File.ReadAllText(Path.Combine(testsFolder, "participants.json")));
 
             var participants = ((IEnumerable) participantsRaw).Cast<dynamic>();
 
-            var properties = typeof (SummaryResults).GetFields(BindingFlags.Instance | BindingFlags.Public);
-            var propertiesNames = typeof (SummaryResults).GetFields().Select(p => p.Name).ToArray();
-            using (var csv = new CsvWriter(Path.Combine(testsFolder, "results.csv"), propertiesNames))
+            using (var csv = new CsvWriter(Path.Combine(testsFolder, "results.csv"), typeof(SummaryResults)))
             {
-
                 foreach (var participant in participants)
                 {
                     var folder = (string)participant.FolderName;
@@ -54,8 +51,7 @@ namespace ResultsCalculatorUI
                     };
 
                     var res = calc.Compute(initial);
-                    var values = properties.Select(p => p.GetValue(res)).ToArray();
-                    csv.Write(values);
+                    csv.WriteObject(res);
                 }
             }
         }

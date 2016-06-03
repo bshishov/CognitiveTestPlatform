@@ -92,17 +92,20 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ControlsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ControlsForm.Designer.cs">
+      <DependentUpon>ControlsForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="SpeechResult.cs" />
     <Compile Include="SpeechResult.Designer.cs">
       <DependentUpon>SpeechResult.cs</DependentUpon>
     </Compile>
-    <Compile Include="MainForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="MainForm.resx">
-      <DependentUpon>MainForm.cs</DependentUpon>
+    <EmbeddedResource Include="ControlsForm.resx">
+      <DependentUpon>ControlsForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SpeechResult.resx">
       <DependentUpon>SpeechResult.cs</DependentUpon>

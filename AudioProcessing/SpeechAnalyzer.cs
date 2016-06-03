@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using Accord.Audio;
 using Accord.Audio.Windows;
+using Accord.Controls;
 using Accord.Math;
 using AForge.Math;
 using Tools = Accord.Audio.Tools;
@@ -18,12 +19,40 @@ namespace AudioProcessing
         /// </summary>
         public struct SegmentInfo
         {
+            /// <summary>
+            /// Вокализирован сигнал или нет
+            /// </summary>
             public bool IsVocalized;
+
+            /// <summary>
+            /// Частота основного тона
+            /// </summary>
             public double FundamentalFrequency;
+
+            /// <summary>
+            /// Период основного тона
+            /// </summary>
             public double FundamentalPeriod;
+
+            /// <summary>
+            /// Номер отсчета пика
+            /// </summary>
             public int PeakIndex;
+
+            /// <summary>
+            /// Амплитуда пика вокализированного сигнала
+            /// </summary>
             public double PeakPower;
+
+            /// <summary>
+            /// Высокочастотная энергия
+            /// </summary>
             public double HighFrequencyEnergy;
+            
+            /// <summary>
+            /// Мел-кепстральные коэффициенты
+            /// </summary>
+            public double[] MFCC;
         }
 
 
@@ -43,6 +72,10 @@ namespace AudioProcessing
         private readonly double[] _freqs;
         private readonly List<SegmentInfo> _segments;
         private readonly RaisedCosineWindow _window;
+
+        private readonly int _melBankSize;
+        private readonly double[,] _melBank;
+        private readonly int _melTake;
 
 
         public SpeechAnalyzer(Signal signal)
@@ -82,6 +115,12 @@ namespace AudioProcessing
             //_window = RaisedCosineWindow.Rectangular(_minStationaryVoiceSamples);
 
 
+            _melBankSize = 26;
+            _melTake = 16;
+            _melBank = new double[_melBankSize, _nfft / 2 + 1];
+
+            BuildMelBank(300.0);
+
             _segments = new List<SegmentInfo>(SegmentsCount);
         }
 
@@ -116,9 +155,12 @@ namespace AudioProcessing
         private SegmentInfo ProceedSegment(Complex[] segment)
         {
             //var cepstrum = Tools.GetPowerCepstrum((Complex[])segment.Clone());
-
+            
             // Применяем ДПФ преобразование
             FourierTransform.FFT(segment, FourierTransform.Direction.Forward);
+
+            // Посчитаем Мел-кепстральные коэффициенты
+            var melCoeffs = GetMelCoeff(segment);
 
             // Вычислем кепстр, (мощность от частоты)
             var cepstrum = GetPowerCepstrumFromFFT(segment);
@@ -169,7 +211,10 @@ namespace AudioProcessing
                 PeakIndex = peakIndex + _minFreqSample,
 
                 // Высокочастотная энергия
-                HighFrequencyEnergy = averageHfEnergy
+                HighFrequencyEnergy = averageHfEnergy,
+
+                // Мел-кепстральные коэффициенты
+                MFCC = melCoeffs
             };
 
             return segmentInfo;
@@ -235,6 +280,24 @@ namespace AudioProcessing
             return 20*Math.Log10(amplitude / reference);
         }
 
+        public double[] GetMeanMFCC()
+        {
+            var sum = new double[_melTake];
+            foreach (var segment in _segments)
+            {
+                for (int i = 0; i < _melTake; i++)
+                {
+                    if(segment.MFCC[i].IsReal())
+                        sum[i] += segment.MFCC[i];
+                }
+            }
+
+            for (int i = 0; i < _melTake; i++)
+                sum[i] /= _segments.Count;
+
+            return sum;
+        }
+
         private static double[] GetPowerCepstrumFromFFT(Complex[] fft)
         {
             if (fft == null)
@@ -249,9 +312,108 @@ namespace AudioProcessing
             return logabs.Re();
         }
 
+        private static double ToMelScale(double frequency)
+        {
+            return 1125.0 * Math.Log(1 + frequency/700);
+        }
+
+        private static double FromMelScale(double melfrequency)
+        {
+            return 700 * (Math.Exp(melfrequency / 1125.0) - 1.0);
+        }
+
+        private double[] GetMelCoeff(Complex[] fft)
+        {
+            var powerSpectrum = Tools.GetPowerSpectrum(fft);
+            var energies = new double[_melBankSize];
+            
+
+            for (var m = 0; m < _melBankSize; m++)
+            {
+                var power = 0.0;
+                for (int sample = 1; sample < powerSpectrum.Length; sample++)
+                {
+                    power += _melBank[m, sample] * powerSpectrum[sample];
+                }
+
+                //energies[m] = Math.Log(power);
+                energies[m] = power;
+            }
+
+            var coeff = new double[_melTake];
+
+            // дискретное косинусное преобразование
+            // первый элемент исключаем
+            var N = (double)_melBankSize;
+            for (var k = 0; k < _melTake; k++)
+            {
+                var sum = 0.0;
+                var a = Math.Sqrt(2.0 / N);
+
+                if(k == 0)
+                    a = Math.Sqrt(1.0 / N);
+
+                for (var n = 0; n < N; n++)
+                {
+                    sum += Math.Log(energies[n]) * Math.Cos(Math.PI * k * (n + 0.5) / N);
+                }
+                
+                coeff[k] = a * sum;
+            }
+
+
+            //WavechartBox.Show(powerSpectrum.Select(v => (float)v).ToArray(), "PowerSpectrum", nonBlocking: true);
+            //WavechartBox.Show(energies.Select(v => (float)v).ToArray(), "Mel energies", nonBlocking: true);
+            //WavechartBox.Show(coeff.Skip(1).Select(v => (float)v).ToArray(), "Mel coeff");
+            
+            return coeff;
+        }
+
+        private void BuildMelBank(double minFrequency)
+        {
+            var minMel = ToMelScale(minFrequency);
+            var maxMel = ToMelScale(_freqs[_nfft / 2]);
+
+            for (int m = 0; m < _melBankSize; m++)
+            {
+                var leftFreq = minMel + (m / ((double)_melBankSize + 1)) * (maxMel - minMel);
+                var centerFreq = minMel + ((m + 1) / ((double)_melBankSize + 1)) * (maxMel - minMel);
+                var rightFreq = minMel + ((m + 2) / ((double)_melBankSize + 1)) * (maxMel - minMel);
+                var left = FromMelScale(leftFreq);
+                var center = FromMelScale(centerFreq);
+                var right = FromMelScale(rightFreq);
+
+                for (int sample = 0; sample < _nfft / 2 + 1; sample++)
+                {
+                    var k = _freqs[sample];
+
+                    // bandpass filter
+                    double h = 0.0;
+                    if (k < left)
+                        h = 0;
+                    else if (k >= left && k <= center)
+                        h = (k - left) / (center - left);
+                    else if (k >= center && k <= right)
+                        h = (right - k) / (right - center);
+                    else if (k > right)
+                        h = 0;
+
+                    _melBank[m, sample] = h;
+                }
+            }
+        }
+        
         public void Dispose()
         {
             _signal?.Dispose();
+        }
+    }
+
+    public static class Extensions
+    {
+        public static bool IsReal(this double value)
+        {
+            return !Double.IsNaN(value) && !Double.IsInfinity(value);
         }
     }
 }

@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 
 namespace Shared
 {
     public class CsvWriter : IDisposable
     {
         private readonly StreamWriter _writer;
+        private readonly FieldInfo[] _fields;
 
         public CsvWriter(string path, params string[] header)
         {
@@ -17,6 +20,18 @@ namespace Shared
             if (header.Length > 0)
             {
                 _writer.Write(String.Join(",", header) + "\n");
+            }
+        }
+
+        public CsvWriter(string path, Type type)
+        {
+            _writer = new StreamWriter(path);
+
+            _fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public);
+            var fieldNames = _fields.Select(p => p.Name).ToArray();
+            if (fieldNames.Length > 0)
+            {
+                _writer.Write(String.Join(",", fieldNames) + "\n");
             }
         }
 
@@ -43,6 +58,11 @@ namespace Shared
             }
 
             _writer.Write(String.Join(",", strings) + "\n");
+        }
+
+        public void WriteObject(object obj)
+        {
+            Write(_fields.Select(p => p.GetValue(obj)).ToArray());
         }
         
         private string S(int val)

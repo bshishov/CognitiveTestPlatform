@@ -13,6 +13,23 @@
         public double ReadingShimmer;
         public double ReadingHFEnergy;
 
+        public double M1;
+        public double M2;
+        public double M3;
+        public double M4;
+        public double M5;
+        public double M6;
+        public double M7;
+        public double M8;
+        public double M9;
+        public double M10;
+        public double M11;
+        public double M12;
+        public double M13;
+        public double M14;
+        public double M15;
+        public double M16;
+
         public double ReactionAverage;
         public double ReactionMin;
         public double ReactionMax;

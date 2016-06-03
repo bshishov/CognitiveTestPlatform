@@ -17,13 +17,13 @@ namespace ResultsCalculator
             _rootPath = path;
             _calculators = new ICalculator[]
             {
+                new ReadingCalculator(),
                 new TemperamentCalculator(), 
                 new ReactionCalculator(),
                 new PlasticityCalculator(), 
                 new OperationCalculator(), 
                 new MemoryCalculator(),
                 new MemoryStressCalculator(), 
-                new ReadingCalculator(), 
             };
         }
 
