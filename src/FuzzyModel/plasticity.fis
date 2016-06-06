@@ -1,0 +1,47 @@
+[System]
+Name='Plasticity'
+Type='mamdani'
+Version=2.0
+NumInputs=2
+NumOutputs=1
+NumRules=9
+AndMethod='min'
+OrMethod='max'
+ImpMethod='min'
+AggMethod='max'
+DefuzzMethod='centroid'
+
+[Input1]
+Name='PlasticityTime'
+Range=[0 120]
+NumMFs=3
+MF1='Хорошее':'trapmf',[-43.2 -4.8 40 50]
+MF2='Среднее':'trimf',[40 50 60]
+MF3='Плохое':'trapmf',[50 60 125 163]
+
+[Input2]
+Name='PlasticityFails'
+Range=[0 10]
+NumMFs=3
+MF1='Хороший':'trimf',[-4 0 2]
+MF2='Средний':'trimf',[0.973544973544973 1.97354497354497 2.97354497354497]
+MF3='Плохой':'trapmf',[2 4 10 13]
+
+[Output1]
+Name='Result2'
+Range=[0 1]
+NumMFs=3
+MF1='Плохая':'trimf',[-0.4 0 0.4]
+MF2='Средняя':'trimf',[0.1 0.5 0.9]
+MF3='Хорошая':'trimf',[0.605291005291005 1.00529100529101 1.40529100529101]
+
+[Rules]
+1 1, 3 (1) : 1
+1 2, 2 (1) : 1
+1 3, 1 (1) : 1
+2 1, 3 (1) : 1
+2 2, 2 (1) : 1
+2 3, 1 (1) : 1
+3 1, 2 (1) : 1
+3 2, 1 (1) : 1
+3 3, 1 (1) : 1

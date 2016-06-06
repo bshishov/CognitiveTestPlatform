@@ -1,0 +1,47 @@
+[System]
+Name='Operation'
+Type='mamdani'
+Version=2.0
+NumInputs=2
+NumOutputs=1
+NumRules=9
+AndMethod='min'
+OrMethod='max'
+ImpMethod='min'
+AggMethod='max'
+DefuzzMethod='centroid'
+
+[Input1]
+Name='OperationAverageResponseTime'
+Range=[0 10]
+NumMFs=3
+MF1='хорошее':'trapmf',[-3.6 -0 3 5]
+MF2='Среднее':'trimf',[2.94708994708995 4.94708994708995 6.94708994708995]
+MF3='плохое':'trapmf',[5 8 10 15]
+
+[Input2]
+Name='OperationFails'
+Range=[0 10]
+NumMFs=3
+MF1='Хорошее':'trimf',[-3.78 0 2]
+MF2='Среднее':'trimf',[1 3 5]
+MF3='Плохое':'trapmf',[3 5 10 15]
+
+[Output1]
+Name='Result3'
+Range=[0 1]
+NumMFs=3
+MF1='Плохое':'trimf',[-0.4 0 0.4]
+MF2='Среднее':'trimf',[0.1 0.5 0.9]
+MF3='Хорошее':'trimf',[0.597354497354497 0.997354497354497 1.3973544973545]
+
+[Rules]
+1 1, 3 (1) : 1
+1 2, 3 (1) : 1
+1 3, 1 (1) : 1
+2 1, 3 (1) : 1
+2 2, 2 (1) : 1
+2 3, 1 (1) : 1
+3 1, 2 (1) : 1
+3 2, 1 (1) : 1
+3 3, 1 (1) : 1

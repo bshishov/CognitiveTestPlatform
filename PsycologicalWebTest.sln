@@ -3,17 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PsycologicalWebTest", "src\PsycologicalWebTest.csproj", "{B560419D-BD48-4316-8A85-C48F7F8F8581}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PsycologicalWebTest", "src\PsycologicalWebTest\PsycologicalWebTest.csproj", "{B560419D-BD48-4316-8A85-C48F7F8F8581}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AudioProcessing", "AudioProcessing\AudioProcessing.csproj", "{DA408459-6E59-40BA-AAFD-E6D25578A997}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AudioProcessing", "src\AudioProcessing\AudioProcessing.csproj", "{DA408459-6E59-40BA-AAFD-E6D25578A997}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AudioProcessingUI", "AudioProcessingUI\AudioProcessingUI.csproj", "{C120725D-E13D-4563-BC66-0F1B5CA430E7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AudioProcessingUI", "src\AudioProcessingUI\AudioProcessingUI.csproj", "{C120725D-E13D-4563-BC66-0F1B5CA430E7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResultsCalculator", "ResultsCalculator\ResultsCalculator.csproj", "{55E24FB5-AC6A-48C4-89C8-4D226A98DF41}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResultsCalculator", "src\ResultsCalculator\ResultsCalculator.csproj", "{55E24FB5-AC6A-48C4-89C8-4D226A98DF41}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResultsCalculatorUI", "ResultsCalculatorUI\ResultsCalculatorUI.csproj", "{E5E5494B-4D61-4867-9C4F-284BD2FBB15C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResultsCalculatorUI", "src\ResultsCalculatorUI\ResultsCalculatorUI.csproj", "{E5E5494B-4D61-4867-9C4F-284BD2FBB15C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{A688F7F9-C515-4891-A121-7AD15F60F663}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "src\Shared\Shared.csproj", "{A688F7F9-C515-4891-A121-7AD15F60F663}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

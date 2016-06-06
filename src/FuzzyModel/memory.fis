@@ -1,0 +1,47 @@
+[System]
+Name='memory'
+Type='mamdani'
+Version=2.0
+NumInputs=2
+NumOutputs=1
+NumRules=9
+AndMethod='min'
+OrMethod='max'
+ImpMethod='min'
+AggMethod='max'
+DefuzzMethod='centroid'
+
+[Input1]
+Name='MemoryAverageResponseTime'
+Range=[0 10]
+NumMFs=3
+MF1='хорошее':'trapmf',[-3.6 -0.4 1.52116402116402 3.6]
+MF2='среднее':'trimf',[2 4 6]
+MF3='Плохое':'trapmf',[4 6 10 100]
+
+[Input2]
+Name='MemoryRemembered'
+Range=[0 21]
+NumMFs=3
+MF1='плох':'trapmf',[0 0 10 14]
+MF2='ср':'trimf',[10 14 18]
+MF3='хор':'trapmf',[14 18 21 32]
+
+[Output1]
+Name='output1'
+Range=[0 1]
+NumMFs=3
+MF1='Пл':'trimf',[-0.4 0 0.4]
+MF2='Ср':'trimf',[0.1 0.5 0.9]
+MF3='Хор':'trimf',[0.6 1 1.4]
+
+[Rules]
+1 3, 3 (1) : 1
+1 2, 2 (1) : 1
+1 1, 1 (1) : 1
+2 3, 3 (1) : 1
+2 2, 2 (1) : 1
+2 1, 1 (1) : 1
+3 3, 2 (1) : 1
+3 2, 2 (1) : 1
+3 1, 1 (1) : 1
