@@ -34,27 +34,27 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DotLiquid, Version=1.8.0.0, Culture=neutral, PublicKeyToken=82e46016ecf9f07c, processorArchitecture=MSIL">
-      <HintPath>..\packages\DotLiquid.1.8.0\lib\NET45\DotLiquid.dll</HintPath>
+      <HintPath>..\..\packages\DotLiquid.1.8.0\lib\NET45\DotLiquid.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="HttpMultipartParser, Version=2.1.4.0, Culture=neutral, PublicKeyToken=6d293681fa6c7a03, processorArchitecture=MSIL">
-      <HintPath>..\packages\HttpMultipartParser.2.1.4\lib\net40\HttpMultipartParser.dll</HintPath>
+      <HintPath>..\..\packages\HttpMultipartParser.2.1.4\lib\net40\HttpMultipartParser.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="MimeTypeMap, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MediaTypeMap.2.1.0.0\lib\net40\MimeTypeMap.dll</HintPath>
+      <HintPath>..\..\packages\MediaTypeMap.2.1.0.0\lib\net40\MimeTypeMap.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Shine, Version=0.1.8.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Shine.0.1.8\lib\net45\Shine.dll</HintPath>
+      <HintPath>..\..\packages\Shine.0.1.8\lib\net45\Shine.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Shine.Templates.DotLiquid, Version=0.1.8.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Shine.Templates.DotLiquid.0.1.8\lib\net45\Shine.Templates.DotLiquid.dll</HintPath>
+      <HintPath>..\..\packages\Shine.Templates.DotLiquid.0.1.8\lib\net45\Shine.Templates.DotLiquid.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -98,7 +98,7 @@
     </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
