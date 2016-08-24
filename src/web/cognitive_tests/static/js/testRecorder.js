@@ -1,0 +1,291 @@
+//https://github.com/streamproc/MediaStreamRecorder
+function MyMediaRecorder(options) {
+    var self = this;
+
+    this.options = options;
+
+    var recordAudio = options.audio || false;
+    var recordVideo = options.video || false;
+    var audioRecorder, videoRecorder;
+    var localStream;
+
+    var onMediaSuccess = function(stream, callback) {
+        localStream = stream;
+
+        // document.getElemntById('camera').cameraPreview.src = window.URL.createObjectURL(stream);
+        // document.getElemntById('camera').cameraPreview.play();
+
+        if(recordAudio) {
+            var options = {
+                type: 'audio',
+                mimeType: 'audio/wav',
+                disableLogs: true,
+            }
+            audioRecorder = new StereoAudioRecorder(stream, options);
+        }
+
+        if(recordVideo) {
+            var options = {
+                type: 'video',
+                //mimeType: 'video/mp4',
+                //mimeType: 'video/webm',
+                //width: 640,
+                //height: 480,
+                disableLogs: true,
+            }
+            //USE WhammyRecorder to record video/mp4 (much slower)
+            videoRecorder = new MediaStreamRecorder(stream, options);
+        }
+
+        if(recordAudio)
+            audioRecorder.record();
+
+
+        if(recordVideo)
+            videoRecorder.record();
+
+        if(callback != undefined) {
+            setTimeout(callback, 1000);
+        }
+    }
+
+    var onMediaError = function(error, callback) {
+        console.log(error);
+        if(callback != undefined)
+            callback(error);
+    }
+
+    this.start = function(callback, errorCallback) {
+        var constraints = {
+            audio: recordAudio,
+            video: recordVideo
+        };
+
+        if(recordVideo) {
+            // Record max allowed resolution
+            constraints.video = {
+                optional: [
+                    {minWidth: 320},
+                    {minWidth: 640},
+                    {minWidth: 800},
+                    {minWidth: 900},
+                    {minWidth: 1024},
+                    {minWidth: 1280},
+                    {minWidth: 1920},
+                ]
+            };
+        }
+
+        console.log("constraints", constraints);
+
+        try {
+            navigator.getUserMedia(constraints,
+                function(stream) { onMediaSuccess(stream, callback) },
+                function(error) { onMediaError(error, errorCallback) }
+            );
+        } catch (e) {
+            alert('MediaRecorder is not supported by this browser.\n\n' +
+            'Try Firefox 29 or later, or Chrome 47 or later, with Enable experimental Web Platform features enabled from chrome://flags.');
+            console.error('Exception while creating MediaRecorder:', e);
+            return;
+        }
+    }
+
+    this.stop = function(callback) {
+        var remaining = 0;
+        var wait = function(){
+            if(--remaining <= 0 && callback != undefined) {
+                localStream.stop();
+                callback();
+            }
+        };
+
+        if(recordAudio) {
+            remaining++;
+            audioRecorder.stop(wait);
+        }
+
+        if(recordVideo) {
+            remaining++;
+            videoRecorder.stop(wait);
+        }
+    }
+
+    // Only after stop
+    this.getVideoBlob = function() {
+        //return videoRTC.getBlob();
+        return videoRecorder.blob;
+    }
+
+    this.getAudioBlob = function() {
+        //return audioRTC.getBlob();
+        return audioRecorder.blob;
+    }
+}
+
+function TestRecorder(element, options) {
+    this.isRunning = false;
+    this.recordMouse = options.mouse;
+    this.recordAudio = options.audio;
+    this.recordVideo = options.video;
+    this.recordMedia = options.video || options.audio;
+
+    this.mediaRecorder = new MyMediaRecorder({
+        audio: options.audio,
+        video: options.video
+    });
+
+    var events = [];
+    var mouseEvents = [];
+    var startTime = -1;
+    var self = this;
+    var testCanvas = element;
+
+    this.start = function(callback) {
+        this.startTime = Date.now();
+
+        if(this.recordMouse) {
+            testCanvas.addEventListener("mousemove", mouseMove);
+            testCanvas.addEventListener("click", mouseClick);
+        }
+
+        if(this.recordMedia)
+            this.mediaRecorder.start(callback, function(err) {
+                alert(err.name);
+            });
+        else if(callback != undefined)
+            callback();
+
+        this.isRunning = true;
+    }
+
+    this.stop = function(callback) {
+        if(this.recordMouse) {
+            testCanvas.removeEventListener("mousemove", mouseMove);
+            testCanvas.removeEventListener("click", mouseClick);
+        }
+
+        if(this.recordMedia)
+        {
+            this.mediaRecorder.stop(function() {
+                if(callback != undefined)
+                    callback();
+            });
+        }
+        else if(callback != undefined)
+                callback();
+
+        self.isRunning = false;
+    }
+
+    this.send = function(callback) {
+        var formData = new FormData();
+        formData.append('events', JSON.stringify(events));
+        formData.append('mouse_events', JSON.stringify(mouseEvents));
+
+        if(this.recordAudio)
+            formData.append('audio', this.mediaRecorder.getAudioBlob(), "audio.wav");
+
+        if(this.recordVideo)
+            formData.append('video', this.mediaRecorder.getVideoBlob(), "video.webm");
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "", true);
+        xhr.send(formData);
+        xhr.onload = callback;
+    }
+
+    this.logEvent = function(name, args) {
+        if(this.isRunning) {
+            events.push({
+                time: this.getTime(),
+                name: name,
+                args: args
+            });
+        }
+    }
+
+    this.getTime = function() {
+        return Date.now() - this.startTime;
+    }
+
+    this.logMouseEvent = function(name, args) {
+        if(this.isRunning) {
+            mouseEvents.push({
+                time: this.getTime(),
+                name: name,
+                args: args
+            });
+        }
+    }
+
+    var mouseMove = function(e) {
+        var x = e.pageX - this.offsetLeft;
+        var y = e.pageY - this.offsetTop;
+        self.logMouseEvent("mousemove", getXY(e, this));
+    }
+
+    var mouseClick = function(e) {
+        self.logMouseEvent("mouseclick", getXY(e, this));
+    }
+}
+
+function getXY(evt, element) {
+    var rect = element.getBoundingClientRect();
+    var scrollTop = document.documentElement.scrollTop?
+                    document.documentElement.scrollTop:document.body.scrollTop;
+    var scrollLeft = document.documentElement.scrollLeft?
+                    document.documentElement.scrollLeft:document.body.scrollLeft;
+    var elementLeft = rect.left+scrollLeft;
+    var elementTop = rect.top+scrollTop;
+
+    x = evt.pageX-elementLeft;
+    y = evt.pageY-elementTop;
+
+    return {x:x, y:y};
+}
+
+function TestManager(recorder) {
+    var element = document.createElement('div');
+    var eventStart = new Event('start');
+    var eventRecordingStop = new Event('recordingStop');
+    var eventComplete = new Event('complete');
+    var eventSendComplete = new Event('sendComplete');
+    var eventSendFail = new Event('sendFail');
+    var self = this;
+
+    this.recorder = recorder;
+
+    this.log = function(eventName, args) {
+        this.recorder.logEvent(eventName, args);
+        console.log("Test event:", eventName, args);
+    }
+
+    this.start = function() {
+        recorder.start(function() {
+            self.log("test_start");
+            element.dispatchEvent(eventStart);
+        });
+    }
+
+    this.complete = function() {
+        self.log("test_complete");
+        recorder.stop(function() {
+            element.dispatchEvent(eventRecordingStop); // RECORDING STOPPED
+            recorder.send(function() {
+                element.dispatchEvent(eventSendComplete); // SEND COMPLETE
+            }, function() {
+                element.dispatchEvent(eventSendFail); // SEND FAIL
+            });
+        });
+        element.dispatchEvent(eventComplete); // COMPLETE CALLED
+    }
+
+    this.on = function(eventName, callback) {
+        element.addEventListener(eventName, callback);
+    }
+
+    this.getTime = function() {
+        return this.recorder.getTime();
+    }
+}

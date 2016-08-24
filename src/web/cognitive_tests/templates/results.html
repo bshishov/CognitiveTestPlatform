@@ -1,0 +1,23 @@
+﻿{% extends 'layout' %}
+
+{% block content %}
+<div class="ui text container">
+	<h1 class="ui header">Спасибо за участие в нашем тесте!</h1>	
+	{% if participant.email %}
+		<p>Мы пришлем вам результаты по адресу {{ participant.email }} как только они будут готовы</p>
+	{% else %}
+		{{ participant.email }}
+		<p>К сожалению, мы еще не успели реализовать автоматический подсчет результатов. Если пожелаете оставьте свой email адрес и мы пришлем результаты на него когда они будут готовы</p>	
+		<form class="ui form" method="POST">
+			<div class="two fields">
+				<div class="field">					
+					<input type="email" name="email" placeholder="Ваш email (не обязательно)">
+				 </div>
+				 <div class="field">
+					<button type="submit" class="ui primary button">Пришлите мне результаты</button>		
+				 </div>
+			</div>
+		</form>	
+	{% endif %}
+</div>
+{% endblock %}
