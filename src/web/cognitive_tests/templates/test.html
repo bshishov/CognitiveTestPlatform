@@ -14,8 +14,8 @@
 <div class="ui grid">
 	<div class="row">
 		<div class="ui ten wide column">
-			<h1 class="ui header">{{ test.title }}</h1>
-			<p>{{ test.instructions }}</p>
+			<h1 class="ui header">{{ test.test.name }}</h1>
+			<p>{{ test.test.description }}</p>
 		</div>
 
 		<div class="six wide column">
@@ -51,7 +51,7 @@
 						</h2>
 						<div class="ui content">
 							<a href="" class="ui small button">Еще раз</a>
-							<a href="{{ NextUrl }}" class="ui small primary button">Продолжить</a>
+							<a href="{{ next_url }}" class="ui small primary button">Продолжить</a>
 						</div>
 					</div>
 				</div>
@@ -120,8 +120,8 @@ DetectRTC.load(function() {
 });
 </script>
 
-{% for script in test.scripts %}
-<script src="/static/js/{{ script }}" type="text/javascript"></script>
+{% for script_name in test.js_script_files %}
+<script src="/static/{{ test.resources_path }}/{{ script_name }}" type="text/javascript"></script>
 {% endfor %}
 
 {% endblock %}

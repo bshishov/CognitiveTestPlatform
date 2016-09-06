@@ -1,6 +1,13 @@
-from django.conf.urls import url
-
+from django.conf.urls import url, include
+from rest_framework import routers
+from . import api_viewsets
 from . import views
+
+api_router = routers.DefaultRouter()
+api_router.register(r'^participants', api_viewsets.ParticipantViewSet, 'Participant')
+api_router.register(r'^test_results', api_viewsets.TestViewSet, 'TestResult')
+api_router.register(r'^tests', api_viewsets.TestViewSet, 'Test')
+api_router.register(r'^web_tests', api_viewsets.WebTestViewSet, 'WebTest')
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
@@ -9,5 +16,7 @@ urlpatterns = [
     url(r'^first', views.first, name='first'),
     url(r'^check', views.check, name='check'),
     url(r'^result', views.result, name='result'),
-    url(r'^test/(?P<test_name>.+)', views.test, name='test'),
+    url(r'^test/(?P<test_id>.+)', views.web_test, name='test'),
+    url(r'^api/', include(api_router.urls)),
+    url(r'^api/', include('rest_framework.urls', namespace='rest_framework'))
 ]
