@@ -23,11 +23,37 @@ class WebTestSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'test', 'record_audio', 'record_video', 'record_mouse', 'created')
 
 
-class TestResultSerializer(serializers.HyperlinkedModelSerializer):
-    participant = ParticipantSerializer()
-    test = TestSerializer()
+class TestFileSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TestFile
+
+
+class TestTextDataSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TestTextData
+
+
+class TestResultSerializer(serializers.ModelSerializer):
+    participant = ParticipantSerializer(read_only=True)
+    files = TestFileSerializer(read_only=True, many=True)  # TODO: create TEST FILES SERIALIZER
+    text_data = TestTextDataSerializer(read_only=True, many=True)  # TODO: create TEST DATA SERIALIZER
 
     class Meta:
         model = TestResult
-        fields = ('id', 'participant', 'test', 'created')
+        fields = ('id', 'participant', 'test', 'created', 'text_data', 'files',)
+
+    def create(self, validated_data):
+        return TestResult.objects.create(participant=validated_data['participant'], test=validated_data['test'])
+        return self._test_result
+
+    def save_data(self, data):
+        text_data = TestTextData.objects.create(test_result=self.get_object(), data=data['events'])
+        pass
+
+    def save_files(self, files):
+        pass
+
+
 

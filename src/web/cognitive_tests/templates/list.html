@@ -6,14 +6,14 @@
 <div class="ui container">	
 	<div class="ui link cards">
 		{% for test in tests %}
-			<a class="ui card" href="/test/{{ test.name }}">
+			<a class="ui card" href="/test/{{ test.id }}">
 			  <div class="content">
-				<div class="header">{{ test.title }}</div>
+				<div class="header">{{ test.test.name }}</div>
 				<div class="meta">
 				  <span class="category">{{ test.version }}</span>
 				</div>
 				<div class="description">
-				  <p>{{ test.instructions }}</p>
+				  <p>{{ test.test.description }}</p>
 				</div>
 			  </div>
 			  <div class="extra content">
@@ -23,6 +23,40 @@
 			</a>
 		{% endfor %}
 	</div>
+
+	<div id="apitest" class="ui button big">Test API</div>
 </div>
+
+<script type="text/javascript">
+	$('#apitest').on('click', function(){
+	/*
+		$.post('/api/tests/1/results/',
+		{
+			participant: 1,
+			test: 1,
+			csrfmiddlewaretoken: '{{ csrf_token }}',
+			events: JSON.stringify([
+				{ name: 'foo' },
+				{ name: 'bar' },
+			]),
+		},
+		function(){
+		})*/
+
+		var formData = new FormData();
+		formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+        formData.append('events', JSON.stringify({a:1}));
+        formData.append('mouse_events', JSON.stringify({b:2}));
+
+        formData.append('audio', new Blob(['<p>hello audio</p>'], {type : 'text/html'}), "audio.wav");
+		formData.append('video', new Blob(['<p>hello video</p>'], {type : 'text/html'}), "video.webm");
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/api/tests/1/results/", true);
+        xhr.send(formData);
+        //xhr.onload = callback;
+	});
+</script>
+
 
 {% endblock %}

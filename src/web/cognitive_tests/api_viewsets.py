@@ -1,4 +1,4 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, status, renderers
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from .api_serializers import *
@@ -15,14 +15,19 @@ class TestViewSet(viewsets.ModelViewSet):
     serializer_class = TestSerializer
 
     @detail_route(methods=['GET', 'POST'])
-    def results(self, request, pk=None):
+    def results(self, request, pk=None, *args, **kwargs):
         if request.method == 'GET':
             results = TestResult.objects.filter(pk=pk)
             serializer = TestResultSerializer(results, many=True)
             return Response(serializer.data)
         if request.method == 'POST':
-            # TODO IMPLEMENT!
-            pass
+            serializer = TestResultSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                serializer.save_data(data=request.data)
+                serializer.save_files(files=request.FILES)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @list_route()
     def active(self, request):
