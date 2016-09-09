@@ -27,12 +27,14 @@ class TestFileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TestFile
+        exclude = ('id','test_result',)
 
 
 class TestTextDataSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TestTextData
+        exclude = ('id', 'test_result',)
 
 
 class TestResultSerializer(serializers.ModelSerializer):
@@ -46,7 +48,6 @@ class TestResultSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return TestResult.objects.create(participant=validated_data['participant'], test=validated_data['test'])
-        return self._test_result
 
     def save_data(self, data):
         text_data = TestTextData.objects.create(test_result=self.get_object(), data=data['events'])

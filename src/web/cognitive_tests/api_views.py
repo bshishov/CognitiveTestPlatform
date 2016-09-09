@@ -48,20 +48,33 @@ def test_results(request, test_pk, format=None):
         participant = get_participant(request)
         if not participant:
             return Response({'detail': 'No participant'}, status=status.HTTP_400_BAD_REQUEST)
+        result_serializer = TestResultSerializer(TestResult(test=test, participant=participant),
+                                                 partial=True,
+                                                 data={})
+        if result_serializer.is_valid():
+            result = result_serializer.save()
 
-        result = TestResult(test=test, participant=participant)
-        result.save()
-        for file_arg in request.FILES:
-            for raw_file in request.FILES.getlist(file_arg):
-                test_file = TestFile(test_result=result, name=raw_file.name, file=raw_file)
-                test_file.save()
+            for file_arg in request.FILES:
+                for raw_file in request.FILES.getlist(file_arg):
+                    file_serializer = TestFileSerializer(TestFile(test_result=result),
+                                                         data={'name': raw_file.name, 'file': raw_file},
+                                                         partial=True)
+                    if file_serializer.is_valid():
+                        file_serializer.save()
+                    else:
+                        return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response(TestResultSerializer(result).data, status=status.HTTP_201_CREATED)
+            for arg in request.data:
+                #TODO: TO VALIDATE
+                if arg in TestTextData.RESTRICTED_NAMES or arg in result_serializer.fields or arg in request.FILES:
+                    continue
+                text_data_serializer = TestTextDataSerializer(TestTextData(test_result=result),
+                                                              data={'name': arg, 'data': request.data[arg]},
+                                                              partial=True)
+                if text_data_serializer.is_valid():
+                    text_data_serializer.save()
+                else:
+                    return Response(text_data_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = TestResultSerializer(data=request.data, )
-        if serializer.is_valid():
-            serializer.save()
-            serializer.save_data(data=request.data)
-            serializer.save_files(files=request.FILES)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(result_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(result_serializer.errors, status=status.HTTP_400_BAD_REQUEST)

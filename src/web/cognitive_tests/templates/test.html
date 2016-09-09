@@ -70,6 +70,8 @@ var recorder = new TestRecorder(document.getElementById("test"), {
 	mouse: {{ test.record_mouse|lower }},
 	audio: {{ test.record_audio|lower }},
 	video: {{ test.record_video|lower }},
+	post_to: "/api/tests/{{ test.test.id }}/results/",
+	additional_data: {csrfmiddlewaretoken: '{{csrf_token}}'},
 });
 
 $('.dimmer').dimmer({ closable: false });

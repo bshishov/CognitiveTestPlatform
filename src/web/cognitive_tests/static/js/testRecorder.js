@@ -129,6 +129,8 @@ function TestRecorder(element, options) {
     this.recordAudio = options.audio;
     this.recordVideo = options.video;
     this.recordMedia = options.video || options.audio;
+    this.post_to = options.post_to || "";
+    this.additional_data = options.additional_data;
 
     this.mediaRecorder = new MyMediaRecorder({
         audio: options.audio,
@@ -180,6 +182,15 @@ function TestRecorder(element, options) {
 
     this.send = function(callback) {
         var formData = new FormData();
+
+        if(this.additional_data) {
+            for (var key in this.additional_data){
+                if (this.additional_data.hasOwnProperty(key)) {
+                    formData.append(key, this.additional_data[key]);
+                }
+            }
+        }
+
         formData.append('events', JSON.stringify(events));
         formData.append('mouse_events', JSON.stringify(mouseEvents));
 
@@ -190,7 +201,7 @@ function TestRecorder(element, options) {
             formData.append('video', this.mediaRecorder.getVideoBlob(), "video.webm");
 
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", "", true);
+        xhr.open("POST", this.post_to, true);
         xhr.send(formData);
         xhr.onload = callback;
     }
