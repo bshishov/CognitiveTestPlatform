@@ -5,9 +5,23 @@ from django.http import Http404
 from django.utils.decorators import available_attrs, decorator_from_middleware
 from functools import wraps
 from .models import Participant
+from django.core import urlresolvers
+import urllib.parse
 
 
-PARTICIPANT_SESSION_KEY = 'participant_id'
+def redirect_with_args(to, query_string, *args, **kwargs):
+    if query_string:
+        path = "%s?%s" % (urlresolvers.reverse(to, *args, **kwargs), urllib.parse.urlencode(query_string))
+        return redirect(path, *args, **kwargs)
+    return redirect(to, *args, **kwargs)
+
+
+def reverse_with_args(to, query_string, *args, **kwargs):
+    if query_string:
+        path = "%s?%s" % (urlresolvers.reverse(to, *args, **kwargs), urllib.parse.urlencode(query_string))
+        return path
+    return urlresolvers.reverse(to, *args, **kwargs)
+
 
 
 def participant_required(redirect_to):
@@ -26,12 +40,12 @@ def participant_required(redirect_to):
 
 
 def get_participant(request):
-    if PARTICIPANT_SESSION_KEY not in request.session:
+    if Participant.PARTICIPANT_SESSION_KEY not in request.session:
         return None
     try:
         return Participant.objects.get(session=request.session.session_key)
     except:
-        del request.session[PARTICIPANT_SESSION_KEY]
+        del request.session[Participant.PARTICIPANT_SESSION_KEY]
         return None
 
 

@@ -8,6 +8,12 @@
 <script src="{% static 'js/seedrandom.min.js' %}"></script>
 <script src="{% static 'js/svg.min.js' %}"></script>
 <script src="{% static 'js/testRecorder.js' %}"></script>
+{% for resource in test.group.resources.all %}
+<script src="/media/{{ resource.file.name }}"></script>
+{% endfor %}
+{% for resource in test.resources.all %}
+<script src="/media/{{ resource.file.name }}"></script>
+{% endfor %}
 {% endblock %}
 
 {% block content %}
@@ -51,7 +57,7 @@
 						</h2>
 						<div class="ui content">
 							<a href="" class="ui small button">Еще раз</a>
-							<a href="{{ next_url }}" class="ui small primary button">Продолжить</a>
+							<a href="{{ next }}" class="ui small primary button">Продолжить</a>
 						</div>
 					</div>
 				</div>
@@ -122,8 +128,13 @@ DetectRTC.load(function() {
 });
 </script>
 
-{% for script_name in test.js_script_files %}
-<script src="/static/{{ test.resources_path }}/{{ script_name }}" type="text/javascript"></script>
-{% endfor %}
+{% if test.js_inline_script %}
+	<script type="text/javascript">
+	{% autoescape off %}
+	{{ test.js_inline_script }}
+	{% endautoescape %}
+	</script>
+{% endif %}
+
 
 {% endblock %}

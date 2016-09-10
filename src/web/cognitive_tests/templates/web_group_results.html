@@ -1,4 +1,4 @@
-﻿{% extends 'layout' %}
+﻿{% extends 'layout.html' %}
 
 {% block content %}
 <div class="ui text container">
@@ -9,6 +9,7 @@
 		{{ participant.email }}
 		<p>К сожалению, мы еще не успели реализовать автоматический подсчет результатов. Если пожелаете оставьте свой email адрес и мы пришлем результаты на него когда они будут готовы</p>	
 		<form class="ui form" method="POST">
+			{% csrf_token %}
 			<div class="two fields">
 				<div class="field">					
 					<input type="email" name="email" placeholder="Ваш email (не обязательно)">

@@ -3,16 +3,25 @@ from .models import *
 from rest_framework import serializers
 
 
-class ParticipantSerializer(serializers.HyperlinkedModelSerializer):
+class ParticipantSerializer(serializers.ModelSerializer):
+    gender = serializers.ChoiceField(Participant.GENDER_CHOICES)
+
     class Meta:
         model = Participant
-        fields = ('id', 'name', 'age', 'gender', 'email', 'allow_info_usage')
+        fields = ('name', 'age', 'gender', 'email', 'allow_info_usage')
+
+    def create(self, validated_data):
+        request = self.context['request']
+        request.session.create()
+
+        validated_data['session'] = request.session.session_key
+        return Participant.objects.create(**validated_data)
 
 
 class TestSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Test
-        fields = ('id', 'name', 'description', 'enabled', 'created')
+        fields = ('id', 'name', 'description', 'active', 'created')
 
 
 class WebTestSerializer(serializers.HyperlinkedModelSerializer):

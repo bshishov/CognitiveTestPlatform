@@ -191,8 +191,8 @@ function TestRecorder(element, options) {
             }
         }
 
-        formData.append('events', JSON.stringify(events));
-        formData.append('mouse_events', JSON.stringify(mouseEvents));
+        formData.append('events', JSON.stringify(events, null, 4));
+        formData.append('mouse_events', JSON.stringify(mouseEvents, null, 4));
 
         if(this.recordAudio)
             formData.append('audio', this.mediaRecorder.getAudioBlob(), "audio.wav");

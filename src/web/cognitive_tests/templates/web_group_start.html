@@ -1,0 +1,16 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="ui text container">
+    <h1 class="ui dividing header">{{ group.name }}</h1>
+
+	<div class="ui vertical segment">
+		<h3 class="ui header">О тесте</h3>
+		{{ group.description }}
+	</div>
+
+	<div class="ui vertical center aligned segment">
+		<a class="ui huge primary button" href="{{ next }}">Начать</a>
+	</div>
+</div>
+{% endblock %}

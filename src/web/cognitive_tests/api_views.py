@@ -1,4 +1,4 @@
-from django.http import Http404
+from django.http import Http404, HttpResponseBadRequest
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -15,16 +15,21 @@ from .models import *
 def api_root(request, format=None):
     return Response({
         'tests': reverse('test-list', request=request, format=format),
+        'participant': reverse('session-participant', request=request, format=format),
     })
 
 
 @api_view(['GET'])
 def test_list(request, format=None):
-    return Response(TestSerializer(Test.objects.all(), many=True).data)
+    return Response(TestSerializer(Test.objects.filter(active=True), many=True).data)
+
 
 def get_test(pk):
     try:
-        return Test.objects.get(pk=pk)
+        test = Test.objects.get(pk=pk)
+        if not test.active:
+            return Http404
+        return test
     except Test.DoesNotExist:
         raise Http404
 
@@ -78,3 +83,33 @@ def test_results(request, test_pk, format=None):
 
             return Response(result_serializer.data, status=status.HTTP_201_CREATED)
         return Response(result_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET', 'POST', 'DELETE'])
+def session_participant(request):
+    participant = get_participant(request)
+    if request.method == 'GET':
+        if not participant:
+            return Response({'detail': 'you must sign up as a participant using POST'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = ParticipantSerializer(participant, context={'request': request})
+        return Response(serializer.data)
+
+    if request.method == 'POST':
+        if participant:
+            return Response({'detail': 'participant already set'}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = ParticipantSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            request.session[Participant.PARTICIPANT_SESSION_KEY] = request.session.session_key
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    if request.method == 'DELETE':
+        if not participant:
+            return Response({'detail': 'you must sign up as a participant using POST'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        del request.session[Participant.PARTICIPANT_SESSION_KEY]
+        return Response({'detail': 'participant unset successfully'}, status=status.HTTP_202_ACCEPTED)
