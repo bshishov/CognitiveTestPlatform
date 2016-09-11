@@ -11,8 +11,8 @@ function start {
 
 function stop {
     echo 'stopping server'
-    if [ ! -f /var/run/cognitive-django-uwsgi.pid ]; then
-        uwsgi --stop /var/run/cognitive-django-uwsgi.pid
+    if [ ! -f ${DIR}/uwsgi.pid ]; then
+        uwsgi --stop ${DIR}/uwsgi.pid
     else
         echo 'uwsgi pidfile not found'
     fi
@@ -34,7 +34,7 @@ case "$1" in
 ;;
 
 'reload')
-    touch /var/run/cognitive-django-uwsgi-touch
+    touch ${DIR}/uwsgi-touch
 ;;
 
 *)
