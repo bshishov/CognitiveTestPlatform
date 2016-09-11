@@ -15,7 +15,7 @@ tests/coverage_html/
 tests/.coverage
 build/
 tests/report/
-# static/
+
 local_settings.py
 mysql.conf
 devenv/
@@ -23,3 +23,4 @@ devenv/
 .idea
 reports/
 media/
+static/
