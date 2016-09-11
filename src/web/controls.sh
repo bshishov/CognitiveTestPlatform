@@ -11,8 +11,8 @@ function start {
 
 function stop {
     echo 'stopping server'
-    if [ -f /tmp/uwsgi.pid ]; then
-        uwsgi --stop /tmp/uwsgi.pid
+    if [ -f ${DIR}/uwsgi.pid ]; then
+        uwsgi --stop ${DIR}/uwsgi.pid
     else
         echo 'uwsgi pidfile not found'
     fi
