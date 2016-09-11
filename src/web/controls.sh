@@ -11,7 +11,11 @@ function start {
 
 function stop {
     echo 'stopping server'
-    uwsgi --stop /var/run/cognitive-django/uwsgi.pid
+    if [ ! -f /var/run/cognitive-django/uwsgi.pid ]; then
+        uwsgi --stop /var/run/cognitive-django/uwsgi.pid
+    else
+        echo 'uwsgi pidfile not found'
+    fi
 }
 
 case "$1" in
