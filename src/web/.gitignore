@@ -21,3 +21,4 @@ mysql.conf
 devenv/
 *.sqlite3
 .idea
+reports/

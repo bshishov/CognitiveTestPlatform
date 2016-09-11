@@ -44,6 +44,9 @@ INSTALLED_APPS = [
     'pagedown',
     'markdown_deux',
     'django_cleanup',
+
+    # CI
+    'django_jenkins',
 ]
 
 REST_FRAMEWORK = {
@@ -129,3 +132,8 @@ STATIC_URL = '/static/'
 
 MEDIA_ROOT = './'
 MEDIA_URL = '/media/'
+
+JENKINS_TASKS = ('django_jenkins.tasks.run_pylint',
+                 'django_jenkins.tasks.run_pep8',
+                 'django_jenkins.tasks.run_pyflakes',
+                 )
