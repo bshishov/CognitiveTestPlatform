@@ -22,7 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '=q5t2)uh8a0@co8q7xk5%4a#)g#@8j=p_r!u5io(f&fip2h=*m'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('COGNITIVE_DJANGO_DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = ['localhost',]
 
@@ -130,10 +130,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-MEDIA_ROOT = './'
+MEDIA_ROOT = os.getenv("COGNITIVE_DJANGO_MEDIA_ROOT", './media/')
 MEDIA_URL = '/media/'
 
 JENKINS_TASKS = ('django_jenkins.tasks.run_pylint',
                  'django_jenkins.tasks.run_pep8',
-                 'django_jenkins.tasks.run_pyflakes',
-                 )
+                 'django_jenkins.tasks.run_pyflakes',)

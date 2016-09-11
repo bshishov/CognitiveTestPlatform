@@ -22,3 +22,4 @@ devenv/
 *.sqlite3
 .idea
 reports/
+media/
