@@ -14,10 +14,10 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-DEBUG = 'True'
+DEBUG = True
 from local_settings import *
 
-ALLOWED_HOSTS = ['localhost',]
+ALLOWED_HOSTS = ['localhost','127.0.0.1','test.shishov.me']
 
 
 # Application definition
