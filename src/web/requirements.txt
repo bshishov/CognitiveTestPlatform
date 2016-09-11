@@ -1,0 +1,5 @@
+django
+django_ace
+django-pagedown
+django-markdown-deux
+django-cleanup
