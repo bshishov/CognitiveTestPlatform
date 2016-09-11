@@ -1,7 +1,8 @@
 ﻿{% extends 'layout.html' %}
 {% load static %}
+{% load markdown_deux_tags %}
 
-{% block title %}{{ test.title }}{% endblock %}
+{% block title %}{{ test.test.name }} ({{ test.group.name }}){% endblock %}
 
 {% block head %}
 <script src="//cdn.WebRTC-Experiment.com/RecordRTC.js"></script>
@@ -9,10 +10,17 @@
 <script src="{% static 'js/svg.min.js' %}"></script>
 <script src="{% static 'js/testRecorder.js' %}"></script>
 {% for resource in test.group.resources.all %}
-<script src="/media/{{ resource.file.name }}"></script>
+	{% if resource.extension == '.js' %}
+		<script src="/media/{{ resource.file.name }}" type="text/javascript"></script>
+	{% endif %}
+	{% if resource.extension == '.css' %}
+		<link href="/media/{{ resource.file.name }}" rel="stylesheet" media="all">
+	{% endif %}
 {% endfor %}
 {% for resource in test.resources.all %}
-<script src="/media/{{ resource.file.name }}"></script>
+	{% if resource.extension == '.css' %}
+		<link href="/media/{{ resource.file.name }}" rel="stylesheet" media="all">
+	{% endif %}
 {% endfor %}
 {% endblock %}
 
@@ -21,7 +29,12 @@
 	<div class="row">
 		<div class="ui ten wide column">
 			<h1 class="ui header">{{ test.test.name }}</h1>
-			<p>{{ test.test.description }}</p>
+			{% if test.test.description %}
+				<p>{{ test.test.description }}</p>
+			{% endif %}
+			{% if test.instructions %}
+				{{ test.instructions|markdown }}
+			{% endif %}
 		</div>
 
 		<div class="six wide column">
@@ -128,6 +141,11 @@ DetectRTC.load(function() {
 });
 </script>
 
+{% for resource in test.resources.all %}
+	{% if resource.extension == '.js' %}
+		<script src="/media/{{ resource.file.name }}" type="text/javascript"></script>
+	{% endif %}
+{% endfor %}
 {% if test.js_inline_script %}
 	<script type="text/javascript">
 	{% autoescape off %}
@@ -135,6 +153,5 @@ DetectRTC.load(function() {
 	{% endautoescape %}
 	</script>
 {% endif %}
-
 
 {% endblock %}

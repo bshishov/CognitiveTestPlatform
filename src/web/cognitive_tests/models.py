@@ -106,7 +106,7 @@ class WebTestResource(models.Model):
 
 class WebTestGroup(models.Model):
     name = models.CharField(max_length=255, verbose_name='Название')
-    description = models.TextField(verbose_name='Описание')
+    description = models.TextField(verbose_name='Описание (markdown)', blank=True)
     resources = models.ManyToManyField(WebTestResource, verbose_name='Ресурсы')
 
     class Meta:
@@ -119,14 +119,15 @@ class WebTestGroup(models.Model):
 
 class WebTest(models.Model):
     test = models.OneToOneField(Test, related_name='web_test', verbose_name='Тест')
+    group = models.ForeignKey(WebTestGroup, verbose_name='Группа', related_name='Тесты')
+    order = models.PositiveIntegerField(verbose_name='Порядок в группе')
+    instructions = models.TextField(verbose_name='Инструкция (markdown)', blank=True)
+    js_inline_script = models.TextField(blank=True, null=True, verbose_name='JS скрипт')
     record_audio = models.BooleanField(default=False, verbose_name='Записывать аудио')
     record_video = models.BooleanField(default=False, verbose_name='Записывать видео')
     record_mouse = models.BooleanField(default=False, verbose_name='Записывать события мыши')
-    js_inline_script = models.TextField(blank=True, null=True, verbose_name='JS скрипт')
     created = models.DateTimeField(auto_now_add=True, verbose_name='Создан')
     resources = models.ManyToManyField('WebTestResource')
-    group = models.ForeignKey(WebTestGroup, verbose_name='Группа', related_name='Тесты')
-    order = models.PositiveIntegerField(verbose_name='Порядок в группе')
 
     def __str__(self):  # __unicode__ on Python 2
         return "%s" % self.test

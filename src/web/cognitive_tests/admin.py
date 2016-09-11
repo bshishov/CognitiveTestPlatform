@@ -1,7 +1,9 @@
 from django.contrib import admin
+from django.forms import ModelForm
 from .models import *
 from django_ace import AceWidget
-from django.contrib.admin.widgets import FilteredSelectMultiple
+from pagedown.widgets import AdminPagedownWidget
+from django.template.defaultfilters import truncatechars
 
 
 admin.site.site_header = 'Платформа для тестирования'
@@ -16,16 +18,21 @@ class AdminTest(admin.ModelAdmin):
 
 @admin.register(WebTest)
 class AdminWebTest(admin.ModelAdmin):
+    class AdminWebTestForm(ModelForm):
+        class Meta:
+            fields = '__all__'
+            model = WebTest
+            widgets = {
+                'js_inline_script': AceWidget(theme='github', width="100%", mode='javascript', height='500px'),
+                'instructions': AdminPagedownWidget,
+            }
+
     class WebTestResourcesInline(admin.TabularInline):
         model = WebTest.resources.through
         extra = 0
 
-    list_display = ('test', 'group', 'order', 'record_audio', 'record_video', 'record_mouse', 'created', 'test_active',)
-    list_filter = ('test__active', 'group',)
-
-    formfield_overrides = {
-        models.TextField: {'widget': AceWidget(theme='github', width="100%", mode='javascript', height='500px')},
-    }
+    def short_instructions(self, obj):
+        return truncatechars(obj.instructions, 100)
 
     def test_name(self, obj):
         return obj.test.name
@@ -33,6 +40,9 @@ class AdminWebTest(admin.ModelAdmin):
     def test_active(self, obj):
         return obj.test.active
 
+    form = AdminWebTestForm
+    list_display = ('test', 'group', 'order', 'record_audio', 'record_video', 'record_mouse', 'created', 'test_active',)
+    list_filter = ('test__active', 'group',)
     exclude = ('resources',)
     search_fields = ['test__name']
     inlines = [WebTestResourcesInline, ]
@@ -82,15 +92,13 @@ class AdminWebTestResource(admin.ModelAdmin):
 
 @admin.register(TestTextData)
 class AdminTestTextData(admin.ModelAdmin):
-    list_display = ('name', 'test_result', 'data_truncated', 'created')
+    list_display = ('name', 'test_result', 'short_data', 'created')
     list_filter = ('name', 'test_result',)
     search_fields = ['name']
 
-    def data_truncated(self, obj):
-        data = obj.data
-        return (data[:75] + '...') if len(data) > 150 else data
-
-    data_truncated.short_description = 'Data'
+    def short_data(self, obj):
+        return truncatechars(obj.data, 100)
+    short_data.short_description = 'Данные'
 
     def created(self, obj):
         return obj.test_result.created
@@ -114,7 +122,15 @@ class AdminWebTestGroup(admin.ModelAdmin):
         model = WebTest
         extra = 0
 
+    def short_description(self, obj):
+        return truncatechars(obj.description, 100)
+    short_description.short_description = 'Описание'
+
     exclude = ('resources',)  # editing via inline
-    list_display = ('name', 'description',)
+    list_display = ('name', 'short_description',)
     search_fields = ['name']
     inlines = [AdminWebTestsInline, AdminGroupResourcesInline, ]
+
+    formfield_overrides = {
+        models.TextField: {'widget': AdminPagedownWidget},
+    }

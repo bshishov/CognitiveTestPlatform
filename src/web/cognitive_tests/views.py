@@ -10,7 +10,9 @@ from .utils import participant_required, get_participant, redirect_with_args, re
 
 @require_GET
 def index(request):
-    return render(request, 'index.html')
+    return render(request, 'index.html', {
+        'participant': get_participant(request),
+    })
 
 
 @csrf_protect
@@ -51,7 +53,8 @@ def web_check(request, participant):
 @require_GET
 def web_group_list(request):
     return render(request, 'web_group_list.html', {
-        'groups': WebTestGroup.objects.all()
+        'groups': WebTestGroup.objects.all(),
+        'participant': get_participant(request),
     })
 
 
@@ -108,7 +111,8 @@ def web_group_results(request, participant, group_pk):
 @require_GET
 def web_test_list(request):
     return render(request, 'web_test_list.html', {
-        'tests': WebTest.objects.filter(test__active=True)
+        'tests': WebTest.objects.filter(test__active=True),
+        'participant': get_participant(request),
     })
 
 

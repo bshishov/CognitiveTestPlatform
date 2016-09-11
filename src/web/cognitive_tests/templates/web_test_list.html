@@ -6,7 +6,7 @@
 <div class="ui container">	
 	<div class="ui link cards">
 		{% for test in tests %}
-			<a class="ui card" href="/test/{{ test.id }}">
+			<a class="ui card" href="{% url 'web_tests' test.id %}">
 			  <div class="content">
 				<div class="header">{{ test.test.name }}</div>
 				<div class="meta">

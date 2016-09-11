@@ -37,8 +37,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # additional
     'rest_framework',
     'django_ace',
+    'pagedown',
+    'markdown_deux',
+    'django_cleanup',
 ]
 
 REST_FRAMEWORK = {
