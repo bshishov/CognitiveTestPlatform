@@ -4,28 +4,37 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 echo 'DIR: ${DIR}'
 
+function start {
+    echo 'starting server'
+    uwsgi --ini ${DIR}/uwsgi.ini --chdir ${DIR}
+}
+
+function stop {
+    echo 'stopping server'
+    uwsgi --stop /var/run/cognitive-django/uwsgi.pid
+}
+
 case "$1" in
 "start")
-echo 'starting server'
-uwsgi --ini ${DIR}/uwsgi.ini
+    start
 ;;
 
 'stop')
-echo 'stopping server'
-uwsgi --stop /var/run/cognitive-django/uwsgi.pid
+    stop
 ;;
 
 'restart')
-sh ./server.sh stop
-sleep 3
-sh ./server.sh start
+    stop
+    sleep 3
+    start
 ;;
 
 'reload')
-touch /var/run/cognitive-django/uwsgi-touch
+    touch /var/run/cognitive-django/uwsgi-touch
 ;;
-*)
 
-echo "use (start|stop|restart|reload) to manage server"
+*)
+    echo "use (start|stop|restart|reload) to manage server"
 esac
+
 exit 0
