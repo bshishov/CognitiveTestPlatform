@@ -2,17 +2,17 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-echo 'DIR: ${DIR}'
+echo DIR: ${DIR}
 
 function start {
     echo 'starting server'
-    uwsgi --ini ${DIR}/uwsgi.ini --chdir ${DIR}
+    uwsgi --ini ${DIR}/uwsgi.ini --chdir ${DIR} --home ${DIR}/devenv
 }
 
 function stop {
     echo 'stopping server'
-    if [ ! -f ${DIR}/uwsgi.pid ]; then
-        uwsgi --stop ${DIR}/uwsgi.pid
+    if [ -f /tmp/uwsgi.pid ]; then
+        uwsgi --stop /tmp/uwsgi.pid
     else
         echo 'uwsgi pidfile not found'
     fi
