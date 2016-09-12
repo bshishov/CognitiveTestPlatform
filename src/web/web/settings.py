@@ -17,7 +17,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEBUG = True
 from local_settings import *
 
-ALLOWED_HOSTS = ['localhost','127.0.0.1','test.shishov.me']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'test.shishov.me']
 
 
 # Application definition

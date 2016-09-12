@@ -1,4 +1,5 @@
 {% extends 'layout.html' %}
+{% load markdown_deux_tags %}
 
 {% block title %}Группы тестов{% endblock %}
 
@@ -13,7 +14,7 @@
 				  <span class="category">{{ test.version }}</span>
 				</div>
 				<div class="description">
-				  <p>{{ group.description }}</p>
+				  <p>{{ group.description|markdown }}</p>
 				</div>
 			  </div>
 			</a>
