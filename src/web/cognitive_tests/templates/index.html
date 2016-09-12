@@ -1,10 +1,10 @@
-﻿{% extends 'layout.html' %}
+{% extends 'layout.html' %}
 
 {% block content %}
-<div class="ui text container">	
+<div class="ui text container">
     <h1 class="ui dividing header">Тест когнитивных способностей</h1>
 
-	<div class="ui vertical segment">	
+	<div class="ui vertical segment">
 		<h3 class="ui header">О тесте</h3>
 		<p>Данная система тестов разработана с целью определения индивидуальных когнитивных способностей человека и в дальнейшем будет использована, как основа для моделирования психоэмоционального состояния диспетчеров АСДУ.</p>
 		<p>Тесты в данной системе предназначены для оценки различных показателей, в том числе:</p>
@@ -19,7 +19,7 @@
 		<p>Приступать к прохождению тестов следует в спокойном состоянии, полностью сосредоточенным на предоставленных задачах.</p>
 	</div>
 
-	<div class="ui vertical center aligned segment">	
+	<div class="ui vertical center aligned segment">
 		<a class="ui huge primary button" href="{% url 'web_group_start' 1 %}">Принять участие</a>
 	</div>
 </div>

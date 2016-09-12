@@ -1,9 +1,9 @@
-﻿{% extends 'layout.html' %}
+{% extends 'layout.html' %}
 
 {% block title %}Список тестов{% endblock %}
 
 {% block content %}
-<div class="ui container">	
+<div class="ui container">
 	<div class="ui link cards">
 		{% for test in tests %}
 			<a class="ui card" href="{% url 'web_tests' test.id %}">

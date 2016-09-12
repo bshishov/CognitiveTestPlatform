@@ -1,4 +1,4 @@
-﻿{% extends 'layout.html' %}
+{% extends 'layout.html' %}
 {% load static %}
 {% block title %}Проверка перед тестом{% endblock %}
 
@@ -12,32 +12,32 @@
 	<!--
 	<div class="ui section">
 		<h1 class="ui header">Проверьте камеру</h1>
-		<div class="ui hidden error message" id="camerror">	
+		<div class="ui hidden error message" id="camerror">
 			<div class="ui header">Ошибка видекамеры</div>
 			<p></p>
-		</div>	
-		<video id="videoTag" src="" autoplay muted width="100%"></video>		
+		</div>
+		<video id="videoTag" src="" autoplay muted width="100%"></video>
 		<ul>
 			<li>Сядьте так, чтобы лицо было примерно посередине и полностью видно</li>
 			<li>Если темно - настройте освещение</li>
-		</ul>		
+		</ul>
 	</div>
 	<div class="ui divider"></div> -->
 	<div class="ui section">
 		<h1 class="ui header">Проверьте микрофон</h1>
-		<div class="ui hidden error message" id="micerror">	
+		<div class="ui hidden error message" id="micerror">
 			<div class="ui header">Ошибка микрофона</div>
 			<p></p>
-		</div>	
+		</div>
 		<div class="ui olive progress" id="micvolume">
 		  <div class="bar"></div>
 		</div>
 		<ul>
-			<li>Поговорите в микрофон, полоска должна двигаться</li>			
-		</ul>		
+			<li>Поговорите в микрофон, полоска должна двигаться</li>
+		</ul>
 	</div>
 	<div class="ui divider"></div>
-	<div class="ui vertical center aligned segment">	
+	<div class="ui vertical center aligned segment">
 		<a class="ui huge primary button" href="{{ next }}">Готово</a>
 	</div>
 </div>
@@ -59,7 +59,7 @@ var constraints = {
 
 var initializeStream = function(stream) {
     mediaStream = stream;
- 
+
  /*
     var video = document.getElementById('videoTag');
     if (typeof (video.srcObject) !== 'undefined') {
@@ -78,7 +78,7 @@ var initializeStream = function(stream) {
 	soundMeter.connectToSource(stream, function(e) {
 		if (e) {
 			$('#micerror').show();
-			$("#micerror p").html(e);			
+			$("#micerror p").html(e);
 			return;
 		}
 		setInterval(function() {
@@ -99,10 +99,10 @@ var initializeStream = function(stream) {
 	});
 };
 
-navigator.getUserMedia(constraints, initializeStream,  function(error) { 
-	console.log(error); 
+navigator.getUserMedia(constraints, initializeStream,  function(error) {
+	console.log(error);
 	$("#camerror").show();
 	$("#camerror p").html(error.message || error);
-});	
+});
 </script>
 {% endblock %}
