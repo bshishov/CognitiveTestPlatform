@@ -75,6 +75,9 @@ TEMPLATES = [
     },
 ]
 
+# added to fix template first string being empty
+FILE_CHARSET = 'utf-8-sig'
+
 WSGI_APPLICATION = 'web.wsgi.application'
 
 
