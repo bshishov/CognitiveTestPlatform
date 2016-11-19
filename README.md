@@ -1,7 +1,14 @@
 # CognitiveTestPlatform
 It is a web based platform for conducting psychological and cognitive experiments along with storing and analyzing its results. Is was built as a part of the research of psychological and cognitive activities of dispatchers in Oil and Gas industry.
 
+![Memory test](/doc/memory_test.png)
+_One of eight tests developed on this platform. In this memory test participant must choose distinct pictures each step._
+
+
 After participant registred for the experiment, he proceeds to special tests where we can measure his performance in some psychological and cognitive aspect. Such as memory performance in a test where participant should click distinct pictures every step while the are more and more pictures each step. Along with test information, we capture voice (which is required in some tests) and video from the webcam for further analysis.
+
+![Interaction scheme](/doc/figure2.png)
+_Participant interaction scheme._
 
 Conducted results helped us develop a model of man reliability in a man-machine system in supervisor control activities in oil and gas industry.
 
