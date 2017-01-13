@@ -21,3 +21,6 @@ pylint==1.6.4
 six==1.10.0
 virtualenv==15.0.3
 wrapt==1.10.8
+jsonfield
+django-sortedm2m
+sorl-thumbnail

@@ -1,0 +1,12 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block title %}Последние проверки ({{ survey.name }}){% endblock %}
+
+{% block content %}
+	{% include 'include/check_media.html' with check_mic=survey.web_record_audio check_cam=survey.web_record_video %}
+
+	<div class="ui center aligned basic segment">
+		<a class="ui huge primary button" href="{{ next }}">Готово</a>
+	</div>
+{% endblock %}

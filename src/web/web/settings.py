@@ -10,18 +10,24 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
+import sys
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# A path where all of the modules with tests should be located (downloaded)
+TESTS_MODULES_DIR = os.path.join(BASE_DIR, 'modules')
+
+# A path where all of the result files will be places
+TESTS_RESULTS_DIR = os.path.join(BASE_DIR, 'results')
+
 DEBUG = True
-from local_settings import *
+THUMBNAIL_DEBUG = DEBUG
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'test.shishov.me']
 
 
 # Application definition
-
 INSTALLED_APPS = [
     'cognitive_tests',
     'django.contrib.admin',
@@ -37,6 +43,8 @@ INSTALLED_APPS = [
     'pagedown',
     'markdown_deux',
     'django_cleanup',
+    'sortedm2m',
+    'sorl.thumbnail',
 
     # CI
     'django_jenkins',
@@ -70,6 +78,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'cognitive_tests.views.context_processor',
             ],
         },
     },
@@ -121,3 +130,45 @@ JENKINS_TASKS = ('django_jenkins.tasks.run_pylint',
                  'django_jenkins.tasks.run_pep8',
                  'django_jenkins.tasks.run_pyflakes',)
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+        'console_debug': {
+            'level': 'DEBUG',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+        },
+        'cognitive_tests.models': {
+            'handlers': ['console_debug'],
+            'level': 'DEBUG',
+        }
+    },
+}
+
+
+from local_settings import *

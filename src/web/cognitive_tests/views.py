@@ -1,126 +1,247 @@
-from django.shortcuts import render, redirect, get_object_or_404
+import os
+import mimetypes
+
+from django.shortcuts import render, redirect, get_object_or_404, HttpResponse
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from django.views.decorators.http import require_GET, require_http_methods
 from django.core import urlresolvers
+from django.http import Http404
 
 from .api_serializers import ParticipantSerializer
 from .models import *
 from .utils import participant_required, get_participant, redirect_with_args, reverse_with_args
 
 
+def context_processor(request):
+    return {
+        'participant': get_participant(request),
+        'surveys': Survey.objects.active(),
+    }
+
+
 @require_GET
 def index(request):
-    return render(request, 'index.html', {
-        'participant': get_participant(request),
-    })
+    return render(request, 'index.html', {})
 
 
 @csrf_protect
 @require_http_methods(['GET', 'POST'])
 def participant_new(request):
-    participant = get_participant(request)
     if request.method == 'GET':
-        return render(request, 'participant_new.html', {'participant': participant})
+        return render(request, 'participant_new.html', {})
 
     if request.method == 'POST':
         serializer = ParticipantSerializer(data={
             'name': request.POST['name'],
             'age': request.POST['age'],
             'gender': request.POST['gender'] == 1,
-            'allow_info_usage': request.POST.get('allow', None) == 'on',
+            'allow_info_usage': request.POST.get('allow', None) == 'on'
         }, context={'request': request})
 
         if serializer.is_valid():
             serializer.save()
             request.session[Participant.PARTICIPANT_SESSION_KEY] = request.session.session_key
-            return redirect(web_group_list)
 
-        return render(request, 'participant_new.html', {
-            'participant': participant,
-            'errors': serializer.errors
-        })
+            next_url = request.GET.get('next', None)
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect(surveys)
+
+        return render(request, 'participant_new.html', {'errors': serializer.errors})
 
 
 @require_GET
-@participant_required(redirect_to=participant_new)
-def web_check(request, participant):
-    return render(request, 'web_check.html', {
+def surveys(request):
+    return render(request, 'surveys.html', {'tests': Test.objects.active_web()})
+
+
+@require_GET
+def survey_view(request, survey_pk):
+    survey = get_object_or_404(Survey, pk=survey_pk)
+    participant = get_participant(request)
+    return render(request, 'survey_view.html', {
+        'survey': survey,
         'participant': participant,
+        'result': survey.get_result_for(participant),
+        'results': survey.get_all_results_for(participant),
+    })
+
+
+@require_GET
+@participant_required(redirect_to=participant_new, next_view_name='survey-start')
+def survey_start(request, participant, survey_pk):
+    survey = get_object_or_404(Survey, pk=survey_pk)
+    audio = survey.web_record_audio
+    video = survey.web_record_video
+
+    # delete incomplete results
+    SurveyResult.objects.filter(survey=survey, participant=participant, is_completed=False).delete()
+
+    result = SurveyResult(survey=survey, participant=participant)
+    result.save()
+
+    first_test = result.incomplete_tests.first()
+
+    if audio or video:
+        next_url = urlresolvers.reverse(survey_test, kwargs={'survey_result_pk': result.pk, 'test_pk': first_test.pk})
+        return redirect_with_args(survey_check, {'next': next_url,},
+                                    kwargs={'survey_pk': survey_pk})
+
+    return redirect(survey_test, kwargs={'survey_result_pk': result.pk, 'test_pk': first_test.pk})
+
+
+@require_GET
+@participant_required(redirect_to=participant_new, next_view_name='survey')
+def survey_continue(request, participant, survey_result_pk):
+    try:
+        result = SurveyResult.objects.get(pk=survey_result_pk, participant=participant)
+    except ObjectDoesNotExist:
+        raise Http404
+
+    if result.is_completed:
+        logger.error('Trying to continue a completed survey')
+        return redirect(survey_results, survey_result_pk=survey_result_pk)
+
+    next_test = result.incomplete_tests.first()
+    if next_test is None:
+        logger.error('Trying to continue a completed survey')
+        return redirect(survey_results, survey_result_pk=survey_result_pk)
+
+    return redirect(survey_test, survey_result_pk=survey_result_pk, test_pk=next_test.pk)
+
+
+@require_GET
+@participant_required(redirect_to=participant_new, next_view_name='survey')
+def survey_check(request, participant, survey_pk):
+    return render(request, 'survey_check.html', {
+        'survey': get_object_or_404(Survey, pk=survey_pk),
         'next': request.GET.get('next', ''),
     })
 
 
 @require_GET
-def web_group_list(request):
-    return render(request, 'web_group_list.html', {
-        'groups': WebTestGroup.objects.all(),
-        'participant': get_participant(request),
-    })
+@participant_required(redirect_to=participant_new, next_view_name='survey')
+def survey_test(request, participant, survey_result_pk, test_pk):
+    try:
+        result = SurveyResult.objects.get(pk=survey_result_pk, participant=participant)
+        survey = result.survey
+        test = survey.tests.get(pk=test_pk)
+    except ObjectDoesNotExist:
+        raise Http404
 
-
-@require_GET
-@participant_required(redirect_to=participant_new)
-def web_group_test(request, participant, group_pk, order):
-    test = get_object_or_404(WebTest, group__pk=group_pk, order=order)
-    next_test = WebTest.objects.filter(order=int(order) + 1).first()
+    next_test = result.incomplete_tests.exclude(pk=test_pk).first()
+    test_result = result.test_results.filter(test=test).first()
 
     if next_test:
-        next_url = urlresolvers.reverse(web_group_test, kwargs={
-                                      'group_pk': group_pk,
-                                      'order': order + 1
+        next_url = urlresolvers.reverse(survey_test, kwargs={
+                                      'survey_result_pk': survey_result_pk,
+                                      'test_pk': next_test.pk
                                   })
     else:
-        next_url = urlresolvers.reverse(web_group_results, kwargs={'group_pk': group_pk})
-    return render(request, 'web_test.html', {
+        next_url = urlresolvers.reverse(survey_end, kwargs={'survey_result_pk': survey_result_pk})
+    return render(request, 'test_run.html', {
         'test': test,
-        'participant': participant,
-        'next': next_url
+        'next': next_url,
+        'result': result,
+        'test_result': test_result,
+        'survey': survey,
     })
 
 
 @require_GET
-@participant_required(redirect_to=participant_new)
-def web_group_start(request, participant, group_pk):
-    return render(request, 'web_group_start.html', {
-        'participant': participant,
-        'group': get_object_or_404(WebTestGroup, pk=group_pk),
-        'next': reverse_with_args(web_check, {'next':
-                                urlresolvers.reverse(web_group_test, kwargs={
-                                      'group_pk': group_pk,
-                                      'order': 1
-                                  })
-                                }),
-    })
+@participant_required(redirect_to=participant_new, next_view_name='survey')
+def survey_end(request, participant, survey_result_pk):
+    result = get_object_or_404(SurveyResult, pk=survey_result_pk, participant=participant)
+    if len(result.incomplete_tests) == 0 and not result.is_completed:
+        result.is_completed = True
+        result.save()
+        result.process()
+    return redirect(survey_results, survey_result_pk)
 
 
 @require_http_methods(['GET', 'POST'])
-@participant_required(redirect_to=participant_new)
-def web_group_results(request, participant, group_pk):
-    if request.method == 'GET':
-        pass
-
-    if request.method == 'POST':
-        participant.email = request.POST.get('email', '')
-        participant.save()
-
-    return render(request, 'web_group_results.html', {
-        'participant': participant
-    })
+@participant_required(redirect_to=participant_new, next_view_name='survey')
+def survey_results(request, participant, survey_result_pk):
+    result = get_object_or_404(SurveyResult, pk=survey_result_pk, participant=participant)
+    return render(request, 'survey_results.html', {'survey': result.survey,
+                                                   'result': result})
 
 
 @require_GET
-def web_test_list(request):
-    return render(request, 'web_test_list.html', {
-        'tests': WebTest.objects.filter(test__active=True),
-        'participant': get_participant(request),
-    })
-
-
-@require_GET
-@participant_required(redirect_to=participant_new)
-def web_test(request, participant, test_pk):
-    test = get_object_or_404(WebTest, pk=test_pk)
-    return render(request, 'web_test.html', {
+def test_view(request, test_pk):
+    test = get_object_or_404(Test, pk=test_pk)
+    participant = get_participant(request)
+    return render(request, 'test_view.html', {
         'test': test,
-        'participant': participant
+        'participant': participant,
+        'result': test.get_result_for(participant),
+        'results': test.get_all_results_for(participant),
     })
+
+
+@require_GET
+@participant_required(redirect_to=participant_new, next_view_name='test-start')
+def test_start(request, participant, test_pk):
+    test = get_object_or_404(Test, pk=test_pk)
+    audio = test.web_record_audio
+    video = test.web_record_video
+
+    if audio or video:
+        next_url = urlresolvers.reverse(test_run, kwargs={'test_pk': test_pk})
+        return redirect_with_args(test_check, {'next': next_url,}, kwargs={'test_pk': test_pk})
+    return redirect(test_run, test_pk=test_pk)
+
+
+@require_GET
+@participant_required(redirect_to=participant_new, next_view_name='test')
+def test_check(request, participant, test_pk):
+    test = get_object_or_404(Test, pk=test_pk)
+    next_url = urlresolvers.reverse(test_run, kwargs={'test_pk': test_pk})
+    return render(request, 'test_check.html', {
+        'test': test,
+        'participant': participant,
+        'next': next_url,
+    })
+
+
+@require_GET
+@participant_required(redirect_to=participant_new, next_view_name='test')
+def test_run(request, participant, test_pk):
+    test = get_object_or_404(Test, pk=test_pk)
+    next_url = urlresolvers.reverse(test_results, kwargs={'test_pk': test_pk})
+    return render(request, 'test_run.html', {
+        'test': test,
+        'participant': participant,
+        'next': next_url,
+        'result': test.get_result_for(participant)
+    })
+
+
+@require_GET
+@participant_required(redirect_to=participant_new, next_view_name='test')
+def test_results(request, participant, test_pk):
+    test = get_object_or_404(Test, pk=test_pk)
+    return render(request, 'test_results.html', {
+        'test': test,
+        'participant': participant,
+        'result': test.get_result_for(participant)
+    })
+
+
+@require_GET
+def test_embed(request, test_pk, path):
+    test = get_object_or_404(Test, pk=test_pk)
+
+    abs_path = os.path.join(test.get_web_directory_path(), path)
+    file = open(abs_path, 'rb')
+    content = file.read()
+    file.close()
+
+    mime_type = mimetypes.guess_type(abs_path)[0]
+    if mime_type is None:
+        mime = 'application/octet-stream'
+    else:
+        mime = mime_type
+
+    return HttpResponse(content, content_type=mime)

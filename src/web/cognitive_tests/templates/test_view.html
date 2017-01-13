@@ -1,0 +1,84 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% load markdown_deux_tags %}
+
+{% block title %}{{ test.name }}{% endblock %}
+
+{% block content %}
+<div class="ui two column grid container">
+    <div class="column">
+        <h1 class="ui header">{{ test.name }}</h1>
+        {% if test.description %}
+            {{ test.description | markdown }}
+        {% endif %}
+
+        {% if test.marks %}
+        <div class="ui section">
+            <div class="ui header">Оцениваемые параметры</div>
+            <div class="ui bulleted list">
+            {% for mark in test.marks.visible %}
+                <div class="item">
+                    <div class="header">{{ mark.name }}</div>
+                    {{ mark.description }}
+                </div>
+            {% endfor %}
+            </div>
+        </div>
+        <div class="ui divider"></div>
+        {% endif %}
+
+        {% if test.web_instructions %}
+        <div class="ui section">
+            <div class="ui header">Инструкция</div>
+            {{ test.web_instructions | markdown }}
+        </div>
+        <div class="ui divider"></div>
+        {% endif %}
+
+
+        {% if test.active and test.web_is_active %}
+        <a class="ui huge primary button" href="{% url 'test-start' test.pk %}">Пройти</a>
+        {% else %}
+        <div class="ui info message">
+            <div class="header">Тест недоступен</div>
+            Этот тест недоступен для прохождения в браузере.
+        </div>
+        {% endif %}
+    </div>
+    <div class="column">
+        <h3 class="ui header">Результаты</h3>
+        {% if result %}
+        <div class="ui section">
+            <h4 class="ui header">Ваш последний результат:</h4>
+            <div class="right floated">{{ result.created }}</div>
+            {% include 'include/result_value_table.html' %}
+        </div>
+        {% else %}
+         <div class="ui info message">
+            <div class="header">Нет результатов</div>
+            Вы еще не проходили этот тест
+        </div>
+        {% endif %}
+        {% if results %}
+        <h4 class="ui header">Предыдущие результаты:</h4>
+        <div class="ui accordion">
+        {% for result in results %}
+            {% if not forloop.first %}
+            <div class="title">
+                <i class="dropdown icon"></i> {{ result.created }}
+            </div>
+            <div class="content">
+                {% include 'include/result_value_table.html' %}
+            </div>
+            {% endif %}
+        {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+
+<script type="text/javascript">
+$('.ui.accordion').accordion({exclusive: false});
+</script>
+{% endblock %}

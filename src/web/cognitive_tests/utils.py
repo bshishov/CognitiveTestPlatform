@@ -1,17 +1,20 @@
-from django.db import models
 import ast
+
+from django.db import models
 from django.shortcuts import render, redirect
 from django.http import Http404
 from django.utils.decorators import available_attrs, decorator_from_middleware
-from functools import wraps
-from .models import Participant
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core import urlresolvers
+
+from functools import wraps
 import urllib.parse
+from .models import Participant
 
 
 def redirect_with_args(to, query_string, *args, **kwargs):
     if query_string:
-        path = "%s?%s" % (urlresolvers.reverse(to, *args, **kwargs), urllib.parse.urlencode(query_string))
+        path = '%s?%s' % (urlresolvers.reverse(to, *args, **kwargs), urllib.parse.urlencode(query_string))
         return redirect(path, *args, **kwargs)
     return redirect(to, *args, **kwargs)
 
@@ -23,15 +26,19 @@ def reverse_with_args(to, query_string, *args, **kwargs):
     return urlresolvers.reverse(to, *args, **kwargs)
 
 
-
-def participant_required(redirect_to):
+def participant_required(redirect_to, next_view_name=None):
     def _actual_decorator(view_func):
         @wraps(view_func, assigned=available_attrs(view_func))
         def _wrapped_view_func(request, *args, **kwargs):
             participant = get_participant(request)
             if not participant:
                 if redirect_to:
-                    return redirect(redirect_to)
+                    if next_view_name:
+                        return redirect_with_args(redirect_to, {'next': urlresolvers.reverse(next_view_name,
+                                                                                             args=args,
+                                                                                             kwargs=kwargs)})
+                    else:
+                        return redirect(redirect_to)
                 else:
                     raise Http404
             return view_func(request, participant, *args, **kwargs)
@@ -102,3 +109,10 @@ class SeparatedValuesField(models.CharField):
     def value_to_string(self, obj):
         value = self._get_val_from_obj(obj)
         return self.get_db_prep_value(value)
+
+
+def get_object_or_none(cls, *args, **kwargs):
+    try:
+        return cls.objects.get(*args, **kwargs)
+    except ObjectDoesNotExist:
+        return None

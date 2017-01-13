@@ -1,0 +1,22 @@
+<table class="ui compact green table">
+    <thead>
+        <tr>
+          <th>Показатель</th>
+          <th>Результат</th>
+          <th>Комментарий</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for val in result.values.visible %}
+        <tr>
+            <td><h4 class="ui header">{{ val.mark.name }}</h4> {{ val.mark.description }}</td>
+            {% if val.mark.format %}
+            <td><h3 class="ui header">{{ val.value|stringformat:val.mark.format }} {{ val.mark.unit }}</h3></td>
+            {% else %}
+            <td><h3 class="ui header">{{ val.value }} {{ val.mark.unit }}</h3></td>
+            {% endif %}
+          <td>{{ val.comment }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

@@ -1,0 +1,106 @@
+{% load static %}
+<script src="//cdn.WebRTC-Experiment.com/RecordRTC.js"></script>
+<script src="{% static 'js/soundmeter.js' %}"></script>
+
+{% if check_cam %}
+<div class="ui section">
+    <h1 class="ui header">Настройте камеру</h1>
+    <div class="ui info message">
+        <div class="ui header">Для этого теста требуется вебкамера</div>
+        Данные с вашей камеры не будут доступны никому, они будут использованы компьютерным
+        алгоритмом при расчете результатов.
+    </div>
+    <div class="ui hidden error message" id="camerror">
+        <div class="ui header">Ошибка видекамеры</div>
+        <p></p>
+    </div>
+    <video id="videoTag" src="" autoplay muted width="100%"></video>
+    <ul>
+        <li>Сядьте так, чтобы лицо было примерно посередине и полностью видно</li>
+        <li>Если темно - настройте освещение</li>
+    </ul>
+</div>
+{% endif %}
+{% if check_mic %}
+<div class="ui section">
+    <h1 class="ui header">Настройте микрофон</h1>
+    <div class="ui hidden error message" id="micerror">
+        <div class="ui header">Ошибка микрофона</div>
+        <p></p>
+    </div>
+    <div class="ui info message">
+        <div class="ui header">Для этого теста требуется микрофон</div>
+        Запись вашего голоса не будует доступна никому, она будет использована компьютерным
+        алгоритмом при расчете результатов.
+    </div>
+    <div class="ui olive progress" id="micvolume">
+      <div class="bar"></div>
+    </div>
+    <ul>
+        <li>Поговорите в микрофон, полоска должна двигаться</li>
+    </ul>
+</div>
+{% endif %}
+
+<script type="text/javascript">
+var constraints = {
+    audio: true,
+    video: { optional: [
+            {minWidth: 320},
+            {minWidth: 640},
+            {minWidth: 800},
+            {minWidth: 900},
+            {minWidth: 1024},
+            {minWidth: 1280},
+            {minWidth: 1920},
+        ]
+	}
+};
+
+var initializeStream = function(stream) {
+    mediaStream = stream;
+
+    var video = document.getElementById('videoTag');
+    if (typeof (video.srcObject) !== 'undefined') {
+        video.srcObject = mediaStream;
+    }
+    else {
+        video.src = URL.createObjectURL(mediaStream);
+    }
+
+	var AudioContext = window.AudioContext || AudioContext;
+	var ctx = new AudioContext;
+
+
+	var soundMeter = window.soundMeter = new SoundMeter(ctx);
+	$("#micvolume").progress({performance: false, debug: false, verbose: false});
+	soundMeter.connectToSource(stream, function(e) {
+		if (e) {
+			$('#micerror').show();
+			$("#micerror p").html(e);
+			return;
+		}
+		setInterval(function() {
+			$("#micvolume").progress({
+				percent: soundMeter.instant * 100,
+				performance: false, debug: false, verbose: false,
+				showActivity: false
+			});
+
+			/*
+			instantMeter.value = instantValueDisplay.innerText =
+				soundMeter.instant.toFixed(2);
+			slowMeter.value = slowValueDisplay.innerText =
+				soundMeter.slow.toFixed(2);
+			clipMeter.value = clipValueDisplay.innerText =
+				soundMeter.clip;*/
+		}, 100);
+	});
+};
+
+navigator.getUserMedia(constraints, initializeStream,  function(error) {
+	console.log(error);
+	$("#camerror").show();
+	$("#camerror p").html(error.message || error);
+});
+</script>

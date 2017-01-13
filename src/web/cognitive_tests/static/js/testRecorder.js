@@ -143,6 +143,17 @@ function TestRecorder(element, options) {
     var self = this;
     var testCanvas = element;
 
+    if(element.nodeName == "IFRAME") {
+        if(element.contentWindow) {
+            testCanvas = element.contentWindow.document.body;
+        }
+
+       // Opera
+       if(element.contentDocument) {
+            testCanvas = element.contentDocument.body;
+       }
+    }
+
     this.start = function(callback) {
         this.startTime = Date.now();
 

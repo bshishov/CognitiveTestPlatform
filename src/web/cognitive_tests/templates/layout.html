@@ -13,8 +13,11 @@
 		{% endblock %}
 	</head>
 	<body>
-		<div class="ui menu">
-			<div class="item header">Тест когнитивных способностей</div>
+		<div class="ui large menu">
+			<div class="item header">
+				<a href="{% url 'index' %}">Тест когнитивных способностей</a>
+			</div>
+			<a class="item" href="{% url 'surveys' %}"><i class="grid layout icon"></i> Тесты</a>
 			{% if participant %}<div class="item right">{{ participant.name }}</div>{% endif %}
 		</div>
 

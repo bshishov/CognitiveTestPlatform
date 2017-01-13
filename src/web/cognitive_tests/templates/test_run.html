@@ -1,0 +1,156 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% load markdown_deux_tags %}
+
+{% block title %}{{ test.name }} {% if survey %}({{ survey.name }}){% endif %}{% endblock %}
+
+{% block head %}
+<script src="//cdn.WebRTC-Experiment.com/RecordRTC.js"></script>
+<script src="{% static 'js/seedrandom.min.js' %}"></script>
+<script src="{% static 'js/svg.min.js' %}"></script>
+<script src="{% static 'js/testRecorder.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="ui grid">
+	<div class="row">
+		<div class="ui ten wide column">
+			<h1 class="ui header">{% if survey %}{{ survey.name }} - {% endif %}{{ test.name }}</h1>
+			{% if test.description %}
+				{{ test.description|markdown }}
+			{% endif %}
+		</div>
+
+		<div class="six wide column">
+			{% if survey and test_result %}
+			<div class="ui center aligned green segment ">
+				<div class="ui small header">Вы уже проходили этот тест и можете его пропустить</div>
+				<a class="ui green button" href="{{ next }}">Пропустить тест</a>
+			</div>
+			{% endif %}
+		</div>
+	</div>
+</div>
+
+
+<div class="ui warning hidden message" id="warning">
+  <i class="close icon"></i>
+  <div class="header">Ой!</div>
+  <ul class="list">
+  </ul>
+</div>
+
+<div class="ui segment" style="padding: 2px;">
+    <iframe id="testFrame" width="100%" height="500px" src="{% url 'test-embed' test.id test.web_index %}"
+            frameborder="0" scrolling="no"></iframe>
+
+    <div class="ui inverted dimmer" id="start">
+        <div class="content">
+            <div class="center">
+                <div class="ui inverted green raised segment">
+                {% if test.web_instructions %}
+                    {{ test.web_instructions|markdown }}
+                {% endif %}
+                </div>
+                <a class="ui huge primary button" id="startButton">Начать</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="ui dimmer" id="next">
+        <div class="content">
+            <div class="center">
+                <h2 class="ui inverted icon header">
+                    <i class="check icon"></i>
+                    Тест пройден
+                </h2>
+                <div class="ui content">
+                    <a href="" class="ui small button">Еще раз</a>
+                    <a href="{{ next }}" class="ui small primary button">Продолжить</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="ui dimmer" id="loading">
+        <div class="ui active indeterminate text loader">Загружаем реузльтаты</div>
+    </div>
+</div>
+
+
+
+<script>
+frame = document.getElementById('testFrame');
+$('.dimmer').dimmer({ closable: false });
+
+
+var init_test = function() {
+	var recorder = new TestRecorder(document.getElementById("testFrame"), {
+		mouse: {{ test.web_record_mouse|lower }},
+		audio: {{ test.web_record_audio|lower }},
+		video: {{ test.web_record_video|lower }},
+		post_to: "/api/tests/{{ test.id }}/results/",
+		additional_data: {
+		    csrfmiddlewaretoken: '{{csrf_token}}',
+		    {% if survey and result %}
+		    survey_result: {{result.pk}},
+		    {% endif %}
+		},
+	});
+
+	var test = new TestManager(recorder);
+	$('#startButton').click(test.start);
+
+	test.on("start", function() {
+		$('#start').dimmer('hide');
+	});
+
+	test.on("complete", function() {
+		$('#loading').dimmer('show');
+	});
+
+	test.on("sendComplete", function() {
+		$('#loading').dimmer('hide');
+		$('#next').dimmer('show');
+	});
+
+	$('.message .close')
+	  .on('click', function() {
+		$(this)
+		  .closest('.message')
+		  .transition('fade')
+		;
+	  });
+
+	DetectRTC.load(function() {
+		var warnings = [];
+		{% if test.record_audio %}
+		if(!DetectRTC.hasMicrophone)
+			warnings.push("Для этого теста требуется микрофон");
+		{% endif %}
+
+		{% if test.record_video %}
+		if(!DetectRTC.hasWebcam)
+			warnings.push("Для этого теста требуется вебкамера, подключите камеру и обновите страницу");
+		{% endif %}
+
+		if(warnings.length > 0) {
+			warnings.forEach(function(w) {
+				$('#warning ul').append("<li>" + w + "</li>");
+			});
+			$('#warning').show();
+		}
+	});
+
+	frame.contentWindow.init(test);
+	$('#start').dimmer('show');
+}
+
+frame.onload = function() {
+	console.log('Test frame loaded');
+	init_test();
+	console.log('Test initialised');
+};
+</script>
+
+{% endblock %}
