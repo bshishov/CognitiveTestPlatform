@@ -116,3 +116,9 @@ def get_object_or_none(cls, *args, **kwargs):
         return cls.objects.get(*args, **kwargs)
     except ObjectDoesNotExist:
         return None
+
+
+def save_file_to(file_from_request, to):
+    with open(to, 'wb') as target:
+        for chunk in file_from_request.chunks():
+            target.write(chunk)

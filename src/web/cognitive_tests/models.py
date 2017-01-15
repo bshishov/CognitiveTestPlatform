@@ -4,6 +4,7 @@ import logging
 import runpy
 import datetime
 import json
+import zipfile
 
 from django.db import models
 from django.conf import settings
@@ -35,16 +36,32 @@ class TimeStampedModel(models.Model):
 
 
 class ModuleManager(models.Manager):
-    def import_from_zip(self, archive):
+    @staticmethod
+    def import_from_zip(path_to_zip, module=None, commit=False):
         logger.info('Importing module from archive')
-        pass
+        name = os.path.basename(os.path.splitext(path_to_zip)[0])
+        module_path = os.path.join(settings.TESTS_MODULES_DIR, name)
+        with zipfile.ZipFile(path_to_zip, 'r') as zip_file:
+            zip_file.extractall(module_path)
+        if module:
+            if module.path and os.path.exists(module.path):
+                shutil.rmtree(module.path)
+            module.path = module_path
+        else:
+            module = Module.objects.create(path=module_path, info='')
+        if commit:
+            module.save()
+        return module
 
+    @staticmethod
     def import_from_git(self, git_url):
         logger.info('Importing module from git')
-        pass
+        raise NotImplementedError('Import from git is not implemented')
 
 
 class Module(models.Model):
+    objects = ModuleManager()
+
     info = JSONField(verbose_name=_('information'))
     imported = models.DateTimeField(auto_now_add=True, verbose_name=_('imported'))
     path = models.FilePathField(path=settings.TESTS_MODULES_DIR, allow_files=False,
@@ -56,7 +73,7 @@ class Module(models.Model):
         verbose_name_plural = _('modules')
 
     def __str__(self):  # __unicode__ on Python 2
-        return '%s' % (self.path,)
+        return '%s' % (os.path.basename(self.path),)
 
     def reimport(self):
         pass

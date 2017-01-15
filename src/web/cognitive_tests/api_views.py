@@ -5,6 +5,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, detail_route, list_route, authentication_classes, permission_classes
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
+from rest_framework.permissions import IsAdminUser
 from rest_framework import authentication, permissions
 from .api_serializers import *
 from .api_permissions import *
@@ -21,7 +22,7 @@ def api_root(request, format=None):
 
 @api_view(['GET'])
 def test_list(request, format=None):
-    return Response(TestSerializer(Test.objects.filter(active=True), many=True).data)
+    return Response(TestSerializer(Test.objects.filter(active=True), many=True, context={'request': request}).data)
 
 
 def get_test(pk):
@@ -36,13 +37,13 @@ def get_test(pk):
 
 @api_view(['GET'])
 def test_detail(request, pk, format=None):
-    return Response(TestSerializer(get_test(pk)).data)
+    return Response(TestSerializer(get_test(pk), context={'request': request}).data)
 
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsParticipantOrReadOnly, ])
-def test_results(request, test_pk, format=None):
-    test = get_test(test_pk)
+def test_results(request, pk, format=None):
+    test = get_test(pk)
 
     if request.method == 'GET':
         results = TestResult.objects.filter(test=test)
@@ -88,6 +89,11 @@ def test_results(request, test_pk, format=None):
         return Response(result_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@api_view(['GET'])
+def test_marks(request, pk, format=None):
+    return Response(TestMarkSerializer(get_test(pk).marks, many=True, context={'request': request}).data)
+
+
 @api_view(['GET', 'POST', 'DELETE'])
 def session_participant(request):
     participant = get_participant(request)
@@ -116,3 +122,15 @@ def session_participant(request):
                             status=status.HTTP_400_BAD_REQUEST)
         del request.session[Participant.PARTICIPANT_SESSION_KEY]
         return Response({'detail': 'participant unset successfully'}, status=status.HTTP_202_ACCEPTED)
+
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser, ])
+def test_result_text_data_detail(request, pk):
+    return Response(TestTextDataSerializer(TestResultTextData.objects.get(pk=pk), context={'request': request}).data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser, ])
+def test_result_file_detail(request, pk):
+    return Response(TestFileSerializer(TestResultFile.objects.get(pk=pk), context={'request': request}).data)

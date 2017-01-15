@@ -8,7 +8,7 @@ class ParticipantSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Participant
-        fields = ('name', 'age', 'gender', 'email', 'allow_info_usage')
+        fields = ('id', 'name', 'age', 'gender', 'email', 'allow_info_usage')
 
     def create(self, validated_data):
         request = self.context['request']
@@ -20,32 +20,56 @@ class ParticipantSerializer(serializers.ModelSerializer):
         return Participant.objects.create(**validated_data)
 
 
+class TestResultValueSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TestResultValue
+
+
+class TestMarkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TestMark
+
+
 class TestSerializer(serializers.HyperlinkedModelSerializer):
+    results = serializers.HyperlinkedIdentityField(view_name='test-results', read_only=True)
+    marks = serializers.HyperlinkedIdentityField(view_name='test-marks', read_only=True)
+    #marks = TestMarkSerializer(many=True, read_only=True)
+
     class Meta:
         model = Test
-        fields = ('id', 'name', 'description', 'active', 'created')
+        fields = ('id', 'url', 'created', 'updated', 'key', 'name',
+                  'description', 'active', 'created', 'results', 'marks',)
+        #exclude = ('module',)
 
 
 class TestFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = TestResultFile
-        exclude = ('id', 'result',)
 
 
 class TestTextDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = TestResultTextData
-        exclude = ('id', 'result',)
 
 
-class TestResultSerializer(serializers.ModelSerializer):
+class TestResultValueSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TestResultValue
+
+
+class TestResultSerializer(serializers.HyperlinkedModelSerializer):
     participant = ParticipantSerializer(read_only=True)
-    files = TestFileSerializer(read_only=True, many=True)
-    text_data = TestTextDataSerializer(read_only=True, many=True)
+
+    # Files and Text Data are hyperlinked
+    #files = serializers.HyperlinkedRelatedField(read_only=True, many=True, view_name='testresultfile-detail')
+    #text_data = serializers.HyperlinkedRelatedField(read_only=True, many=True, view_name='testresulttextdata-detail')
+
+    # Values are embedded
+    values = TestResultValueSerializer(many=True, read_only=True)
 
     class Meta:
         model = TestResult
-        fields = ('id', 'participant', 'test', 'created', 'text_data', 'files',)
+        fields = ('id', 'participant', 'test', 'created', 'text_data', 'files', 'values')
 
     def create(self, validated_data):
         return TestResult.objects.create(participant=validated_data['participant'], test=validated_data['test'])

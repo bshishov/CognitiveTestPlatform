@@ -156,7 +156,7 @@ LOGGING = {
             'filters': ['require_debug_true'],
             'class': 'logging.StreamHandler',
             'formatter': 'simple',
-        }
+        },
     },
     'loggers': {
         'django': {
@@ -166,7 +166,7 @@ LOGGING = {
         'cognitive_tests.models': {
             'handlers': ['console_debug'],
             'level': 'DEBUG',
-        }
+        },
     },
 }
 

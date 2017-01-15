@@ -29,9 +29,14 @@ urlpatterns = [
 
     url(r'^api/$', api_views.api_root),
     url(r'^api/participant/$', api_views.session_participant, name='session-participant'),
+
     url(r'^api/tests/$', api_views.test_list, name='test-list'),
     url(r'^api/tests/(?P<pk>[0-9]+)/$', api_views.test_detail, name='test-detail'),
-    url(r'^api/tests/(?P<test_pk>[0-9]+)/results/$', api_views.test_results, name='test-results'),
+    url(r'^api/tests/(?P<pk>[0-9]+)/results/$', api_views.test_results, name='test-results'),
+    url(r'^api/tests/(?P<pk>[0-9]+)/marks/$', api_views.test_marks, name='test-marks'),
+
+    url(r'^api/testresulttextdata/(?P<pk>[0-9]+)/$', api_views.test_result_text_data_detail, name='testresulttextdata-detail'),
+    url(r'^api/testresultfile/(?P<pk>[0-9]+)/$', api_views.test_result_file_detail, name='testresultfile-detail'),
 
     url(r'^api/', include('rest_framework.urls', namespace='rest_framework'))
 ]
