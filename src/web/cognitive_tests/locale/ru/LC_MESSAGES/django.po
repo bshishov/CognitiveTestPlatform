@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-04 03:38+0300\n"
+"POT-Creation-Date: 2017-01-16 00:36+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,50 +19,312 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
-#: .\cognitive_tests\models.py:9
-msgid "male"
-msgstr "мужской"
+#: .\cognitive_tests\admin.py:19
+msgid "Cognitive test platform"
+msgstr "Платформа для тестирования"
 
-#: .\cognitive_tests\models.py:10
-msgid "female"
-msgstr "женский"
+#: .\cognitive_tests\admin.py:25
+msgid "Full path"
+msgstr "Полный путь"
 
-#: .\cognitive_tests\models.py:12
-msgid "user"
-msgstr "пользователь"
+#: .\cognitive_tests\admin.py:45
+msgid "Failed to load archive, expected .zip"
+msgstr "Ошибка при загрузке архива, ожидался .zip"
 
-#: .\cognitive_tests\models.py:13
-msgid "last test"
-msgstr "последний тест"
-
-#: .\cognitive_tests\models.py:14
-msgid "session key"
-msgstr "ключ сессии"
-
-#: .\cognitive_tests\models.py:15
-msgid "name"
-msgstr "имя"
-
-#: .\cognitive_tests\models.py:16
-msgid "age"
-msgstr "возраст"
-
-#: .\cognitive_tests\models.py:17
-msgid "gender"
-msgstr "пол"
-
-#: .\cognitive_tests\models.py:18
-msgid "permission for publishing"
-msgstr "разрешение на публикацию"
-
-#: .\cognitive_tests\models.py:19
+#: .\cognitive_tests\models.py:30
 msgid "created"
 msgstr "создан"
 
-#: .\cognitive_tests\models.py:23
+#: .\cognitive_tests\models.py:31
+msgid "updated"
+msgstr "обновлен"
+
+#: .\cognitive_tests\models.py:68
+msgid "information"
+msgstr "информация"
+
+#: .\cognitive_tests\models.py:70
+msgid "path"
+msgstr "путь"
+
+#: .\cognitive_tests\models.py:74 .\cognitive_tests\models.py:90
+msgid "module"
+msgstr "модуль"
+
+#: .\cognitive_tests\models.py:75
+msgid "modules"
+msgstr "модули"
+
+#: .\cognitive_tests\models.py:91
+msgid "processor"
+msgstr "обработчик"
+
+#: .\cognitive_tests\models.py:98
+msgid "Processor file does not exist"
+msgstr "Файл обработчика не найден"
+
+#: .\cognitive_tests\models.py:131
+msgid "processed"
+msgstr "обработан"
+
+#: .\cognitive_tests\models.py:157
+msgid "numeric"
+msgstr "числовой"
+
+#: .\cognitive_tests\models.py:158
+msgid "string"
+msgstr "строковый"
+
+#: .\cognitive_tests\models.py:159
+msgid "datetime"
+msgstr "дата/время"
+
+#: .\cognitive_tests\models.py:160
+msgid "numeric array"
+msgstr "числовой массив"
+
+#: .\cognitive_tests\models.py:161
+msgid "json"
+msgstr "json"
+
+#: .\cognitive_tests\models.py:166 .\cognitive_tests\models.py:217
+msgid "key"
+msgstr "ключ"
+
+#: .\cognitive_tests\models.py:167 .\cognitive_tests\models.py:189
+#: .\cognitive_tests\models.py:218 .\cognitive_tests\models.py:409
+msgid "name"
+msgstr "имя"
+
+#: .\cognitive_tests\models.py:168
+msgid "data types"
+msgstr "типы данных"
+
+#: .\cognitive_tests\models.py:169
+msgid "format"
+msgstr "формат"
+
+#: .\cognitive_tests\models.py:170
+msgid "unit"
+msgstr "единица измерения"
+
+#: .\cognitive_tests\models.py:171
+msgid "min value"
+msgstr "минимальное значение"
+
+#: .\cognitive_tests\models.py:172
+msgid "max value"
+msgstr "максимальное значение"
+
+#: .\cognitive_tests\models.py:173 .\cognitive_tests\models.py:219
+#: .\cognitive_tests\models.py:411
+msgid "description"
+msgstr "описание"
+
+#: .\cognitive_tests\models.py:174
+msgid "visible"
+msgstr "видимый"
+
+#: .\cognitive_tests\models.py:183
+msgid "male"
+msgstr "мужской"
+
+#: .\cognitive_tests\models.py:184
+msgid "female"
+msgstr "женский"
+
+#: .\cognitive_tests\models.py:186
+msgid "user"
+msgstr "пользователь"
+
+#: .\cognitive_tests\models.py:187
+msgid "last test"
+msgstr "последний тест"
+
+#: .\cognitive_tests\models.py:188
+msgid "session key"
+msgstr "ключ сессии"
+
+#: .\cognitive_tests\models.py:190
+msgid "age"
+msgstr "возраст"
+
+#: .\cognitive_tests\models.py:191
+msgid "gender"
+msgstr "пол"
+
+#: .\cognitive_tests\models.py:192
+msgid "permission for publishing"
+msgstr "разрешение на публикацию"
+
+#: .\cognitive_tests\models.py:197 .\cognitive_tests\models.py:282
+#: .\cognitive_tests\models.py:453
 msgid "participant"
 msgstr "участник"
 
-#: .\cognitive_tests\models.py:24
+#: .\cognitive_tests\models.py:198
 msgid "participants"
 msgstr "участники"
+
+#: .\cognitive_tests\models.py:220 .\cognitive_tests\models.py:407
+msgid "active"
+msgstr "активен"
+
+#: .\cognitive_tests\models.py:221
+msgid "auto save data to file"
+msgstr "автоматически сохранять данные в файл"
+
+#: .\cognitive_tests\models.py:222
+msgid "web index"
+msgstr "веб индекс"
+
+#: .\cognitive_tests\models.py:223
+msgid "web folder"
+msgstr "веб директория"
+
+#: .\cognitive_tests\models.py:224
+msgid "record audio"
+msgstr "записывать аудио"
+
+#: .\cognitive_tests\models.py:225
+msgid "record video"
+msgstr "записывать видео"
+
+#: .\cognitive_tests\models.py:226
+msgid "record mouse"
+msgstr "записывать события мыши"
+
+#: .\cognitive_tests\models.py:227
+msgid "web instructions"
+msgstr "веб инструкция"
+
+#: .\cognitive_tests\models.py:230 .\cognitive_tests\models.py:270
+#: .\cognitive_tests\models.py:283
+msgid "test"
+msgstr "тест"
+
+#: .\cognitive_tests\models.py:231
+msgid "tests"
+msgstr "тесты"
+
+#: .\cognitive_tests\models.py:254
+msgid "Incorrect web directory path"
+msgstr "Неверный путь веб директории"
+
+#: .\cognitive_tests\models.py:257
+msgid "Web index file does not exist"
+msgstr "Веб индекс не существует"
+
+#: .\cognitive_tests\models.py:273
+msgid "test mark"
+msgstr "показатель теста"
+
+#: .\cognitive_tests\models.py:274
+msgid "test marks"
+msgstr "показатели теста"
+
+#: .\cognitive_tests\models.py:285 .\cognitive_tests\models.py:458
+msgid "survey result"
+msgstr "результат испытания"
+
+#: .\cognitive_tests\models.py:292
+msgid "test result"
+msgstr "результат теста"
+
+#: .\cognitive_tests\models.py:293
+msgid "test results"
+msgstr "результаты теста"
+
+#: .\cognitive_tests\models.py:322
+msgid "file name"
+msgstr "имя файла"
+
+#: .\cognitive_tests\models.py:323 .\cognitive_tests\models.py:345
+#: .\cognitive_tests\models.py:385 .\cognitive_tests\models.py:493
+msgid "result"
+msgstr "результат"
+
+#: .\cognitive_tests\models.py:324
+msgid "file"
+msgstr "файл"
+
+#: .\cognitive_tests\models.py:327
+msgid "result file"
+msgstr "файл результата"
+
+#: .\cognitive_tests\models.py:328
+msgid "result files"
+msgstr "файлы результата"
+
+#: .\cognitive_tests\models.py:344
+msgid "data name"
+msgstr "название данных"
+
+#: .\cognitive_tests\models.py:346
+msgid "data"
+msgstr "данные"
+
+#: .\cognitive_tests\models.py:352 .\cognitive_tests\models.py:353
+msgid "result text data"
+msgstr "текстовые данные результата"
+
+#: .\cognitive_tests\models.py:386 .\cognitive_tests\models.py:494
+msgid "mark"
+msgstr "показатель"
+
+#: .\cognitive_tests\models.py:387 .\cognitive_tests\models.py:495
+msgid "value"
+msgstr "значение"
+
+#: .\cognitive_tests\models.py:388 .\cognitive_tests\models.py:496
+msgid "comment"
+msgstr "комментарий"
+
+#: .\cognitive_tests\models.py:394
+msgid "test result value"
+msgstr "значение результата теста"
+
+#: .\cognitive_tests\models.py:395
+msgid "test result values"
+msgstr "значения результата теста"
+
+#: .\cognitive_tests\models.py:410
+msgid "short description"
+msgstr "короткое описание"
+
+#: .\cognitive_tests\models.py:412
+msgid "image"
+msgstr "изображение"
+
+#: .\cognitive_tests\models.py:415 .\cognitive_tests\models.py:440
+#: .\cognitive_tests\models.py:452
+msgid "survey"
+msgstr "испытание"
+
+#: .\cognitive_tests\models.py:416
+msgid "surveys"
+msgstr "испытания"
+
+#: .\cognitive_tests\models.py:443
+msgid "survey mark"
+msgstr "показатель испытания"
+
+#: .\cognitive_tests\models.py:444
+msgid "survey marks"
+msgstr "показатели испытания"
+
+#: .\cognitive_tests\models.py:454
+msgid "is completed"
+msgstr "завершен"
+
+#: .\cognitive_tests\models.py:459
+msgid "survey results"
+msgstr "результаты испытания"
+
+#: .\cognitive_tests\models.py:499
+msgid "survey result value"
+msgstr "значение результата испытания"
+
+#: .\cognitive_tests\models.py:500
+msgid "survey result values"
+msgstr "значения результата испытания"

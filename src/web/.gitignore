@@ -25,3 +25,6 @@ reports/
 media/
 static/
 modules/
+
+# compiles messages
+*.mo

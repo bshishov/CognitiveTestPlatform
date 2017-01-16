@@ -1,14 +1,25 @@
 from django.contrib.auth.models import User, Group
-from .models import *
+from . import models
 from rest_framework import serializers
 
 
-class ParticipantSerializer(serializers.ModelSerializer):
-    gender = serializers.ChoiceField(Participant.GENDER_CHOICES)
+class ModuleSerializer(serializers.ModelSerializer):
+    tests = serializers.HyperlinkedIdentityField(view_name='api:module-tests', read_only=True)
+    surveys = serializers.HyperlinkedIdentityField(view_name='api:module-surveys', read_only=True)
 
     class Meta:
-        model = Participant
-        fields = ('id', 'name', 'age', 'gender', 'email', 'allow_info_usage')
+        model = models.Module
+        fields = '__all__'
+
+
+class ParticipantSerializer(serializers.ModelSerializer):
+    testresults = serializers.HyperlinkedIdentityField(view_name='api:participant-testresults', read_only=True)
+    surveyresults = serializers.HyperlinkedIdentityField(view_name='api:participant-surveyresults', read_only=True)
+    gender = serializers.ChoiceField(models.Participant.GENDER_CHOICES)
+
+    class Meta:
+        model = models.Participant
+        exclude = ('session', )
 
     def create(self, validated_data):
         request = self.context['request']
@@ -17,63 +28,93 @@ class ParticipantSerializer(serializers.ModelSerializer):
             request.session.create()
 
         validated_data['session'] = request.session.session_key
-        return Participant.objects.create(**validated_data)
+        return models.Participant.objects.create(**validated_data)
 
 
 class TestResultValueSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TestResultValue
+        model = models.TestResultValue
+        fields = '__all__'
 
 
 class TestMarkSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TestMark
-
-
-class TestSerializer(serializers.HyperlinkedModelSerializer):
-    results = serializers.HyperlinkedIdentityField(view_name='test-results', read_only=True)
-    marks = serializers.HyperlinkedIdentityField(view_name='test-marks', read_only=True)
-    #marks = TestMarkSerializer(many=True, read_only=True)
+    values = serializers.HyperlinkedIdentityField(view_name='api:testmark-values', read_only=True)
 
     class Meta:
-        model = Test
-        fields = ('id', 'url', 'created', 'updated', 'key', 'name',
-                  'description', 'active', 'created', 'results', 'marks',)
-        #exclude = ('module',)
+        model = models.TestMark
+        fields = '__all__'
 
 
-class TestFileSerializer(serializers.ModelSerializer):
+class TestSerializer(serializers.ModelSerializer):
+    results = serializers.HyperlinkedIdentityField(view_name='api:test-results', read_only=True)
+    marks = serializers.HyperlinkedIdentityField(view_name='api:test-marks', read_only=True)
+    resource_uri = serializers.HyperlinkedIdentityField(view_name='api:test-detail', read_only=True)
+
     class Meta:
-        model = TestResultFile
+        model = models.Test
+        #extra_kwargs = {'url': {'view_name': 'api:test-detail'}}
+        exclude = ('module', 'processor', )
 
 
-class TestTextDataSerializer(serializers.ModelSerializer):
+class TestResultFileSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TestResultTextData
+        model = models.TestResultFile
+        fields = '__all__'
 
 
-class TestResultValueSerializer(serializers.ModelSerializer):
+class TestResultTextDataSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TestResultValue
+        model = models.TestResultTextData
+        fields = '__all__'
 
 
-class TestResultSerializer(serializers.HyperlinkedModelSerializer):
+class TestResultSerializer(serializers.ModelSerializer):
+    resource_uri = serializers.HyperlinkedIdentityField(view_name='api:testresult-detail', read_only=True)
     participant = ParticipantSerializer(read_only=True)
-
-    # Files and Text Data are hyperlinked
-    #files = serializers.HyperlinkedRelatedField(read_only=True, many=True, view_name='testresultfile-detail')
-    #text_data = serializers.HyperlinkedRelatedField(read_only=True, many=True, view_name='testresulttextdata-detail')
+    files = serializers.HyperlinkedRelatedField(many=True, view_name='api:testresultfile-detail',
+                                                queryset=models.TestResultFile.objects.all())
+    text_data = serializers.HyperlinkedRelatedField(many=True, view_name='api:testresulttextdata-detail',
+                                                    queryset=models.TestResultTextData.objects.all())
 
     # Values are embedded
     values = TestResultValueSerializer(many=True, read_only=True)
 
     class Meta:
-        model = TestResult
-        fields = ('id', 'participant', 'test', 'created', 'text_data', 'files', 'values')
+        model = models.TestResult
+        fields = '__all__'
+        #extra_kwargs = {'url': {'view_name': 'api:testresult-detail'}}
 
     def create(self, validated_data):
-        return TestResult.objects.create(participant=validated_data['participant'], test=validated_data['test'])
+        return models.TestResult.objects.create(participant=validated_data['participant'], test=validated_data['test'])
 
 
+class SurveySerializer(serializers.ModelSerializer):
+    results = serializers.HyperlinkedIdentityField(view_name='api:survey-results', read_only=True)
+    marks = serializers.HyperlinkedIdentityField(view_name='api:survey-marks', read_only=True)
+    tests = serializers.HyperlinkedIdentityField(view_name='api:survey-tests', read_only=True)
+
+    class Meta:
+        exclude = ('module', 'processor', )
+        model = models.Survey
 
 
+class SurveyMarkSerializer(serializers.ModelSerializer):
+    values = serializers.HyperlinkedIdentityField(view_name='api:surveymark-values', read_only=True)
+
+    class Meta:
+        model = models.SurveyMark
+        fields = '__all__'
+
+
+class SurveyResultValueSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.SurveyResultValue
+        fields = '__all__'
+
+
+class SurveyResultSerializer(serializers.ModelSerializer):
+    values = SurveyResultValueSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = models.SurveyResult
+        fields = '__all__'

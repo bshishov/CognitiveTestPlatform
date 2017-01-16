@@ -2,8 +2,9 @@ from django.conf.urls import url, include
 from rest_framework import routers
 from django.views.generic import RedirectView
 from django.core.urlresolvers import reverse_lazy
-from . import api_views
+
 from . import views
+from . import api_viewsets
 
 
 urlpatterns = [
@@ -26,17 +27,22 @@ urlpatterns = [
     url(r'^tests/(?P<test_pk>[0-9]+)/run', views.test_run, name='test-run'),
     url(r'^tests/(?P<test_pk>[0-9]+)/results', views.test_results, name='test-results'),
     url(r'^tests/(?P<test_pk>[0-9]+)/embed/(?P<path>[^?]*)$', views.test_embed, name='test-embed'),
+]
 
-    url(r'^api/$', api_views.api_root),
-    url(r'^api/participant/$', api_views.session_participant, name='session-participant'),
 
-    url(r'^api/tests/$', api_views.test_list, name='test-list'),
-    url(r'^api/tests/(?P<pk>[0-9]+)/$', api_views.test_detail, name='test-detail'),
-    url(r'^api/tests/(?P<pk>[0-9]+)/results/$', api_views.test_results, name='test-results'),
-    url(r'^api/tests/(?P<pk>[0-9]+)/marks/$', api_views.test_marks, name='test-marks'),
+api_router = routers.DefaultRouter()
+api_router.register(r'modules', api_viewsets.ModuleViewSet, base_name='module')
+api_router.register(r'participants', api_viewsets.ParticipantViewSet, base_name='participant')
+api_router.register(r'tests', api_viewsets.TestViewSet, base_name='test')
+api_router.register(r'testmarks', api_viewsets.TestMarkViewSet, base_name='testmark')
+api_router.register(r'testresults', api_viewsets.TestResultViewSet, base_name='testresult')
+api_router.register(r'testresulttextdata', api_viewsets.TestResultTextDataViewSet, base_name='testresulttextdata')
+api_router.register(r'testresultfiles', api_viewsets.TestResultFileViewSet, base_name='testresultfile')
+api_router.register(r'surveys', api_viewsets.SurveyViewSet, base_name='survey')
+api_router.register(r'surveymarks', api_viewsets.SurveyMarkViewSet, base_name='surveymark')
+api_router.register(r'surveyresults', api_viewsets.SurveyResultViewSet, base_name='surveyresult')
 
-    url(r'^api/testresulttextdata/(?P<pk>[0-9]+)/$', api_views.test_result_text_data_detail, name='testresulttextdata-detail'),
-    url(r'^api/testresultfile/(?P<pk>[0-9]+)/$', api_views.test_result_file_detail, name='testresultfile-detail'),
 
-    url(r'^api/', include('rest_framework.urls', namespace='rest_framework'))
+urlpatterns += [
+    url(r'^api/', include(api_router.urls, namespace='api')),
 ]

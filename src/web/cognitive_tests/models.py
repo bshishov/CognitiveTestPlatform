@@ -47,6 +47,8 @@ class ModuleManager(models.Manager):
             if module.path and os.path.exists(module.path):
                 shutil.rmtree(module.path)
             module.path = module_path
+            with open(os.path.join(module_path, Module.INFO_FILE), 'r') as info_file:
+                module.info = info_file.read()
         else:
             module = Module.objects.create(path=module_path, info='')
         if commit:
@@ -59,24 +61,21 @@ class ModuleManager(models.Manager):
         raise NotImplementedError('Import from git is not implemented')
 
 
-class Module(models.Model):
+class Module(TimeStampedModel):
+    INFO_FILE = 'module.json'
     objects = ModuleManager()
 
     info = JSONField(verbose_name=_('information'))
-    imported = models.DateTimeField(auto_now_add=True, verbose_name=_('imported'))
     path = models.FilePathField(path=settings.TESTS_MODULES_DIR, allow_files=False,
                                 allow_folders=True, recursive=False, verbose_name=_('path'))
 
     class Meta:
-        ordering = ('-imported',)
+        ordering = ('-created',)
         verbose_name = _('module')
         verbose_name_plural = _('modules')
 
     def __str__(self):  # __unicode__ on Python 2
         return '%s' % (os.path.basename(self.path),)
-
-    def reimport(self):
-        pass
 
 
 @receiver(post_delete, sender=Module, dispatch_uid="module_post_delete")
@@ -180,16 +179,17 @@ class Mark(models.Model):
 
 class Participant(TimeStampedModel):
     PARTICIPANT_SESSION_KEY = 'participant_id'
+    MALE = 'male',
+    FEMALE = 'female',
     GENDER_CHOICES = (
-        (True, _('male')),
-        (False, _('female'))
+        (MALE, _('male')),
+        (FEMALE, _('female'))
     )
     user = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, verbose_name=_('user'))
-    last_test = models.CharField(max_length=255, verbose_name=_('last test'), blank=True, null=True)
     session = models.CharField(max_length=1000, verbose_name=_('session key'))
     name = models.CharField(max_length=255, verbose_name=_('name'))
     age = models.PositiveSmallIntegerField(verbose_name=_('age'))
-    gender = models.BooleanField(choices=GENDER_CHOICES, verbose_name=_('gender'))
+    gender = models.CharField(max_length=50, choices=GENDER_CHOICES, verbose_name=_('gender'))
     allow_info_usage = models.BooleanField(verbose_name=_('permission for publishing'))
     email = models.EmailField(blank=True, null=True)
 
