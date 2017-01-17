@@ -152,7 +152,7 @@ def survey_test(request, participant, survey_result_pk, test_pk):
 @require_GET
 @participant_required(redirect_to=participant_new, next_view_name='survey')
 def survey_end(request, participant, survey_result_pk):
-    result = get_object_or_404(SurveyResult, pk=survey_result_pk, participant=participant)
+    result = get_object_or_404(SurveyResult, pk=survey_result_pk, participant=participant)  # type: SurveyResult
     if len(result.incomplete_tests) == 0 and not result.is_completed:
         result.is_completed = True
         result.save()

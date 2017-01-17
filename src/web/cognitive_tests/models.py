@@ -7,6 +7,7 @@ import json
 import zipfile
 
 from django.db import models
+from django.utils import timezone
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
@@ -110,9 +111,11 @@ class ModuleProcessor(models.Model):
         marks = list(self.marks.all())
         logger.debug('Marks: %s' % (marks,))
 
-        # run_processor_async(self.get_processor_path(), arguments, [mark.key for mark in marks])
+        if not isinstance(instance, ProcessableModel):
+            raise TypeError('ProcessableModel expected')
 
         try:
+            instance.begin_process(self)
             process_globals = runpy.run_path(self.get_processor_path(), init_globals=arguments,
                                              run_name='__%s__' % run_name)
             logger.debug('Result globals: %s' % (process_globals,))
@@ -121,24 +124,42 @@ class ModuleProcessor(models.Model):
                     raise LookupError('Key %s was nit found in result globals' % mark.key)
                 mark.values.create(result=instance, value=process_globals[mark.key],
                                    comment=process_globals.get(mark.key + '_comment', ''))
-            instance.processed = datetime.datetime.now()
-            instance.save()
+            instance.end_process(self)
         except Exception as err:
             logger.exception(err)
 
 
 class ProcessableModel(models.Model):
-    processed = models.DateTimeField(blank=True, null=True, verbose_name=_('processed'))
+    processing_ended = models.DateTimeField(blank=True, null=True, verbose_name=_('processing ended'))
+    processing_started = models.DateTimeField(blank=True, null=True, verbose_name=_('processing started'))
 
     class Meta:
         abstract = True
 
+    def begin_process(self, processor):
+        if self.is_processed:
+            raise RuntimeError('Can\'t begin processing: instance is already processed')
+
+        if self.is_processing_started:
+            raise RuntimeError('Can\'t begin processing: processing of this instance is already started')
+
+        self.processing_started = timezone.now()
+        self.save()
+
     def process(self):
-        raise NotImplementedError()
+        raise NotImplementedError('This method is abstract')
+
+    def end_process(self, processor):
+        self.processing_ended = timezone.now()
+        self.save()
 
     @property
     def is_processed(self):
-        return self.processed is not None
+        return self.processing_ended is not None
+
+    @property
+    def is_processing_started(self):
+        return self.processing_started is not None
 
 
 class MarkManager(models.Manager):
@@ -450,7 +471,7 @@ class SurveyMark(TimeStampedModel, Mark):
 
 
 class SurveyResult(TimeStampedModel, ProcessableModel):
-    survey = models.ForeignKey(Survey, related_name='results', verbose_name=_('survey'))
+    survey = models.ForeignKey(Survey, related_name='results', verbose_name=_('survey'))  # type: Survey
     participant = models.ForeignKey(Participant, related_name='survey_results', verbose_name=_('participant'))
     is_completed = models.BooleanField(default=False, verbose_name=_('is completed'))
 

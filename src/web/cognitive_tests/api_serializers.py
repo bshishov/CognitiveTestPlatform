@@ -69,12 +69,9 @@ class TestResultTextDataSerializer(serializers.ModelSerializer):
 
 
 class TestResultSerializer(serializers.ModelSerializer):
-    resource_uri = serializers.HyperlinkedIdentityField(view_name='api:testresult-detail', read_only=True)
     participant = ParticipantSerializer(read_only=True)
-    files = serializers.HyperlinkedRelatedField(many=True, view_name='api:testresultfile-detail',
-                                                queryset=models.TestResultFile.objects.all())
-    text_data = serializers.HyperlinkedRelatedField(many=True, view_name='api:testresulttextdata-detail',
-                                                    queryset=models.TestResultTextData.objects.all())
+    files = serializers.HyperlinkedRelatedField(read_only=True, many=True, view_name='api:testresultfile-detail')
+    text_data = serializers.HyperlinkedRelatedField(read_only=True, many=True, view_name='api:testresulttextdata-detail')
 
     # Values are embedded
     values = TestResultValueSerializer(many=True, read_only=True)
