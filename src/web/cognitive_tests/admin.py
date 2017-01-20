@@ -1,3 +1,6 @@
+import logging
+import os
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django import forms
 from django.contrib import admin
 from django.conf import settings
@@ -10,8 +13,8 @@ from django.utils.translation import ugettext_lazy as _
 from django_ace import AceWidget
 from pagedown.widgets import AdminPagedownWidget
 
-from .models import *
-from .utils import *
+from . import models
+from . import utils
 
 
 logger = logging.getLogger(__name__)
@@ -19,6 +22,7 @@ logger = logging.getLogger(__name__)
 admin.site.site_header = _('Cognitive test platform')
 
 
+@admin.register(models.Module)
 class ModuleAdmin(admin.ModelAdmin):
     class ModuleForm(forms.ModelForm):
         UPLOAD_DIR = 'module_archives'
@@ -37,9 +41,9 @@ class ModuleAdmin(admin.ModelAdmin):
             if not os.path.exists(upload_dir):
                 os.makedirs(upload_dir)
             target_location = os.path.join(upload_dir, archive.name)
-            save_file_to(self['archive'].value(), target_location)
+            utils.save_file_to(self['archive'].value(), target_location)
             try:
-                Module.objects.import_from_zip(target_location, module=self.instance, commit=False)
+                models.Module.objects.import_from_zip(target_location, module=self.instance, commit=False)
             except Exception as err:
                 print(err)
                 raise ValidationError(_('Failed to load archive, expected .zip'), code='invalid')
@@ -50,21 +54,116 @@ class ModuleAdmin(admin.ModelAdmin):
             self._save_m2m()
 
         class Meta:
-            model = Module
+            model = models.Module
             fields = ('archive',)
 
     form = ModuleForm
 
 
-admin.site.register(Module, ModuleAdmin)
-admin.site.register(Participant)
-admin.site.register(Survey)
-admin.site.register(SurveyMark)
-admin.site.register(SurveyResult)
-admin.site.register(SurveyResultValue)
-admin.site.register(Test)
-admin.site.register(TestMark)
-admin.site.register(TestResult)
-admin.site.register(TestResultFile)
-admin.site.register(TestResultTextData)
-admin.site.register(TestResultValue)
+@admin.register(models.Participant)
+class ParticipantAdmin(admin.ModelAdmin):
+    list_display = ('name', 'user', 'age', 'gender', 'allow_info_usage', 'email', 'created')
+    list_filter = ('user', 'age', 'gender', 'allow_info_usage', 'email')
+    search_fields = ['name']
+
+
+@admin.register(models.Test)
+class TestAdmin(admin.ModelAdmin):
+    class MarksInlineForm(admin.StackedInline):
+        model = models.TestMark
+        extra = 0
+
+    list_display = ('name', 'active', 'created')
+    list_filter = ('active', 'created')
+    search_fields = ['name', 'description']
+    inlines = [MarksInlineForm, ]
+    formfield_overrides = {models.models.TextField: {'widget': AdminPagedownWidget()}, }
+
+
+@admin.register(models.TestMark)
+class TestMarkAdmin(admin.ModelAdmin):
+    list_display = ('name', 'test', 'key', 'data_type', 'format', 'unit', 'visible', 'created')
+    list_filter = ('test', 'data_type', 'format', 'visible', 'created')
+    search_fields = ['name', 'description', 'test__name']
+    formfield_overrides = {models.models.TextField: {'widget': AdminPagedownWidget()}, }
+
+
+@admin.register(models.TestResult)
+class TestResultAdmin(admin.ModelAdmin):
+    class FilesInlineForm(admin.TabularInline):
+        model = models.TestResultFile
+        extra = 0
+
+    class TextDataInlineForm(admin.TabularInline):
+        model = models.TestResultTextData
+        extra = 0
+
+    class ValuesInlineForm(admin.TabularInline):
+        model = models.TestResultValue
+        extra = 0
+
+    list_display = ('participant', 'test', 'created')
+    list_filter = ('participant', 'test', 'created')
+    search_fields = ['test__name', 'participant__name', ]
+    inlines = [FilesInlineForm, TextDataInlineForm, ValuesInlineForm]
+
+
+@admin.register(models.TestResultFile)
+class TestResultFileAdmin(admin.ModelAdmin):
+    list_display = ('name', 'result', 'file',)
+    list_filter = ('name', 'result__test', 'result__created')
+    search_fields = ['name', 'result__participant__name', ]
+
+
+@admin.register(models.TestResultTextData)
+class TestResultTextDataAdmin(admin.ModelAdmin):
+    list_display = ('name', 'result', )
+    list_filter = ('name', 'result__test', 'result__created')
+    search_fields = ['name', 'result__participant__name', ]
+
+
+@admin.register(models.TestResultValue)
+class TestResultValueAdmin(admin.ModelAdmin):
+    list_display = ('result', 'mark', 'value',)
+    list_filter = ('mark', 'result__created')
+    search_fields = ['mark', 'result__participant__name', ]
+
+
+@admin.register(models.Survey)
+class SurveyAdmin(admin.ModelAdmin):
+    class MarksInlineForm(admin.StackedInline):
+        model = models.SurveyMark
+        extra = 0
+
+    list_display = ('name', 'active', 'created')
+    list_filter = ('active', 'created')
+    search_fields = ['name', 'description']
+    inlines = [MarksInlineForm, ]
+    formfield_overrides = {models.models.TextField: {'widget': AdminPagedownWidget()}, }
+
+
+@admin.register(models.SurveyMark)
+class SurveyMarkAdmin(admin.ModelAdmin):
+    list_display = ('name', 'survey', 'key', 'data_type', 'format', 'unit', 'visible', 'created')
+    list_filter = ('survey', 'data_type', 'format', 'visible', 'created')
+    search_fields = ['name', 'description', 'survey__name']
+    formfield_overrides = {models.models.TextField: {'widget': AdminPagedownWidget()}, }
+
+
+@admin.register(models.SurveyResult)
+class SurveyResultAdmin(admin.ModelAdmin):
+    class ValuesInlineForm(admin.TabularInline):
+        model = models.SurveyResultValue
+        extra = 0
+
+    list_display = ('participant', 'survey', 'is_completed', 'created')
+    list_filter = ('participant', 'survey', 'is_completed', 'created')
+    search_fields = ['survey__name', 'participant__name', ]
+    inlines = [ValuesInlineForm, ]
+
+
+@admin.register(models.SurveyResultValue)
+class SurveyResultValueAdmin(admin.ModelAdmin):
+    list_display = ('result', 'mark', 'value',)
+    list_filter = ('mark', 'result__created')
+    search_fields = ['mark', 'result__participant__name', ]

@@ -88,7 +88,6 @@ class TestResultViewSet(ParticipantFiltered, NestedModelViewSet):
     permission_classes = [api_permissions.IsParticipantOrStaff, ]
 
     def create(self, request, *args, **kwargs):
-        print(self.queryset)
         participant = utils.get_participant(request)
         survey_result_pk = request.POST.get('survey_result', None)
         survey_result = None
@@ -141,8 +140,8 @@ class TestViewSet(NestedModelViewSet):
 
     @detail_route(methods=['get', 'post', 'options'])
     def results(self, request, pk=None):
-        test = self.get_object()
-        return TestResultViewSet.as_nested_view(test=test)(request)
+        return TestResultViewSet(filter_kwargs={'test': self.get_object()}).create(request)
+        #return TestResultViewSet.as_nested_view(test=self.get_object())(request)
 
     @detail_route(methods=['get', 'options'])
     def marks(self, request, pk=None):
