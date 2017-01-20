@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User, Group
-from . import models
+from cognitive_tests import models
 from rest_framework import serializers
 
 

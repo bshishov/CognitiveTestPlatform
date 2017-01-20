@@ -1,11 +1,8 @@
 from django.conf.urls import url, include
 from rest_framework import routers
-from django.views.generic import RedirectView
-from django.core.urlresolvers import reverse_lazy
 
+from cognitive_tests.api import viewsets
 from . import views
-from . import api_viewsets
-
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
@@ -31,16 +28,16 @@ urlpatterns = [
 
 
 api_router = routers.DefaultRouter()
-api_router.register(r'modules', api_viewsets.ModuleViewSet, base_name='module')
-api_router.register(r'participants', api_viewsets.ParticipantViewSet, base_name='participant')
-api_router.register(r'tests', api_viewsets.TestViewSet, base_name='test')
-api_router.register(r'test_marks', api_viewsets.TestMarkViewSet, base_name='testmark')
-api_router.register(r'test_results', api_viewsets.TestResultViewSet, base_name='testresult')
-api_router.register(r'test_result_text_data', api_viewsets.TestResultTextDataViewSet, base_name='testresulttextdata')
-api_router.register(r'test_result_files', api_viewsets.TestResultFileViewSet, base_name='testresultfile')
-api_router.register(r'surveys', api_viewsets.SurveyViewSet, base_name='survey')
-api_router.register(r'survey_marks', api_viewsets.SurveyMarkViewSet, base_name='surveymark')
-api_router.register(r'survey_results', api_viewsets.SurveyResultViewSet, base_name='surveyresult')
+api_router.register(r'modules', viewsets.ModuleViewSet, base_name='module')
+api_router.register(r'participants', viewsets.ParticipantViewSet, base_name='participant')
+api_router.register(r'tests', viewsets.TestViewSet, base_name='test')
+api_router.register(r'test_marks', viewsets.TestMarkViewSet, base_name='testmark')
+api_router.register(r'test_results', viewsets.TestResultViewSet, base_name='testresult')
+api_router.register(r'test_result_text_data', viewsets.TestResultTextDataViewSet, base_name='testresulttextdata')
+api_router.register(r'test_result_files', viewsets.TestResultFileViewSet, base_name='testresultfile')
+api_router.register(r'surveys', viewsets.SurveyViewSet, base_name='survey')
+api_router.register(r'survey_marks', viewsets.SurveyMarkViewSet, base_name='surveymark')
+api_router.register(r'survey_results', viewsets.SurveyResultViewSet, base_name='surveyresult')
 
 
 urlpatterns += [

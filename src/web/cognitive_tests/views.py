@@ -1,15 +1,14 @@
-import os
 import mimetypes
 
-from django.shortcuts import render, redirect, get_object_or_404, HttpResponse
-from django.views.decorators.csrf import csrf_protect, csrf_exempt
-from django.views.decorators.http import require_GET, require_http_methods
 from django.core import urlresolvers
 from django.http import Http404
+from django.shortcuts import render, redirect, get_object_or_404, HttpResponse
+from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.http import require_GET, require_http_methods
 
-from .api_serializers import ParticipantSerializer
+from cognitive_tests.api.serializers import ParticipantSerializer
 from .models import *
-from .utils import participant_required, get_participant, redirect_with_args, reverse_with_args
+from .utils import participant_required, get_participant, redirect_with_args
 
 
 def context_processor(request):

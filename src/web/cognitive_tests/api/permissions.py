@@ -1,5 +1,5 @@
 from rest_framework import permissions
-from .utils import get_participant
+from cognitive_tests.utils import get_participant
 
 
 class IsParticipantOrReadOnly(permissions.BasePermission):

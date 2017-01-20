@@ -1,18 +1,13 @@
-from functools import wraps
-
-from django.contrib.auth.models import User
-
 from rest_framework import status
 from rest_framework import viewsets
-from rest_framework import views
-from rest_framework import permissions
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 
-from . import models
-from . import api_serializers
-from . import api_permissions
-from . import utils
+
+from cognitive_tests import models
+from cognitive_tests import utils
+from cognitive_tests.api import permissions
+from cognitive_tests.api import serializers
 
 
 class NestedModelViewSet(viewsets.ModelViewSet):
@@ -68,14 +63,14 @@ class ParticipantFiltered(viewsets.ModelViewSet):
 
 class TestResultValueViewSet(NestedModelViewSet):
     queryset = models.TestResultValue.objects.all()
-    serializer_class = api_serializers.TestResultValueSerializer
-    permission_classes = [api_permissions.IsParticipantOrStaff, ]
+    serializer_class = serializers.TestResultValueSerializer
+    permission_classes = [permissions.IsParticipantOrStaff, ]
 
 
 class TestMarkViewSet(NestedModelViewSet):
     queryset = models.TestMark.objects.all()
-    serializer_class = api_serializers.TestMarkSerializer
-    permission_classes = [api_permissions.IsStaffOrReadOnly, ]
+    serializer_class = serializers.TestMarkSerializer
+    permission_classes = [permissions.IsStaffOrReadOnly, ]
 
     @detail_route(methods=['get', 'options'])
     def values(self, request, pk=None):
@@ -84,8 +79,8 @@ class TestMarkViewSet(NestedModelViewSet):
 
 class TestResultViewSet(ParticipantFiltered, NestedModelViewSet):
     queryset = models.TestResult.objects.all()
-    serializer_class = api_serializers.TestResultSerializer
-    permission_classes = [api_permissions.IsParticipantOrStaff, ]
+    serializer_class = serializers.TestResultSerializer
+    permission_classes = [permissions.IsParticipantOrStaff, ]
 
     def create(self, request, *args, **kwargs):
         participant = utils.get_participant(request)
@@ -100,14 +95,14 @@ class TestResultViewSet(ParticipantFiltered, NestedModelViewSet):
                                                   survey_result=survey_result,
                                                   **self.filter_kwargs)
 
-        result_serializer = api_serializers.TestResultSerializer(result, partial=True, data={},
+        result_serializer = serializers.TestResultSerializer(result, partial=True, data={},
                                                                  context={'request': request})
         if result_serializer.is_valid():
             result = result_serializer.save()
 
             for file_arg in request.FILES:
                 for raw_file in request.FILES.getlist(file_arg):
-                    file_serializer = api_serializers.TestResultFileSerializer(models.TestResultFile(result=result),
+                    file_serializer = serializers.TestResultFileSerializer(models.TestResultFile(result=result),
                                                                                data={'name': raw_file.name,
                                                                                      'file': raw_file},
                                                                                partial=True)
@@ -120,7 +115,7 @@ class TestResultViewSet(ParticipantFiltered, NestedModelViewSet):
                 # TODO: TO VALIDATE
                 if arg in models.TestResultTextData.RESTRICTED_NAMES or arg in result_serializer.fields or arg in request.FILES:
                     continue
-                text_data_serializer = api_serializers.TestResultTextDataSerializer(
+                text_data_serializer = serializers.TestResultTextDataSerializer(
                     models.TestResultTextData(result=result),
                     data={'name': arg, 'data': request.data[arg]},
                     partial=True)
@@ -135,8 +130,8 @@ class TestResultViewSet(ParticipantFiltered, NestedModelViewSet):
 
 class TestViewSet(NestedModelViewSet):
     queryset = models.Test.objects.all()
-    serializer_class = api_serializers.TestSerializer
-    permission_classes = [api_permissions.IsParticipantOrStaff, ]
+    serializer_class = serializers.TestSerializer
+    permission_classes = [permissions.IsParticipantOrStaff, ]
 
     @detail_route(methods=['get', 'post', 'options'])
     def results(self, request, pk=None):
@@ -150,32 +145,32 @@ class TestViewSet(NestedModelViewSet):
 
 class TestResultTextDataViewSet(viewsets.ModelViewSet):
     queryset = models.TestResultTextData.objects.all()
-    serializer_class = api_serializers.TestResultTextDataSerializer
-    permission_classes = [api_permissions.IsStaff, ]
+    serializer_class = serializers.TestResultTextDataSerializer
+    permission_classes = [permissions.IsStaff, ]
 
 
 class TestResultFileViewSet(viewsets.ModelViewSet):
     queryset = models.TestResultFile.objects.all()
-    serializer_class = api_serializers.TestResultFileSerializer
-    permission_classes = [api_permissions.IsStaff, ]
+    serializer_class = serializers.TestResultFileSerializer
+    permission_classes = [permissions.IsStaff, ]
 
 
 class SurveyResultValueViewSet(NestedModelViewSet):
     queryset = models.SurveyResultValue.objects.all()
-    serializer_class = api_serializers.SurveyResultValueSerializer
-    permission_classes = [api_permissions.IsParticipantOrStaff, ]
+    serializer_class = serializers.SurveyResultValueSerializer
+    permission_classes = [permissions.IsParticipantOrStaff, ]
 
 
 class SurveyResultViewSet(ParticipantFiltered, NestedModelViewSet):
     queryset = models.SurveyResult.objects.all()
-    serializer_class = api_serializers.SurveyResultSerializer
-    permission_classes = [api_permissions.IsParticipantOrStaff, ]
+    serializer_class = serializers.SurveyResultSerializer
+    permission_classes = [permissions.IsParticipantOrStaff, ]
 
 
 class SurveyMarkViewSet(NestedModelViewSet):
     queryset = models.SurveyMark.objects.all()
-    serializer_class = api_serializers.SurveyMarkSerializer
-    permission_classes = [api_permissions.IsStaffOrReadOnly, ]
+    serializer_class = serializers.SurveyMarkSerializer
+    permission_classes = [permissions.IsStaffOrReadOnly, ]
 
     @detail_route(methods=['get', 'options'])
     def values(self, request, pk=None):
@@ -184,8 +179,8 @@ class SurveyMarkViewSet(NestedModelViewSet):
 
 class SurveyViewSet(NestedModelViewSet):
     queryset = models.Survey.objects.all()
-    serializer_class = api_serializers.SurveySerializer
-    permission_classes = [api_permissions.IsStaffOrReadOnly, ]
+    serializer_class = serializers.SurveySerializer
+    permission_classes = [permissions.IsStaffOrReadOnly, ]
 
     @detail_route(methods=['get', 'options'])
     def results(self, request, pk=None):
@@ -202,8 +197,8 @@ class SurveyViewSet(NestedModelViewSet):
 
 class ModuleViewSet(viewsets.ModelViewSet):
     queryset = models.Module.objects.all()
-    serializer_class = api_serializers.ModuleSerializer
-    permission_classes = [api_permissions.IsStaff, ]
+    serializer_class = serializers.ModuleSerializer
+    permission_classes = [permissions.IsStaff, ]
 
     @detail_route(methods=['get', 'options'])
     def tests(self, request, pk=None):
@@ -216,8 +211,8 @@ class ModuleViewSet(viewsets.ModelViewSet):
 
 class ParticipantViewSet(viewsets.ModelViewSet):
     queryset = models.Participant.objects.all()
-    serializer_class = api_serializers.ParticipantSerializer
-    permission_classes = [api_permissions.IsParticipantOrStaff, ]
+    serializer_class = serializers.ParticipantSerializer
+    permission_classes = [permissions.IsParticipantOrStaff, ]
 
     @detail_route(methods=['get', 'options'])
     def testresults(self, request, pk=None):
@@ -235,13 +230,13 @@ class ParticipantViewSet(viewsets.ModelViewSet):
                 return Response({'detail': 'you must sign up as a participant using POST'},
                                 status=status.HTTP_400_BAD_REQUEST)
 
-            serializer = api_serializers.ParticipantSerializer(participant, context={'request': request})
+            serializer = serializers.ParticipantSerializer(participant, context={'request': request})
             return Response(serializer.data)
 
         if request.method == 'POST':
             if participant:
                 return Response({'detail': 'participant already set'}, status=status.HTTP_400_BAD_REQUEST)
-            serializer = api_serializers.ParticipantSerializer(data=request.data, context={'request': request})
+            serializer = serializers.ParticipantSerializer(data=request.data, context={'request': request})
             if serializer.is_valid():
                 serializer.save()
                 request.session[models.Participant.PARTICIPANT_SESSION_KEY] = request.session.session_key
