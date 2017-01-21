@@ -3,14 +3,13 @@ from rest_framework import viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 
-
 from cognitive_tests import models
 from cognitive_tests import utils
 from cognitive_tests.api import permissions
 from cognitive_tests.api import serializers
 
 
-class NestedModelViewSet(viewsets.ModelViewSet):
+class FilteredModelViewSet(viewsets.ModelViewSet):
     """
     The actions provided by the ModelViewSet class are:
         .list(), .retrieve(), .create(), .update(), .partial_update(), and .destroy().
@@ -22,7 +21,7 @@ class NestedModelViewSet(viewsets.ModelViewSet):
     filter_kwargs = None  # required by ModelViewSet
 
     def __init__(self, queryset=None, filter_kwargs=None, **kwargs):
-        super(NestedModelViewSet, self).__init__(**kwargs)
+        super(FilteredModelViewSet, self).__init__(**kwargs)
         if queryset:
             self.queryset = queryset
         elif filter_kwargs:
@@ -30,8 +29,24 @@ class NestedModelViewSet(viewsets.ModelViewSet):
             self.filter_kwargs = filter_kwargs
 
     @classmethod
-    def as_nested_view(cls, queryset=None, **kwargs):
-        return cls.as_view(cls.NESTED_LIST_MAPPING, queryset=queryset, filter_kwargs=kwargs)
+    def as_filtered_view(cls, mapping=NESTED_LIST_MAPPING, queryset=None, **kwargs):
+        return cls.as_view(mapping, queryset=queryset, filter_kwargs=kwargs)
+
+    @classmethod
+    def proceed_filtered(cls, request, mapping=NESTED_LIST_MAPPING, queryset=None, **kwargs):
+        if request.method in ('POST', 'PUT', 'PATCH', 'DELETE'):
+            """
+            For some reason we can't directly redirect POST-like methods to cls.as_view because of
+            csrf_excempt and other stuff so request body become touched.
+            We need to construct the request handler ourselves.
+            """
+            viewset = cls(queryset=queryset, filter_kwargs=kwargs)
+            viewset.request = request
+            if str.lower(request.method) not in mapping:
+                raise RuntimeError('Method %s can\'t be proceeded' % request.method)
+            action = getattr(viewset, mapping[str.lower(request.method)])
+            return action(request)
+        return cls.as_view(mapping, queryset=queryset, filter_kwargs=kwargs)(request)
 
 
 class ParticipantFiltered(viewsets.ModelViewSet):
@@ -61,23 +76,23 @@ class ParticipantFiltered(viewsets.ModelViewSet):
         return super(ParticipantFiltered, self).partial_update(request, *args, **kwargs)
 
 
-class TestResultValueViewSet(NestedModelViewSet):
+class TestResultValueViewSet(FilteredModelViewSet):
     queryset = models.TestResultValue.objects.all()
     serializer_class = serializers.TestResultValueSerializer
     permission_classes = [permissions.IsParticipantOrStaff, ]
 
 
-class TestMarkViewSet(NestedModelViewSet):
+class TestMarkViewSet(FilteredModelViewSet):
     queryset = models.TestMark.objects.all()
     serializer_class = serializers.TestMarkSerializer
     permission_classes = [permissions.IsStaffOrReadOnly, ]
 
     @detail_route(methods=['get', 'options'])
     def values(self, request, pk=None):
-        return TestResultValueViewSet.as_nested_view(mark=self.get_object())(request)
+        return TestResultValueViewSet.proceed_filtered(request, mark=self.get_object())
 
 
-class TestResultViewSet(ParticipantFiltered, NestedModelViewSet):
+class TestResultViewSet(ParticipantFiltered, FilteredModelViewSet):
     queryset = models.TestResult.objects.all()
     serializer_class = serializers.TestResultSerializer
     permission_classes = [permissions.IsParticipantOrStaff, ]
@@ -128,19 +143,18 @@ class TestResultViewSet(ParticipantFiltered, NestedModelViewSet):
         return Response(result_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class TestViewSet(NestedModelViewSet):
+class TestViewSet(FilteredModelViewSet):
     queryset = models.Test.objects.all()
     serializer_class = serializers.TestSerializer
     permission_classes = [permissions.IsParticipantOrStaff, ]
 
     @detail_route(methods=['get', 'post', 'options'])
     def results(self, request, pk=None):
-        return TestResultViewSet(filter_kwargs={'test': self.get_object()}).create(request)
-        #return TestResultViewSet.as_nested_view(test=self.get_object())(request)
+        return TestResultViewSet.proceed_filtered(request, test=self.get_object())
 
     @detail_route(methods=['get', 'options'])
     def marks(self, request, pk=None):
-        return TestMarkViewSet.as_nested_view(test=self.get_object())(request)
+        return TestMarkViewSet.proceed_filtered(request, test=self.get_object())
 
 
 class TestResultTextDataViewSet(viewsets.ModelViewSet):
@@ -155,44 +169,44 @@ class TestResultFileViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsStaff, ]
 
 
-class SurveyResultValueViewSet(NestedModelViewSet):
+class SurveyResultValueViewSet(FilteredModelViewSet):
     queryset = models.SurveyResultValue.objects.all()
     serializer_class = serializers.SurveyResultValueSerializer
     permission_classes = [permissions.IsParticipantOrStaff, ]
 
 
-class SurveyResultViewSet(ParticipantFiltered, NestedModelViewSet):
+class SurveyResultViewSet(ParticipantFiltered, FilteredModelViewSet):
     queryset = models.SurveyResult.objects.all()
     serializer_class = serializers.SurveyResultSerializer
     permission_classes = [permissions.IsParticipantOrStaff, ]
 
 
-class SurveyMarkViewSet(NestedModelViewSet):
+class SurveyMarkViewSet(FilteredModelViewSet):
     queryset = models.SurveyMark.objects.all()
     serializer_class = serializers.SurveyMarkSerializer
     permission_classes = [permissions.IsStaffOrReadOnly, ]
 
     @detail_route(methods=['get', 'options'])
     def values(self, request, pk=None):
-        return SurveyResultValueViewSet.as_nested_view(mark=self.get_object())(request)
+        return SurveyResultValueViewSet.proceed_filtered(request, mark=self.get_object())
 
 
-class SurveyViewSet(NestedModelViewSet):
+class SurveyViewSet(FilteredModelViewSet):
     queryset = models.Survey.objects.all()
     serializer_class = serializers.SurveySerializer
     permission_classes = [permissions.IsStaffOrReadOnly, ]
 
     @detail_route(methods=['get', 'options'])
     def results(self, request, pk=None):
-        return SurveyResultViewSet.as_nested_view(survey=self.get_object())(request)
+        return SurveyResultViewSet.proceed_filtered(request, survey=self.get_object())
 
     @detail_route(methods=['get', 'options'])
     def tests(self, request, pk=None):
-        return TestViewSet.as_nested_view(queryset=self.get_object().tests)(request)
+        return TestViewSet.proceed_filtered(request, queryset=self.get_object().tests)
 
     @detail_route(methods=['get', 'options'])
     def marks(self, request, pk=None):
-        return SurveyMarkViewSet.as_nested_view(survey=self.get_object())(request)
+        return SurveyMarkViewSet.proceed_filtered(request, survey=self.get_object())
 
 
 class ModuleViewSet(viewsets.ModelViewSet):
@@ -202,11 +216,11 @@ class ModuleViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get', 'options'])
     def tests(self, request, pk=None):
-        return TestViewSet.as_nested_view(module=self.get_object())(request)
+        return TestViewSet.proceed_filtered(request, module=self.get_object())
 
     @detail_route(methods=['get', 'options'])
     def surveys(self, request, pk=None):
-        return SurveyViewSet.as_nested_view(module=self.get_object())(request)
+        return SurveyViewSet.proceed_filtered(request, module=self.get_object())
 
 
 class ParticipantViewSet(viewsets.ModelViewSet):
@@ -216,11 +230,11 @@ class ParticipantViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get', 'options'])
     def testresults(self, request, pk=None):
-        return TestResultViewSet.as_nested_view(participant=self.get_object())(request)
+        return TestResultViewSet.proceed_filtered(request, participant=self.get_object())
 
     @detail_route(methods=['get', 'options'])
     def surveyresults(self, request, pk=None):
-        return SurveyResultViewSet.as_nested_view(participant=self.get_object())(request)
+        return SurveyResultViewSet.proceed_filtered(request, participant=self.get_object())
 
     @list_route(methods=['get', 'post', 'delete'])
     def current(self, request):
