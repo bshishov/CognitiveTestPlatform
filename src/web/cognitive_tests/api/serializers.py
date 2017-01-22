@@ -98,6 +98,7 @@ class SurveySerializer(serializers.ModelSerializer):
 
 class SurveyMarkSerializer(serializers.ModelSerializer):
     values = serializers.HyperlinkedIdentityField(view_name='api:surveymark-values', read_only=True)
+    stats = serializers.HyperlinkedIdentityField(view_name='api:surveymark-stats', read_only=True)
 
     class Meta:
         model = models.SurveyMark
