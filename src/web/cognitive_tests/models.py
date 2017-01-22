@@ -200,8 +200,8 @@ class Mark(models.Model):
 
 class Participant(TimeStampedModel):
     PARTICIPANT_SESSION_KEY = 'participant_id'
-    MALE = 'male',
-    FEMALE = 'female',
+    MALE = 'male'
+    FEMALE = 'female'
     GENDER_CHOICES = (
         (MALE, _('male')),
         (FEMALE, _('female'))
@@ -221,6 +221,22 @@ class Participant(TimeStampedModel):
 
     def __str__(self):  # __unicode__ on Python 2
         return '%s %s' % (self.name, self.age)
+
+    @classmethod
+    def from_request(cls, request):
+        if Participant.PARTICIPANT_SESSION_KEY not in request.session:
+            return None
+        try:
+            return Participant.objects.filter(session=request.session.session_key).first()
+        except:
+            del request.session[Participant.PARTICIPANT_SESSION_KEY]
+            return None
+
+    def assign_to_request(self, request):
+        request.session[Participant.PARTICIPANT_SESSION_KEY] = self.session
+
+    def unassign_from_request(self, request):
+        del request.session[Participant.PARTICIPANT_SESSION_KEY]
 
 
 class TestManager(models.Manager):

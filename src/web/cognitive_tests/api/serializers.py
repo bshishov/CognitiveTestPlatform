@@ -15,19 +15,25 @@ class ModuleSerializer(serializers.ModelSerializer):
 class ParticipantSerializer(serializers.ModelSerializer):
     testresults = serializers.HyperlinkedIdentityField(view_name='api:participant-testresults', read_only=True)
     surveyresults = serializers.HyperlinkedIdentityField(view_name='api:participant-surveyresults', read_only=True)
-    gender = serializers.ChoiceField(models.Participant.GENDER_CHOICES)
+    #gender = serializers.ChoiceField(models.Participant.GENDER_CHOICES)
+    #gender = serializers.CharField()
 
     class Meta:
         model = models.Participant
         exclude = ('session', )
 
     def create(self, validated_data):
-        request = self.context['request']
-
-        if not request.session.session_key:
-            request.session.create()
-
-        validated_data['session'] = request.session.session_key
+        assign_to_request = self.context.get('assign', False)
+        if assign_to_request:
+            request = self.context['request']
+            if not request.session.session_key:
+                request.session.create()
+            validated_data['session'] = request.session.session_key
+            if request.user:
+                validated_data['user'] = request.user
+            participant = models.Participant.objects.create(**validated_data)
+            participant.assign_to_request(request)
+            return participant
         return models.Participant.objects.create(**validated_data)
 
 

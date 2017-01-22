@@ -54,7 +54,7 @@ class FilteredModelViewSet(viewsets.ModelViewSet):
 class ParticipantFiltered(viewsets.ModelViewSet):
     def __check(self, request, *args, **kwargs):
         if not request.user or not request.user.is_staff:
-            participant = utils.get_participant(request)
+            participant = models.Participant.from_request(request)
             self.queryset = self.queryset.filter(participant=participant)
 
     def list(self, request, *args, **kwargs):
@@ -120,7 +120,7 @@ class TestResultViewSet(ParticipantFiltered, FilteredModelViewSet):
     permission_classes = [permissions.IsParticipantOrStaff, ]
 
     def create(self, request, *args, **kwargs):
-        participant = utils.get_participant(request)
+        participant = models.Participant.from_request(request)
         survey_result_pk = request.POST.get('survey_result', None)
         survey_result = None
         if survey_result_pk:
@@ -260,7 +260,7 @@ class ParticipantViewSet(viewsets.ModelViewSet):
 
     @list_route(methods=['get', 'post', 'delete'])
     def current(self, request):
-        participant = utils.get_participant(request)
+        participant = models.Participant.from_request(request)
         if request.method == 'GET':
             if not participant:
                 return Response({'detail': 'you must sign up as a participant using POST'},
@@ -272,10 +272,10 @@ class ParticipantViewSet(viewsets.ModelViewSet):
         if request.method == 'POST':
             if participant:
                 return Response({'detail': 'participant already set'}, status=status.HTTP_400_BAD_REQUEST)
-            serializer = serializers.ParticipantSerializer(data=request.data, context={'request': request})
+            serializer = serializers.ParticipantSerializer(data=request.data, context={'request': request,
+                                                                                       'assign': True})
             if serializer.is_valid():
                 serializer.save()
-                request.session[models.Participant.PARTICIPANT_SESSION_KEY] = request.session.session_key
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -284,5 +284,5 @@ class ParticipantViewSet(viewsets.ModelViewSet):
             if not participant:
                 return Response({'detail': 'you must sign up as a participant using POST'},
                                 status=status.HTTP_400_BAD_REQUEST)
-            del request.session[models.Participant.PARTICIPANT_SESSION_KEY]
+            participant.unassign_from_request(request)
             return Response({'detail': 'participant unset successfully'}, status=status.HTTP_202_ACCEPTED)

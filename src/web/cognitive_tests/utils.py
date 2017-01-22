@@ -30,7 +30,7 @@ def participant_required(redirect_to, next_view_name=None):
     def _actual_decorator(view_func):
         @wraps(view_func, assigned=available_attrs(view_func))
         def _wrapped_view_func(request, *args, **kwargs):
-            participant = get_participant(request)
+            participant = Participant.from_request(request)
             if not participant:
                 if redirect_to:
                     if next_view_name:
@@ -44,16 +44,6 @@ def participant_required(redirect_to, next_view_name=None):
             return view_func(request, participant, *args, **kwargs)
         return _wrapped_view_func
     return _actual_decorator
-
-
-def get_participant(request):
-    if Participant.PARTICIPANT_SESSION_KEY not in request.session:
-        return None
-    try:
-        return Participant.objects.get(session=request.session.session_key)
-    except:
-        del request.session[Participant.PARTICIPANT_SESSION_KEY]
-        return None
 
 
 class ListField(models.CharField):

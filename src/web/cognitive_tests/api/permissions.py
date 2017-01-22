@@ -1,5 +1,5 @@
 from rest_framework import permissions
-from cognitive_tests.utils import get_participant
+from cognitive_tests import models
 
 
 class IsParticipantOrReadOnly(permissions.BasePermission):
@@ -7,14 +7,14 @@ class IsParticipantOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        participant = get_participant(request)
+        participant = models.Particiapnt.from_request(request)
         if participant:
             return True
         return False
 
     def has_object_permission(self, request, view, obj):
         if hasattr(obj, 'participant'):
-            if obj.participant.pk == get_participant(request).pk:
+            if obj.participant.pk == models.Particiapnt.from_request(request).pk:
                 return True
         return False
 
@@ -45,7 +45,7 @@ class IsParticipantOrStaff(permissions.BasePermission):
             if request.user.is_staff:
                 return True
 
-        participant = get_participant(request)
+        participant = models.Particiapnt.from_request(request)
         if participant:
             return True
         return False
@@ -58,7 +58,7 @@ class IsParticipantOrStaff(permissions.BasePermission):
             if request.user.is_staff:
                 return True
 
-        participant = get_participant(request)
+        participant = models.Particiapnt.from_request(request)
         if participant:
             return True
         return False

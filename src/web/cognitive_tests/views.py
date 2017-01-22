@@ -8,12 +8,12 @@ from django.views.decorators.http import require_GET, require_http_methods
 
 from cognitive_tests.api.serializers import ParticipantSerializer
 from .models import *
-from .utils import participant_required, get_participant, redirect_with_args
+from .utils import participant_required, redirect_with_args
 
 
 def context_processor(request):
     return {
-        'participant': get_participant(request),
+        'participant': Participant.from_request(request),
         'surveys': Survey.objects.active(),
     }
 
@@ -33,14 +33,12 @@ def participant_new(request):
         serializer = ParticipantSerializer(data={
             'name': request.POST['name'],
             'age': request.POST['age'],
-            'gender': request.POST['gender'] == 1,
+            'gender': request.POST['gender'],
             'allow_info_usage': request.POST.get('allow', None) == 'on'
-        }, context={'request': request})
+        }, context={'request': request, 'assign': True})
 
         if serializer.is_valid():
             serializer.save()
-            request.session[Participant.PARTICIPANT_SESSION_KEY] = request.session.session_key
-
             next_url = request.GET.get('next', None)
             if next_url:
                 return redirect(next_url)
@@ -58,7 +56,7 @@ def surveys(request):
 @require_GET
 def survey_view(request, survey_pk):
     survey = get_object_or_404(Survey, pk=survey_pk)
-    participant = get_participant(request)
+    participant = Participant.from_request(request)
     return render(request, 'survey_view.html', {
         'survey': survey,
         'participant': participant,
@@ -170,7 +168,7 @@ def survey_results(request, participant, survey_result_pk):
 @require_GET
 def test_view(request, test_pk):
     test = get_object_or_404(Test, pk=test_pk)
-    participant = get_participant(request)
+    participant = Participant.from_request(request)
     return render(request, 'test_view.html', {
         'test': test,
         'participant': participant,

@@ -2,46 +2,46 @@
 
 {% block content %}
 <div class="ui text container">
-	{% if participant %}
-	<div class="ui info message">
-		<p>Похоже, что вы уже проходили этот тест, но вы можете пройти его еще раз.</p>
-	</div>
-	{% endif %}
 
 	<form class="ui form" method="POST">
-	  <div class="field">
-		<label>Имя</label>
-		<input type="text" name="name" placeholder="Ваше имя"  value="{{ participant.name }}">
-		{{ Participant.Name }}
-	  </div>
-	   <div class="two fields">
-		  <div class="field">
-			<label>Возраст</label>
-			<input type="number" name="age" placeholder="Ваш возраст" value="{{ participant.age }}">
-		  </div>
-		  <div class="field">
-			<label>Пол</label>
-			<select class="ui dropdown" name="gender">
-			  <option value="1">Мужской</option>
-			  <option value="0">Женский</option>
-			</select>
-		  </div>
-	  </div>
-	  <div class="field">
-		<div class="ui checkbox">
-		  <input type="checkbox" name="allow">
-		  <label>Я даю согласие на использование моих данных в научных работах</label>
+	  	<div class="field">
+			<label>Имя</label>
+			<input type="text" name="name" placeholder="Ваше имя"  value="{{ participant.name }}">
+			{{ Participant.Name }}
 		</div>
-	  </div>
+	   	<div class="two fields">
+		  	<div class="field">
+				<label>Возраст</label>
+				<input type="number" name="age" placeholder="Ваш возраст" value="{{ participant.age }}">
+		  	</div>
+		  	<div class="field">
+				<label>Пол</label>
+				<select class="ui dropdown" name="gender">
+			  		<option value="male">Мужской</option>
+			  		<option value="female">Женский</option>
+				</select>
+		  	</div>
+	  	</div>
+	  	<div class="field">
+			<div class="ui checkbox">
+		  		<input type="checkbox" name="allow">
+		  		<label>Я даю согласие на использование моих данных в научных работах</label>
+			</div>
+	  	</div>
 
-	  <table class="ui compact two column table" id="support">
-		  <tbody>
-		  </tbody>
-	  </table>
+	  	<table class="ui compact two column table" id="support">
+		  	<tbody>
+		  	</tbody>
+	  	</table>
 		{% csrf_token %}
-	  <button class="ui primary  huge button" type="submit">Начать тест</button>
-	  <div class="ui error message"></div>
-
+	  	<button class="ui primary  huge button" type="submit">Начать тест</button>
+	  	<div class="ui error message">
+		  	{% for field, error_messages in errors.items %}
+				{% for error in error_messages %}
+				<p data-field="{{field}}">{{ error }}</p>
+				{% endfor %}
+			{% endfor %}
+	  	</div>
 	</form>
 </div>
 
