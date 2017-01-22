@@ -24,3 +24,4 @@ wrapt==1.10.8
 jsonfield
 django-sortedm2m
 sorl-thumbnail
+numpy

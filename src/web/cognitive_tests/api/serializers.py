@@ -39,6 +39,7 @@ class TestResultValueSerializer(serializers.ModelSerializer):
 
 class TestMarkSerializer(serializers.ModelSerializer):
     values = serializers.HyperlinkedIdentityField(view_name='api:testmark-values', read_only=True)
+    stats = serializers.HyperlinkedIdentityField(view_name='api:testmark-stats', read_only=True)
 
     class Meta:
         model = models.TestMark

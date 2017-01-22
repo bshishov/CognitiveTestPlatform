@@ -8,6 +8,8 @@ from cognitive_tests import utils
 from cognitive_tests.api import permissions
 from cognitive_tests.api import serializers
 
+import numpy as np
+
 
 class FilteredModelViewSet(viewsets.ModelViewSet):
     """
@@ -82,12 +84,32 @@ class TestResultValueViewSet(FilteredModelViewSet):
     permission_classes = [permissions.IsParticipantOrStaff, ]
 
 
-class TestMarkViewSet(FilteredModelViewSet):
+class MarkViewSetMixin(viewsets.ModelViewSet):
+    @detail_route(methods=['get'])
+    def stats(self, request, pk=None):
+        mark = self.get_object()
+        values = mark.values.all()
+        raw = [val.value for val in values]
+        if mark.data_type == models.Mark.NUMERIC:
+            hist_values, hist_edges = np.histogram(raw, bins=10)
+            return Response({'values': raw,
+                             'min': min(raw),
+                             'max': max(raw),
+                             'mean': np.mean(raw),
+                             'histogram': {
+                                 'values': hist_values,
+                                 'edges': hist_edges
+                             },
+                             'std': np.std(raw)})
+        return Response({'values': raw, })
+
+
+class TestMarkViewSet(MarkViewSetMixin, FilteredModelViewSet):
     queryset = models.TestMark.objects.all()
     serializer_class = serializers.TestMarkSerializer
     permission_classes = [permissions.IsStaffOrReadOnly, ]
 
-    @detail_route(methods=['get', 'options'])
+    @detail_route(methods=['get'])
     def values(self, request, pk=None):
         return TestResultValueViewSet.proceed_filtered(request, mark=self.get_object())
 
@@ -181,7 +203,7 @@ class SurveyResultViewSet(ParticipantFiltered, FilteredModelViewSet):
     permission_classes = [permissions.IsParticipantOrStaff, ]
 
 
-class SurveyMarkViewSet(FilteredModelViewSet):
+class SurveyMarkViewSet(MarkViewSetMixin, FilteredModelViewSet):
     queryset = models.SurveyMark.objects.all()
     serializer_class = serializers.SurveyMarkSerializer
     permission_classes = [permissions.IsStaffOrReadOnly, ]
