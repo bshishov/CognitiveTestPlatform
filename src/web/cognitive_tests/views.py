@@ -227,6 +227,17 @@ def test_results(request, participant, test_pk):
 
 
 @require_GET
+def test_stats(request, test_pk):
+    test = get_object_or_404(Test, pk=test_pk)
+    participant = Participant.from_request(request)
+    return render(request, 'test_stats.html', {
+        'test': test,
+        'participant': participant,
+        'result': test.get_result_for(participant)
+    })
+
+
+@require_GET
 def test_embed(request, test_pk, path):
     test = get_object_or_404(Test, pk=test_pk)
 

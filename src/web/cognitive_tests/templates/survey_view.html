@@ -1,13 +1,28 @@
 {% extends 'layout.html' %}
 {% load static %}
 {% load markdown_deux_tags %}
+{% load thumbnail %}
 
 {% block title %}{{ survey.name }}{% endblock %}
 
 {% block content %}
+<div class="stripe"  {% if survey.image %}style='background-image:url("{{survey.image.url}}");'{% endif %}>
+    <div class="ui container">
+        <i>Испытание</i>
+        <h1 class="ui header">{{ survey.name }}</h1>
+        <div class="description">{{ survey.short_description }}</div>
+        {% if survey.active %}
+        <a class="ui huge primary button" href="{% url 'survey-start' survey.pk %}">Начать</a>
+        {% if result and not result.is_completed %}
+        <a class="ui huge green button" href="{% url 'survey-continue' result.pk %}">Продолжить</a>
+        {% endif %}
+        {% endif %}
+    </div>
+</div>
+
 <div class="ui dobuling two column stackable grid container">
     <div class="column">
-        <h1 class="ui header">{{ survey.name }}</h1>
+        <h2 class="ui header">Об испытании</h2>
         {% if survey.description %}
             {{ survey.description | markdown }}
         {% endif %}
@@ -34,7 +49,7 @@
             {% for test in survey.tests.active_web %}
                 <div class="item">
                     <div class="header">{{ test.name }} <a href="{% url 'test' test.pk %}" class="ui mini basic icon button"><i class="info icon"></i> </a></div>
-                    {{ test.description|markdown }}
+                    {{ test.short_description|markdown }}
                 </div>
             {% endfor %}
             </div>
@@ -42,10 +57,10 @@
         <div class="ui divider"></div>
         {% endif %}
 
-        <a class="ui huge primary button" href="{% url 'survey-start' survey.pk %}">Пройти</a>
+        <a class="ui huge primary button" href="{% url 'survey-start' survey.pk %}">Начать</a>
     </div>
     <div class="column">
-        <h3 class="ui header">Результаты</h3>
+        <h2 class="ui header">Результаты</h2>
         {% if result %}
         {% if result.is_completed %}
         <div class="ui section">
@@ -55,7 +70,7 @@
         </div>
         {% else %}
         <div class="ui info message">
-            <div class="ui header">Вы уже приступали к этому тесту</div>
+            <div class="ui header">Вы уже приступали к этому испытанию</div>
             <p>Вы начинали проходить этот тест {{ result.created }} и можете продолжить с того места, где закончили.</p>
             <strong>Вам осталось пройти:</strong>
             <div class="ui bulleted list">

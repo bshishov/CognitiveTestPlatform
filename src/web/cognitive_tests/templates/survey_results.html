@@ -3,38 +3,40 @@
 {% block title %}Результаты ({{ survey.name }}){% endblock %}
 
 {% block content %}
-<div class="ui huge header">Тест «{{ survey.name }}»</div>
-{% if result.is_processed %}
-<div class="ui small header">Поздравляем! Вы успешно прошли тест</div>
+<div class="ui container">
+	<div class="ui huge header">{{ survey.name }}</div>
+	{% if result.is_processed %}
+	<div class="ui small header">Поздравляем! Вы успешно прошли тест</div>
 
-<div class="ui section">
-	{% include 'include/result_value_table.html' with result=result %}
+	<div class="ui section">
+		{% include 'include/result_value_table.html' with result=result %}
 
-	{% for test_result in result.test_results.all %}
-		<h3 class="ui header">{{ test_result.test.name }}</h3>
-		<div class="ui section">
-			{% include 'include/result_value_table.html' with result=test_result %}
-		</div>
+		{% for test_result in result.test_results.all %}
+			<h3 class="ui header">{{ test_result.test.name }}</h3>
+			<div class="ui section">
+				{% include 'include/result_value_table.html' with result=test_result %}
+			</div>
+		{% endfor %}
+	</div>
+	<div class="ui basic segment center aligned">
+		<a class="ui button" href="{% url 'survey-start' survey.pk %}">Еще раз</a>
+		<a class="ui primary button" href="{% url 'surveys' %}">Пройти еще что-нибудь</a>
+	</div>
+	{% elif result.is_completed %}
+	<div class="ui info message">
+		<div class="ui active centered inline text loader ">Обработка результатов</div>
+	</div>
+	<script type="text/javascript">
+		// Reload the page after 5 sec
+		setTimeout(function() {location.reload(); }, 5000);
+	</script>
+	{% else %}
+	<div class="ui small header">Вы прошли еще не все тесты:</div>
+	<div class="ui bulleted list">
+	{% for test in result.incomplete_tests %}
+		<div class="ui item"><a href="{% url 'survey-test' result.pk test.pk %}">{{ test.name }}</a></div>
 	{% endfor %}
+	</div>
+	{% endif %}
 </div>
-<div class="ui basic segment center aligned">
-	<a class="ui button" href="{% url 'survey-start' survey.pk %}">Еще раз</a>
-	<a class="ui primary button" href="{% url 'surveys' %}">Пройти еще что-нибудь</a>
-</div>
-{% elif result.is_completed %}
-<div class="ui info message">
-	<div class="ui active centered inline text loader ">Обработка результатов</div>
-</div>
-<script type="text/javascript">
-	// Reload the page after 5 sec
-	setTimeout(function() {location.reload(); }, 5000);
-</script>
-{% else %}
-<div class="ui small header">Вы прошли еще не все тесты:</div>
-<div class="ui bulleted list">
-{% for test in result.incomplete_tests %}
-	<div class="ui item"><a href="{% url 'survey-test' result.pk test.pk %}">{{ test.name }}</a></div>
-{% endfor %}
-</div>
-{% endif %}
 {% endblock %}

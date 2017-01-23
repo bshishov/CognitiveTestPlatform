@@ -15,8 +15,6 @@ class ModuleSerializer(serializers.ModelSerializer):
 class ParticipantSerializer(serializers.ModelSerializer):
     testresults = serializers.HyperlinkedIdentityField(view_name='api:participant-testresults', read_only=True)
     surveyresults = serializers.HyperlinkedIdentityField(view_name='api:participant-surveyresults', read_only=True)
-    #gender = serializers.ChoiceField(models.Participant.GENDER_CHOICES)
-    #gender = serializers.CharField()
 
     class Meta:
         model = models.Participant

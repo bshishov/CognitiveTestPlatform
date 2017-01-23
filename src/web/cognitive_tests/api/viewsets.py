@@ -96,12 +96,13 @@ class MarkViewSetMixin(viewsets.ModelViewSet):
                              'min': min(raw),
                              'max': max(raw),
                              'mean': np.mean(raw),
+                             'len': len(raw),
                              'histogram': {
                                  'values': hist_values,
                                  'edges': hist_edges
                              },
                              'std': np.std(raw)})
-        return Response({'values': raw, })
+        return Response({'values': raw, 'len': len(raw)})
 
 
 class TestMarkViewSet(MarkViewSetMixin, FilteredModelViewSet):

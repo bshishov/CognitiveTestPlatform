@@ -23,6 +23,7 @@ urlpatterns = [
     url(r'^tests/(?P<test_pk>[0-9]+)/check$', views.test_check, name='test-check'),
     url(r'^tests/(?P<test_pk>[0-9]+)/run', views.test_run, name='test-run'),
     url(r'^tests/(?P<test_pk>[0-9]+)/results', views.test_results, name='test-results'),
+    url(r'^tests/(?P<test_pk>[0-9]+)/stats', views.test_stats, name='test-stats'),
     url(r'^tests/(?P<test_pk>[0-9]+)/embed/(?P<path>[^?]*)$', views.test_embed, name='test-embed'),
 ]
 

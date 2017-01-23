@@ -1,0 +1,59 @@
+body {
+    background: url('../img/bgr.png'), url('../img/bgr2.png') repeat-x;
+}
+
+body > .content {
+    margin-top: 100px;
+}
+
+.stripe {
+    width: 100%;
+    padding: 70px 0;
+    background: teal;
+    background-size: cover;
+    background-position: center center;
+    position: relative;
+    margin-bottom: 50px;
+}
+
+.stripe:before{
+  position: absolute;
+  content:" ";
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  display: block;
+  z-index:0;
+  background-color: rgba(255,255,255,0.9);
+}
+
+.stripe * {
+    position: relative;
+    /* hack */
+}
+
+.stripe .description {
+    margin-bottom: 20px;
+    max-width: 500px;
+}
+
+.footer {
+    margin-top: 100px;
+    background: url('../img/bgr.png'), teal;
+    padding: 30px 0;
+    color: white;
+}
+
+.instructions {
+    max-width: 600px;
+    margin: 0 auto;
+    color: black;
+    /*text-align: left;*/
+    padding: 20px;
+    border: 1px solid #eee;
+    background: white;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    font-size: 1.5rem;
+}

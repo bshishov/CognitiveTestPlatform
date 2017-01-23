@@ -1,0 +1,21 @@
+{% load markdown_deux_tags %}
+{% load thumbnail %}
+
+<a class="ui link card" href="{% url 'survey' survey.pk %}">
+    <div class="image">
+        {% thumbnail survey.image "300x200" crop="center" format="PNG" as im %}
+             <img src="{{ im.url }}" width="100%" alt="{{ survey.name }}">
+        {% endthumbnail %}
+    </div>
+    <div class="content">
+        <div class="header">{{ survey.name }}</div>
+        <div class="description">
+            {{ survey.short_description }}
+        </div>
+    </div>
+     <div class="extra content">
+         {% if survey.web_record_audio %}<div class="ui label">Аудио</div>{% endif %}
+         {% if survey.web_record_video %}<div class="ui label">Видео</div>{% endif %}
+         <div class="right floated ui basic label"><i class="play icon"></i> {{ survey.results.count }}</div>
+    </div>
+</a>

@@ -3,22 +3,24 @@
 {% block title %}Результаты ({{ test.name }}){% endblock %}
 
 {% block content %}
-<div class="ui huge header">{{ test.name }}</div>
-{% if result %}
-<div class="ui small header">Поздравляем! Вы успешно прошли тест</div>
+<div class="ui container">
+    <div class="ui huge header">{{ test.name }}</div>
+    {% if result %}
+    <div class="ui small header">Поздравляем! Вы успешно прошли тест</div>
 
-<div class="ui section">
-    {% include 'include/result_value_table.html' with result=result %}
+    <div class="ui section">
+        {% include 'include/result_value_table.html' with result=result %}
+    </div>
+    <div class="ui basic segment center aligned">
+        <a class="ui button" href="{% url 'test-run' test.pk %}">Еще раз</a>
+        <a class="ui primary button" href="{% url 'surveys' %}">Пройти еще что-нибудь</a>
+    </div>
+    {% else %}
+    <div class="ui active centered inline text loader ">Обработка результатов</div>
+    <script type="text/javascript">
+        // Reload the page after 5 sec
+        setTimeout(function() {location.reload(); }, 5000);
+    </script>
+    {% endif %}
 </div>
-<div class="ui basic segment center aligned">
-    <a class="ui button" href="{% url 'test-run' test.pk %}">Еще раз</a>
-    <a class="ui primary button" href="{% url 'surveys' %}">Пройти еще что-нибудь</a>
-</div>
-{% else %}
-<div class="ui active centered inline text loader ">Обработка результатов</div>
-<script type="text/javascript">
-    // Reload the page after 5 sec
-    setTimeout(function() {location.reload(); }, 5000);
-</script>
-{% endif %}
 {% endblock %}

@@ -2,8 +2,6 @@ import os
 import shutil
 import logging
 import runpy
-import datetime
-import json
 import zipfile
 
 from django.db import models
@@ -254,6 +252,8 @@ class Test(TimeStampedModel, ModuleProcessor):
 
     key = models.SlugField(max_length=255, unique=True, verbose_name=_('key'))
     name = models.CharField(max_length=255, verbose_name=_('name'))
+    image = ImageField(upload_to='test/images', blank=True, verbose_name=_('image'))
+    short_description = models.TextField(verbose_name=_('short description'), blank=True)
     description = models.TextField(verbose_name=_('description'))
     active = models.BooleanField(default=True, verbose_name=_('active'))
     auto_save_data_to_file = models.BooleanField(default=False, verbose_name=_('auto save data to file'))
@@ -273,7 +273,11 @@ class Test(TimeStampedModel, ModuleProcessor):
 
     @property
     def web_is_active(self):
-        return self.web_directory is not None
+        if self.web_directory is None:
+            return False
+        if self.web_directory is '':
+            return False
+        return True
 
     def get_web_directory_path(self):
         if self.web_directory is None:
@@ -445,9 +449,9 @@ class Survey(TimeStampedModel, ModuleProcessor):
     active = models.BooleanField(default=True, verbose_name=_('active'))
     tests = SortedManyToManyField(Test, related_name='surveys')
     name = models.CharField(max_length=255, verbose_name=_('name'))
+    image = ImageField(upload_to='survey/images', blank=True, verbose_name=_('image'))
     short_description = models.TextField(verbose_name=_('short description'), blank=True)
     description = models.TextField(verbose_name=_('description'), blank=True)
-    image = ImageField(upload_to='survey/images', blank=True, verbose_name=_('image'))
 
     class Meta(ModuleProcessor.Meta):
         verbose_name = _('survey')

@@ -1,0 +1,88 @@
+<div class="ui grid">
+    <div class="four wide column">
+        <div class="ui header">{{ mark.name }} <small><i>({{ mark.unit }})</i></small></div>
+        <p>{{ mark.description }}</p>
+
+        <div class="ui mini statistics">
+            <div class="statistic">
+                <div class="value" id="mark-stats-total-{{mark.pk}}">2,204</div>
+                <div class="label">Всего</div>
+            </div>
+        </div>
+    </div>
+    {% if mark.data_type == 'NUMERIC' %}
+    <div class="four wide column">
+        <div class="ui mini horizontal statistics">
+            <div class="statistic">
+                <div class="value" id="mark-stats-mean-{{mark.pk}}">2,204</div>
+                <div class="label">Среднее</div>
+            </div>
+            <div class="statistic">
+                <div class="value" id="mark-stats-std-{{mark.pk}}">3,322</div>
+                <div class="label">Стд. откл.</div>
+            </div>
+            <div class="statistic">
+                <div class="value" id="mark-stats-min-{{mark.pk}}">22</div>
+                <div class="label">Мин.</div>
+            </div>
+            <div class="statistic">
+                <div class="value" id="mark-stats-max-{{mark.pk}}">22</div>
+                <div class="label">Макс.</div>
+            </div>
+        </div>
+    </div>
+    <div class="eight wide column">
+        <div id="mark-stats-plot-{{mark.pk}}" height="200"></div>
+    </div>
+    {% endif %}
+</div>
+
+<script type="text/javascript">
+$(function(){
+    $.get('/api/test_marks/{{mark.id}}/stats', function(data){
+        console.log(data);
+        mark = {
+            id: {{mark.pk}},
+            name: '{{ mark.name }}',
+            format: '%{{ mark.format }}',
+            unit: '{{ mark.unit }}',
+            dataType: '{{ mark.data_type }}',
+
+            set: function(elemId, value) {
+               this.getElem(elemId).text(sprintf(mark.format, value));
+            },
+
+            getElem: function(elemId) {
+                return $('#mark-stats-'+ elemId + '-' +this.id);
+            },
+        };
+
+        mark.set('total', data.len);
+
+        if (mark.dataType == 'NUMERIC') {
+            mark.set('min', data.min);
+            mark.set('max', data.max);
+            mark.set('mean', data.mean);
+            mark.set('std', data.std);
+
+            plotlyData = [
+                {
+                    x: data.histogram.edges,
+                    y: data.histogram.values,
+                    type: 'bar',
+                }
+            ];
+            var layout = {
+                bargap: 0.05,
+                bargroupgap: 0.2,
+                xaxis: { title: '{{ mark.name }} ({{ mark.unit }})', },
+                yaxis: { title: 'Участников' },
+                height: 200,
+                margin: {l:30,r:10,t:10,b:30,pad:0},
+                legend: false,
+            };
+            Plotly.newPlot('mark-stats-plot-{{mark.pk}}', plotlyData, layout, {displayModeBar: false});
+        }
+    });
+});
+</script>

@@ -1,0 +1,30 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block title %}Статистика ({{ test.name }}){% endblock %}
+
+{% block head %}
+    <script type="text/javascript" src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script type="text/javascript" src="{% static 'js/sprintf.min.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="ui container">
+    <div class="ui huge header">Статистика теста «{{ test.name }}»</div>
+
+    <div class="ui statistics">
+        <div class="statistic">
+            <div class="value">
+                {{ test.results.count }}
+            </div>
+            <div class="label">Пройдено раз</div>
+      </div>
+    </div>
+
+    {% for mark in test.marks.visible %}
+    <div class="ui segment">
+        {% include 'include/mark_stats.html' %}
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,9 +1,11 @@
 {% extends 'layout.html' %}
 
 {% block content %}
-<div class="ui text container">
-	<div class="ui vertical center aligned segment">
-		<a class="ui huge primary button" href="{% url 'surveys' %}">Принять участие</a>
+<div class="ui container">
+	<div class="ui cards">
+	{% for survey in surveys %}
+		{% include 'include/survey_card.html' %}
+	{% endfor %}
 	</div>
 </div>
 {% endblock %}

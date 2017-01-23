@@ -4,9 +4,11 @@
 {% block title %}Последние проверки ({{ test.name }}){% endblock %}
 
 {% block content %}
+<div class="ui container">
 	{% include 'include/check_media.html' with check_mic=test.web_record_audio check_cam=test.web_record_video %}
 
 	<div class="ui center aligned basic segment">
 		<a class="ui huge primary button" href="{{ next }}">Готово</a>
 	</div>
+</div>
 {% endblock %}

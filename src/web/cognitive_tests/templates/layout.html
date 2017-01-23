@@ -6,24 +6,36 @@
 		<meta name="author" content="Boris Shishov">
 		{% load static %}
 		<link href="{% static 'css/semantic.min.css' %}" rel="stylesheet" media="all">
+		<link href="{% static 'css/style.css' %}" rel="stylesheet" media="all">
 		<script src="{% static 'js/jquery-2.1.4.min.js' %}"></script>
 		<script src="{% static 'js/semantic.min.js' %}"></script>
 		<script src="{% static 'js/DetectRTC.min.js' %}"></script>
+		<script src="{% static 'js/main.js' %}"></script>
 		{% block head %}
 		{% endblock %}
 	</head>
 	<body>
-		<div class="ui large menu">
-			<div class="item header">
-				<a href="{% url 'index' %}">Тест когнитивных способностей</a>
-			</div>
-			<a class="item" href="{% url 'surveys' %}"><i class="grid layout icon"></i> Тесты</a>
-			{% if participant %}<div class="item right">{{ participant.name }}</div>{% endif %}
+		<div class="ui container" >
+            <div class="ui large inverted text menu">
+                <div class="item header">
+                    <a href="{% url 'index' %}">Test Platform</a>
+                </div>
+                <div class="right menu">
+                    <a class="item" href="{% url 'surveys' %}"><i class="grid layout icon"></i> Тесты</a>
+                    {% if participant %}<div class="item"><i>{{ participant.name }}</i></div>{% endif %}
+                </div>
+		    </div>
 		</div>
-
-		<div class="ui container" style="padding-top: 3em;">
-			{% block content %}
-			{% endblock %}
-		</div>
+        <div class="content">
+        {% block content %}
+        {% endblock %}
+        </div>
+        <!--
+        <div class="footer">
+            <div class="ui container">
+                <p>&copy; 2017</p>
+            </div>
+        </div>
+        -->
 	</body>
 </html>

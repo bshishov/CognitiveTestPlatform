@@ -23,7 +23,6 @@ devenv/
 .idea
 reports/
 media/
-static/
 modules/
 
 # compiles messages

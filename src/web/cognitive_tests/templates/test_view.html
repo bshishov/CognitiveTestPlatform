@@ -5,16 +5,33 @@
 {% block title %}{{ test.name }}{% endblock %}
 
 {% block content %}
+<div class="stripe"  {% if test.image %}style='background-image:url("{{test.image.url}}");'{% endif %}>
+    <div class="ui container">
+        <i>Тест</i>
+        <h1 class="ui header">{{ test.name }}</h1>
+        <div class="description">{{ test.short_description }}</div>
+
+        {% if test.active and test.web_is_active %}
+        <a class="ui huge primary button" href="{% url 'test-start' test.pk %}">Начать</a>
+        {% else %}
+        <div class="ui info message">
+            <div class="header">Тест недоступен</div>
+            Этот тест недоступен для прохождения в браузере.
+        </div>
+        {% endif %}
+    </div>
+</div>
+
 <div class="ui two column grid container">
     <div class="column">
-        <h1 class="ui header">{{ test.name }}</h1>
+        <h2 class="ui header">О тесте</h2>
         {% if test.description %}
             {{ test.description | markdown }}
         {% endif %}
-
         {% if test.marks %}
         <div class="ui section">
             <div class="ui header">Оцениваемые параметры</div>
+            <a href="{% url 'test-stats' test.pk %}">Статистика</a>
             <div class="ui bulleted list">
             {% for mark in test.marks.visible %}
                 <div class="item">
@@ -37,7 +54,7 @@
 
 
         {% if test.active and test.web_is_active %}
-        <a class="ui huge primary button" href="{% url 'test-start' test.pk %}">Пройти</a>
+        <a class="ui huge primary button" href="{% url 'test-start' test.pk %}">Начать</a>
         {% else %}
         <div class="ui info message">
             <div class="header">Тест недоступен</div>
@@ -46,7 +63,7 @@
         {% endif %}
     </div>
     <div class="column">
-        <h3 class="ui header">Результаты</h3>
+        <h2 class="ui header">Результаты</h2>
         {% if result %}
         <div class="ui section">
             <h4 class="ui header">Ваш последний результат:</h4>

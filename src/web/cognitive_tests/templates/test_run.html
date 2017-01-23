@@ -12,68 +12,70 @@
 {% endblock %}
 
 {% block content %}
-<div class="ui grid">
-	<div class="row">
-		<div class="ui ten wide column">
-			<h1 class="ui header">{% if survey %}{{ survey.name }} - {% endif %}{{ test.name }}</h1>
-			{% if test.description %}
-				{{ test.description|markdown }}
-			{% endif %}
-		</div>
-
-		<div class="six wide column">
-			{% if survey and test_result %}
-			<div class="ui center aligned green segment ">
-				<div class="ui small header">Вы уже проходили этот тест и можете его пропустить</div>
-				<a class="ui green button" href="{{ next }}">Пропустить тест</a>
-			</div>
-			{% endif %}
-		</div>
-	</div>
-</div>
-
-
-<div class="ui warning hidden message" id="warning">
-  <i class="close icon"></i>
-  <div class="header">Ой!</div>
-  <ul class="list">
-  </ul>
-</div>
-
-<div class="ui segment" style="padding: 2px;">
-    <iframe id="testFrame" width="100%" height="500px" src="{% url 'test-embed' test.id test.web_index %}"
-            frameborder="0" scrolling="no"></iframe>
-
-    <div class="ui inverted dimmer" id="start">
-        <div class="content">
-            <div class="center">
-                <div class="ui inverted green raised segment">
-                {% if test.web_instructions %}
-                    {{ test.web_instructions|markdown }}
+<div class="ui container">
+    <div class="ui grid">
+        <div class="row">
+            <div class="ui ten wide column">
+                <h1 class="ui header">{% if survey %}{{ survey.name }} - {% endif %}{{ test.name }}</h1>
+                {% if test.short_description %}
+                    {{ test.short_description|markdown }}
                 {% endif %}
+            </div>
+
+            <div class="six wide column">
+                {% if survey and test_result %}
+                <div class="ui center aligned green segment ">
+                    <div class="ui small header">Вы уже проходили этот тест и можете его пропустить</div>
+                    <a class="ui green button" href="{{ next }}">Пропустить тест</a>
                 </div>
-                <a class="ui huge primary button" id="startButton">Начать</a>
+                {% endif %}
             </div>
         </div>
     </div>
 
-    <div class="ui dimmer" id="next">
-        <div class="content">
-            <div class="center">
-                <h2 class="ui inverted icon header">
-                    <i class="check icon"></i>
-                    Тест пройден
-                </h2>
-                <div class="ui content">
-                    <a href="" class="ui small button">Еще раз</a>
-                    <a href="{{ next }}" class="ui small primary button">Продолжить</a>
+
+    <div class="ui warning hidden message" id="warning">
+      <i class="close icon"></i>
+      <div class="header">Ой!</div>
+      <ul class="list">
+      </ul>
+    </div>
+
+    <div class="ui segment" style="padding: 2px;">
+        <iframe id="testFrame" width="100%" height="500px" src="{% url 'test-embed' test.id test.web_index %}"
+                frameborder="0" scrolling="no"></iframe>
+
+        <div class="ui inverted dimmer" id="start">
+            <div class="content">
+                <div class="center">
+                    <div class="instructions">
+                    {% if test.web_instructions %}
+                        {{ test.web_instructions|markdown }}
+                    {% endif %}
+                    </div>
+                    <a class="ui huge primary button" id="startButton">Начать</a>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="ui dimmer" id="loading">
-        <div class="ui active indeterminate text loader">Загружаем реузльтаты</div>
+        <div class="ui dimmer" id="next">
+            <div class="content">
+                <div class="center">
+                    <h2 class="ui inverted icon header">
+                        <i class="check icon"></i>
+                        Тест пройден
+                    </h2>
+                    <div class="ui content">
+                        <a href="" class="ui small button">Еще раз</a>
+                        <a href="{{ next }}" class="ui small primary button">Продолжить</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ui dimmer" id="loading">
+            <div class="ui active indeterminate text loader">Загружаем реузльтаты</div>
+        </div>
     </div>
 </div>
 
