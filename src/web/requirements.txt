@@ -25,3 +25,4 @@ jsonfield
 django-sortedm2m
 sorl-thumbnail
 numpy
+Pillow
