@@ -242,6 +242,8 @@ def test_embed(request, test_pk, path):
     test = get_object_or_404(Test, pk=test_pk)
 
     abs_path = os.path.join(test.get_web_directory_path(), path)
+    if not os.path.exists(abs_path):
+        return Http404('Embed file does not exist')
     file = open(abs_path, 'rb')
     content = file.read()
     file.close()

@@ -114,7 +114,6 @@ class ModuleProcessor(models.Model):
     @run_async
     def process(self, instance, arguments=None, run_name='main'):
         logger.info('Processing of %s by %s' % (instance, self))
-        logger.debug('Arguments: %s' % (arguments, ))
 
         marks = list(self.marks.all())
         logger.debug('Marks: %s' % (marks,))
