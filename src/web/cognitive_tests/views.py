@@ -85,7 +85,7 @@ def survey_start(request, participant, survey_pk):
         return redirect_with_args(survey_check, {'next': next_url,},
                                     kwargs={'survey_pk': survey_pk})
 
-    return redirect(survey_test, kwargs={'survey_result_pk': result.pk, 'test_pk': first_test.pk})
+    return redirect(survey_test, survey_result_pk=result.pk, test_pk=first_test.pk)
 
 
 @require_GET

@@ -16,11 +16,7 @@
         <a class="ui primary button" href="{% url 'surveys' %}">Пройти еще что-нибудь</a>
     </div>
     {% else %}
-    <div class="ui active centered inline text loader ">Обработка результатов</div>
-    <script type="text/javascript">
-        // Reload the page after 5 sec
-        setTimeout(function() {location.reload(); }, 5000);
-    </script>
+        {% include 'include/loader.html' %}
     {% endif %}
 </div>
 {% endblock %}
