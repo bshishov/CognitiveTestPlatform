@@ -49,8 +49,12 @@ class ModuleManager(models.Manager):
             zip_file.extractall(module_path)
         if module:
             module.path = module_path
-            with open(os.path.join(module_path, Module.INFO_FILE), 'r') as info_file:
-                module.info = info_file.read()
+            info_path = os.path.join(module_path, Module.INFO_FILE)
+            if os.path.exists(info_path):
+                with open(info_path, 'r') as info_file:
+                    module.info = info_file.read()
+            else:
+                module.info = ''
         else:
             module = Module.objects.create(path=module_path, info='')
         if commit:
