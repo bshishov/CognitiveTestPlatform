@@ -7,14 +7,14 @@ class IsParticipantOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        participant = models.Particiapnt.from_request(request)
+        participant = models.Participant.from_request(request)
         if participant:
             return True
         return False
 
     def has_object_permission(self, request, view, obj):
         if hasattr(obj, 'participant'):
-            if obj.participant.pk == models.Particiapnt.from_request(request).pk:
+            if obj.participant.pk == models.Participant.from_request(request).pk:
                 return True
         return False
 
@@ -45,7 +45,7 @@ class IsParticipantOrStaff(permissions.BasePermission):
             if request.user.is_staff:
                 return True
 
-        participant = models.Particiapnt.from_request(request)
+        participant = models.Participant.from_request(request)
         if participant:
             return True
         return False
@@ -58,7 +58,7 @@ class IsParticipantOrStaff(permissions.BasePermission):
             if request.user.is_staff:
                 return True
 
-        participant = models.Particiapnt.from_request(request)
+        participant = models.Participant.from_request(request)
         if participant:
             return True
         return False

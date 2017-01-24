@@ -20,7 +20,7 @@ def context_processor(request):
 
 @require_GET
 def index(request):
-    return render(request, 'index.html', {})
+    return render(request, 'index.html', {'tests': Test.objects.active_web()})
 
 
 @csrf_protect

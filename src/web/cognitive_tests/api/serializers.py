@@ -27,7 +27,7 @@ class ParticipantSerializer(serializers.ModelSerializer):
             if not request.session.session_key:
                 request.session.create()
             validated_data['session'] = request.session.session_key
-            if request.user:
+            if request.user.is_authenticated():
                 validated_data['user'] = request.user
             participant = models.Participant.objects.create(**validated_data)
             participant.assign_to_request(request)

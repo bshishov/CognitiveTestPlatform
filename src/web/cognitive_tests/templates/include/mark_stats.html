@@ -12,24 +12,48 @@
     </div>
     {% if mark.data_type == 'NUMERIC' %}
     <div class="four wide column">
-        <div class="ui mini horizontal statistics">
-            <div class="statistic">
-                <div class="value" id="mark-stats-mean-{{mark.pk}}">2,204</div>
-                <div class="label">Среднее</div>
-            </div>
-            <div class="statistic">
-                <div class="value" id="mark-stats-std-{{mark.pk}}">3,322</div>
-                <div class="label">Стд. откл.</div>
-            </div>
-            <div class="statistic">
-                <div class="value" id="mark-stats-min-{{mark.pk}}">22</div>
-                <div class="label">Мин.</div>
-            </div>
-            <div class="statistic">
-                <div class="value" id="mark-stats-max-{{mark.pk}}">22</div>
-                <div class="label">Макс.</div>
-            </div>
-        </div>
+        <table class="ui compact green table">
+            <thead>
+                <tr>
+                  <th>Метрика</th>
+                  <th>Значение</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><h4 class="ui header">Среднее</h4></td>
+                    {% if mark.format %}
+                    <td><span class="ui header" id="mark-stats-mean-{{mark.pk}}">{{ val.value|stringformat:mark.format }}</span> {{ mark.unit }}</td>
+                    {% else %}
+                    <td><span class="ui header" id="mark-stats-mean-{{mark.pk}}">{{ val.value }}</span> {{ mark.unit }}</td>
+                    {% endif %}
+                </tr>
+                <tr>
+                    <td><h4 class="ui header">Станд. откл.</h4></td>
+                    {% if mark.format %}
+                    <td><span class="ui header" id="mark-stats-std-{{mark.pk}}">{{ val.value|stringformat:mark.format }}</span> {{ mark.unit }}</td>
+                    {% else %}
+                    <td><span class="ui header" id="mark-stats-std-{{mark.pk}}">{{ val.value }}</span> {{ mark.unit }}</td>
+                    {% endif %}
+                </tr>
+                <tr>
+                    <td><h4 class="ui header">Минимум</h4></td>
+                    {% if mark.format %}
+                    <td><span class="ui header" id="mark-stats-min-{{mark.pk}}">{{ val.value|stringformat:mark.format }}</span> {{ mark.unit }}</h3></td>
+                    {% else %}
+                    <td><span class="ui header" id="mark-stats-min-{{mark.pk}}">{{ val.value }}</span> {{ mark.unit }}</h3></td>
+                    {% endif %}
+                </tr>
+                <tr>
+                    <td><h4 class="ui header">Максимум</h4></td>
+                    {% if mark.format %}
+                    <td><span class="ui header" id="mark-stats-max-{{mark.pk}}">{{ val.value|stringformat:mark.format }} {{ mark.unit }}</span></td>
+                    {% else %}
+                    <td><span class="ui header" id="mark-stats-max-{{mark.pk}}">{{ val.value }} {{ mark.unit }}</span></td>
+                    {% endif %}
+                </tr>
+            </tbody>
+        </table>
     </div>
     <div class="eight wide column">
         <div id="mark-stats-plot-{{mark.pk}}" height="200"></div>
@@ -67,9 +91,13 @@ $(function(){
 
             plotlyData = [
                 {
-                    x: data.histogram.edges,
-                    y: data.histogram.values,
-                    type: 'bar',
+                    //x: data.histogram.edges,
+                    //y: data.histogram.values,
+                    //type: 'bar',
+
+                    // Auto calc histogram
+                    x: data.values,
+                    type: 'histogram',
                 }
             ];
             var layout = {

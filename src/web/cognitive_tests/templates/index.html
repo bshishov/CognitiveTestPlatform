@@ -2,10 +2,17 @@
 
 {% block content %}
 <div class="ui container">
+	<div class="ui huge header">Испытания</div>
 	<div class="ui cards">
-	{% for survey in surveys %}
-		{% include 'include/survey_card.html' %}
-	{% endfor %}
+		{% for survey in surveys %}
+			{% include 'include/survey_card.html' %}
+		{% endfor %}
+	</div>
+	<div class="ui huge header">Тесты</div>
+	<div class="ui cards">
+		{% for test in tests %}
+			{% include 'include/test_card.html' %}
+		{% endfor %}
 	</div>
 </div>
 {% endblock %}

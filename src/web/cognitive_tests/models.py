@@ -40,11 +40,14 @@ class ModuleManager(models.Manager):
         logger.info('Importing module from archive')
         name = os.path.basename(os.path.splitext(path_to_zip)[0])
         module_path = os.path.join(settings.TESTS_MODULES_DIR, name)
-        with zipfile.ZipFile(path_to_zip, 'r') as zip_file:
-            zip_file.extractall(module_path)
+
         if module:
             if module.path and os.path.exists(module.path):
                 shutil.rmtree(module.path)
+
+        with zipfile.ZipFile(path_to_zip, 'r') as zip_file:
+            zip_file.extractall(module_path)
+        if module:
             module.path = module_path
             with open(os.path.join(module_path, Module.INFO_FILE), 'r') as info_file:
                 module.info = info_file.read()
