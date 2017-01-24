@@ -518,7 +518,7 @@ class SurveyResult(TimeStampedModel, ProcessableModel):
         for test in self.survey.tests.all():
             test_result = test.get_result_for(self.participant)
             if test_result is None:
-                return
+                raise RuntimeError('No result for %s' % test_result)
             result_values = test_result.values.all()
             test_values_dict = {}
             for val in result_values:

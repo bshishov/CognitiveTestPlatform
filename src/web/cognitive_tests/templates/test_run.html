@@ -48,11 +48,11 @@
         <div class="ui inverted dimmer" id="start">
             <div class="content">
                 <div class="center">
-                    <div class="instructions">
                     {% if test.web_instructions %}
+                    <div class="instructions">
                         {{ test.web_instructions|markdown }}
-                    {% endif %}
                     </div>
+                    {% endif %}
                     <a class="ui huge primary button" id="startButton">Начать</a>
                 </div>
             </div>

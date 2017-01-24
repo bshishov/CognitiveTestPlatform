@@ -22,6 +22,12 @@ logger = logging.getLogger(__name__)
 admin.site.site_header = _('Cognitive test platform')
 
 
+def start_processing(modeladmin, request, queryset):
+    for item in queryset:
+        if hasattr(item, 'process'):
+            item.process()
+start_processing.short_description = _('Start processing')
+
 @admin.register(models.Module)
 class ModuleAdmin(admin.ModelAdmin):
     class ModuleForm(forms.ModelForm):
@@ -106,6 +112,7 @@ class TestResultAdmin(admin.ModelAdmin):
     list_filter = ('participant', 'test', 'created')
     search_fields = ['test__name', 'participant__name', ]
     inlines = [FilesInlineForm, TextDataInlineForm, ValuesInlineForm]
+    actions = [start_processing, ]
 
 
 @admin.register(models.TestResultFile)
@@ -160,6 +167,7 @@ class SurveyResultAdmin(admin.ModelAdmin):
     list_filter = ('participant', 'survey', 'is_completed', 'created')
     search_fields = ['survey__name', 'participant__name', ]
     inlines = [ValuesInlineForm, ]
+    actions = [start_processing, ]
 
 
 @admin.register(models.SurveyResultValue)
