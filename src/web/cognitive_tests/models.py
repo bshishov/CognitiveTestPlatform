@@ -126,7 +126,6 @@ class ModuleProcessor(models.Model):
             instance.begin_process(self)
             process_globals = runpy.run_path(self.get_processor_path(), init_globals=arguments,
                                              run_name='__%s__' % run_name)
-            logger.debug('Result globals: %s' % (process_globals,))
             for mark in marks:
                 if mark.key not in process_globals:
                     raise LookupError('Key %s was nit found in result globals' % mark.key)
