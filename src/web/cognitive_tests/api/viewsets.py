@@ -90,7 +90,7 @@ class MarkViewSetMixin(viewsets.ModelViewSet):
         mark = self.get_object()
         values = mark.values.all()
         raw = [val.value for val in values]
-        if mark.data_type == models.Mark.NUMERIC:
+        if mark.data_type == models.Mark.NUMERIC and len(raw) > 0:
             hist_values, hist_edges = np.histogram(raw, bins=10)
             return Response({'values': raw,
                              'min': min(raw),

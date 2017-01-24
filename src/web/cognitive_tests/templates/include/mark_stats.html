@@ -41,7 +41,7 @@
                     {% if mark.format %}
                     <td><span class="ui header" id="mark-stats-min-{{mark.pk}}">{{ val.value|stringformat:mark.format }}</span> {{ mark.unit }}</h3></td>
                     {% else %}
-                    <td><span class="ui header" id="mark-stats-min-{{mark.pk}}">{{ val.value }}</span> {{ mark.unit }}</h3></td>
+                    <td><span class="ui header" id="mark-stats-min-{{mark.pk}}">{{ val.value }}</span> {{ mark.unit }}</td>
                     {% endif %}
                 </tr>
                 <tr>
@@ -49,7 +49,7 @@
                     {% if mark.format %}
                     <td><span class="ui header" id="mark-stats-max-{{mark.pk}}">{{ val.value|stringformat:mark.format }} {{ mark.unit }}</span></td>
                     {% else %}
-                    <td><span class="ui header" id="mark-stats-max-{{mark.pk}}">{{ val.value }} {{ mark.unit }}</span></td>
+                    <td><span class="ui header" id="mark-stats-max-{{mark.pk}}">{{ val.value }}</span> {{ mark.unit }}</td>
                     {% endif %}
                 </tr>
             </tbody>
