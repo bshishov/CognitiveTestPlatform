@@ -61,11 +61,14 @@ var initializeStream = function(stream) {
     mediaStream = stream;
 
     var video = document.getElementById('videoTag');
-    if (typeof (video.srcObject) !== 'undefined') {
-        video.srcObject = mediaStream;
-    }
-    else {
-        video.src = URL.createObjectURL(mediaStream);
+    if(video != undefined)
+    {
+        if (typeof(video.srcObject) !== 'undefined') {
+            video.srcObject = mediaStream;
+        }
+        else {
+            video.src = URL.createObjectURL(mediaStream);
+        }
     }
 
 	var AudioContext = window.AudioContext || AudioContext;
