@@ -172,10 +172,7 @@ LOGGING = {
 
 # PATCH LOGGING UNICODE
 import logging
-import locale
 logging._defaultFormatter = logging.Formatter(u"%(message)s")
-if locale.getpreferredencoding().upper() != 'UTF-8':
-    locale.setlocale(locale.LC_ALL, LANGUAGE_CODE + '.UTF-8')
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination'
