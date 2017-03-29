@@ -113,10 +113,10 @@ class ModuleProcessor(models.Model):
 
     @run_async
     def process(self, instance, arguments=None, run_name='main'):
-        logger.info('Processing of %s by %s' % (instance, self))
+        logger.info('Processing of %s by %s' % (repr(instance), repr(self)))
 
         marks = list(self.marks.all())
-        logger.debug('Marks: %s' % (marks,))
+        logger.debug('Marks: %s' % repr(marks))
 
         if not isinstance(instance, ProcessableModel):
             raise TypeError('ProcessableModel expected')
