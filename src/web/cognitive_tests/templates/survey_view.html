@@ -67,6 +67,9 @@
             <h4 class="ui header">Ваш последний результат:</h4>
             {{ result.created }}
             {% include 'include/result_value_table.html' %}
+            <div>
+                <a href="{% url 'survey-results' result.pk %}">Детальные результаты</a>
+            </div>
         </div>
         {% else %}
         <div class="ui info message">
