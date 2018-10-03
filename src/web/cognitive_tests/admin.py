@@ -97,7 +97,7 @@ class TestMarkAdmin(admin.ModelAdmin):
 @admin.register(models.TestResult)
 class TestResultAdmin(admin.ModelAdmin):
     class FilesInlineForm(admin.TabularInline):
-        model = models.TestResultFile
+        model = models.TestResultFile 
         extra = 0
 
     class TextDataInlineForm(admin.TabularInline):
