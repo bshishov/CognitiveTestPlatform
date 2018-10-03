@@ -15,15 +15,17 @@
             {% else %}
             <td><h3 class="ui header">{{ val.value }} {{ val.mark.unit }}</h3></td>
             {% endif %}
-          <td>{{ val.comment }}</td>
+            <td>{{ val.comment }} <div class="" id="val{{ val.id }}"></div></td>
         </tr>
 
-        {% if mark.data_type == 'NUMERIC' %}
+        {% if val.mark.data_type == 'NUMERIC' %}
         <script type="text/javascript">
             $(function(){
                 $.get('/api/test_marks/{{mark.id}}/percentile?score={{ val.value }}', function(data) {
                     console.log(data);
-
+                    let elem = $('#val{{ val.id }}');
+                    if(data.percentile)
+                        elem.html("Ваш результат лучше чем у " + data.percentile.toFixed(1) + "% участников");
                 });
             });
             </script>
