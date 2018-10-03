@@ -8,7 +8,6 @@
     </thead>
     <tbody>
         {% for val in result.values.visible %}
-        {% if val.mark.visible %}
         <tr>
             <td><h4 class="ui header">{{ val.mark.name }}</h4> {{ val.mark.description }}</td>
             {% if val.mark.format %}
@@ -37,7 +36,6 @@
                 });
             });
             </script>
-            {% endif %}
         {% endif %}
         {% endfor %}
     </tbody>

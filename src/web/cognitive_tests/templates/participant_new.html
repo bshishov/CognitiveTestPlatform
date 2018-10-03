@@ -29,10 +29,6 @@
 			</div>
 	  	</div>
 
-	  	<table class="ui compact two column table" id="support">
-		  	<tbody>
-		  	</tbody>
-	  	</table>
 		{% csrf_token %}
 	  	<button class="ui primary  huge button" type="submit">Начать тест</button>
 	  	<div class="ui error message">
@@ -78,32 +74,6 @@ $('.ui.form')
       }
     }
   });
-
-function check(name, status, messageOk, messageFail) {
-	var html = "";
-
-	if(messageOk == undefined) messageOk = "";
-	if(messageFail == undefined) messageFail = "";
-
-	if(status) {
-		html = '<tr class="positive"><td>' + name + '</td><td><i class="icon checkmark"></i> ' + messageOk + '</td>';
-	} else {
-		html = '<tr class="negative"><td>' + name + '</td><td><i class="icon close"></i> ' + messageFail + '</td>';
-	}
-
-	$("#support tbody").append(html);
-};
-
-
-DetectRTC.load(function() {
-	var speechApi =  ('SpeechRecognition' in window) || ('webkitSpeechRecognition' in window) || false;
-
-	//check("Веб камера", DetectRTC.hasWebcam, "Работает", "<strong>Не обнаружена</strong><br>подключите камеру и перезагрузите страницу");
-	check("Микрофон", DetectRTC.hasMicrophone, "Работает", "<strong>Не обнаружен</strong><br>подключите микрофон и перезагрузите страницу");
-	check("Система распознавания речи", speechApi, "Работает", "<strong>Не поддерживается данным браузером</strong><br>пожалуйста, используйте Chrome или Firefox последней версии");
-});
-
-
  </script>
 
 {% endblock %}
