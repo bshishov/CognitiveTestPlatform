@@ -104,6 +104,25 @@ class MarkViewSetMixin(viewsets.ModelViewSet):
                              'std': np.std(raw)})
         return Response({'values': raw, 'len': len(raw)})
 
+    @detail_route(methods=['get'])
+    def percentile(self, request, pk=None):
+        mark = self.get_object()
+        score = float(request.GET.get('score', None))
+        if score is None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        values = [val.value for val in mark.values.all()]
+        if mark.data_type != models.Mark.NUMERIC or len(values) == 0:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if mark.cmp == mark.CMP_HIGHER_IS_BETTER:
+            percentile = len([i for i in values if i <= score]) / float(len(values)) * 100
+            return Response({'percentile': percentile, 'cmp': mark.cmp})
+        elif mark.cmp == mark.CMP_LOWER_IS_BETTER:
+            percentile = len([i for i in values if i >= score]) / float(len(values)) * 100
+            return Response({'percentile': percentile, 'cmp': mark.cmp})
+
+        return Response({'message': 'No comparison for this mark'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class TestMarkViewSet(MarkViewSetMixin, FilteredModelViewSet):
     queryset = models.TestMark.objects.all()

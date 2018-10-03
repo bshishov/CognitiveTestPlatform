@@ -188,11 +188,22 @@ class Mark(models.Model):
         (JSON, _('json')),
     )
 
+    CMP_NO = 'NO'
+    CMP_HIGHER_IS_BETTER = 'HIGHER_IS_BETTER'
+    CMP_LOWER_IS_BETTER = 'LOWER_IS_BETTER'
+
+    NUMERIC_COMPARE = (
+        (CMP_NO, 'No comparison'),
+        (CMP_HIGHER_IS_BETTER, 'Higher is better'),
+        (CMP_LOWER_IS_BETTER, 'Lower is better'),
+    )
+
     objects = MarkManager()
 
     key = models.SlugField(max_length=255, verbose_name=_('key'))
     name = models.CharField(max_length=255, verbose_name=_('name'))
     data_type = models.CharField(max_length=50, choices=DATA_TYPES, verbose_name=_('data types'), default=NUMERIC)
+    cmp = models.CharField(max_length=50, choices=NUMERIC_COMPARE, verbose_name='Numeric comparison', default=CMP_NO)
     format = models.CharField(max_length=255, verbose_name=_('format'), blank=True)
     unit = models.CharField(max_length=255, verbose_name=_('unit'), blank=True)
     min_value = models.IntegerField(blank=True, null=True, verbose_name=_('min value'))
