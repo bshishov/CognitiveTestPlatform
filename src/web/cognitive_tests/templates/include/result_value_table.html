@@ -17,6 +17,19 @@
             {% endif %}
           <td>{{ val.comment }}</td>
         </tr>
+
+        {% if mark.data_type == 'NUMERIC' %}
+        <script type="text/javascript">
+            $(function(){
+                $.get('/api/test_marks/{{mark.id}}/percentile?score={{ val.value }}', function(data) {
+                    console.log(data);
+
+                });
+            });
+            </script>
+            {% endif %}
         {% endfor %}
     </tbody>
 </table>
+
+

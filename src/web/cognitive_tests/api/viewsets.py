@@ -107,12 +107,16 @@ class MarkViewSetMixin(viewsets.ModelViewSet):
     @detail_route(methods=['get'])
     def percentile(self, request, pk=None):
         mark = self.get_object()
-        score = float(request.GET.get('score', None))
+        score = request.GET.get('score', None)
         if score is None:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+        try:
+            score = float(score)
+        except Exception as err:
+            return Response({'message': 'Score should be numeric'}, status=status.HTTP_400_BAD_REQUEST)
         values = [val.value for val in mark.values.all()]
         if mark.data_type != models.Mark.NUMERIC or len(values) == 0:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Score should be provided'}, status=status.HTTP_400_BAD_REQUEST)
 
         if mark.cmp == mark.CMP_HIGHER_IS_BETTER:
             percentile = len([i for i in values if i <= score]) / float(len(values)) * 100
