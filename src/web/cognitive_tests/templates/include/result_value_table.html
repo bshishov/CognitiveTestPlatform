@@ -21,7 +21,8 @@
         {% if val.mark.data_type == 'NUMERIC' %}
         <script type="text/javascript">
             $(function(){
-                $.get('/api/test_marks/{{ val.mark.id }}/percentile?score={{ val.value }}', function(data) {
+                let value = parseFloat('{{ val.value }}'.replace(',', '.'));
+                $.get('/api/test_marks/{{ val.mark.id }}/percentile?score=' + value.toString(), function(data) {
                     console.log(data);
                     let elem = $('#val{{ val.id }}');
                     if(data.percentile)
