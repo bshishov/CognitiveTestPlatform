@@ -1,6 +1,6 @@
 <div class="ui grid">
     <div class="four wide column">
-        <div class="ui header">{{ mark.name }} <small><i>({{ mark.unit }})</i></small></div>
+        <div class="ui header">{{ mark.name }} {% if mark.unit %}<small><i>({{ mark.unit }})</i></small>{% endif %}</div>
         <p>{{ mark.description }}</p>
 
         <div class="ui mini statistics">
