@@ -10,6 +10,7 @@ services:
       PORT: ${COGNITIVE_PORT:-8000}
       VIRTUAL_PORT: ${COGNITIVE_PORT:-8000}
       VIRTUAL_HOST: ${COGNITIVE_HOST}
+      VIRTUAL_PROTO: ${COGNITIVE_PROTO:-uwsgi}
     command: ${COGNITIVE_CMD:-run}
     restart: always
     volumes:
