@@ -1,0 +1,46 @@
+version: '3.3'
+
+services:
+  cognitive:
+    build: .
+    environment:
+      DJANGO_SECRET_KEY: ${COGNITIVE_DJANGO_SECRET_KEY:-super-secret-key}
+      DJANGO_DB_URL: ${COGNITIVE_DJANGO_DB_URL:-mysql://cognitive:cognitive@db:3306/cognitive}
+      DJANGO_DEBUG: ${COGNITIVE_DJANGO_DEBUG:-False}
+      PORT: ${COGNITIVE_PORT:-8000}
+      VIRTUAL_PORT: ${COGNITIVE_PORT:-8000}
+    command: ${COGNITIVE_CMD:-run}
+    restart: always
+    volumes:
+      - ${COGNITIVE_DATA_PATH:-./data}/static:/var/cognitive/static
+      - ${COGNITIVE_DATA_PATH:-./data}/media:/var/cognitive/media
+      - ${COGNITIVE_DATA_PATH:-./data}/modules:/var/cognitive/modules
+      - ${COGNITIVE_DATA_PATH:-./data}/results:/var/cognitive/results
+      - ${COGNITIVE_DATA_PATH:-./data}/logs:/var/log/cognitive
+    ports:
+      - ${COGNITIVE_PORT:-8000}:${COGNITIVE_PORT:-8000}
+    expose:
+      - ${COGNITIVE_PORT:-8000}
+    networks:
+      - db_network
+    depends_on:
+      - db
+
+  db:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${COGNITIVE_MYSQL_ROOT_PASSWORD:-strong-one-mysql-password}
+      MYSQL_DATABASE: ${COGNITIVE_MYSQL_DATABASE:-cognitive}
+      MYSQL_USER: ${COGNITIVE_MYSQL_USER:-cognitive}
+      MYSQL_PASSWORD: ${COGNITIVE_MYSQL_PASSWORD:-cognitive}
+    hostname: ${COGNITIVE_MYSQL_HOSTNAME:-db}
+    volumes:
+      - ${COGNITIVE_DATA_PATH:-./data}/mysql:/var/lib/mysql
+    networks:
+      - db_network
+
+networks:
+  db_network:
+    driver: bridge

@@ -10,21 +10,36 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
-import sys
+import json
+import dj_database_url
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-# A path where all of the modules with tests should be located (downloaded)
-TESTS_MODULES_DIR = os.path.join(BASE_DIR, 'modules')
-
-# A path where all of the result files will be places
-TESTS_RESULTS_DIR = os.path.join(BASE_DIR, 'results')
-
-DEBUG = True
+# Global debug switch
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in ['true', '1', 'yes']
 THUMBNAIL_DEBUG = DEBUG
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'test.shishov.me']
+# [REQUIRED] The secret key to generate tokens
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+
+# [REQUIRED] A path where all of the modules with tests should be located (downloaded)
+TESTS_MODULES_DIR = os.environ.get('COGNITIVE_MODULES_ROOT')
+
+# [REQUIRED] A path where all of the result files will be places
+TESTS_RESULTS_DIR = os.environ.get('COGNITIVE_RESULTS_ROOT')
+
+# Local only (must be proxied with nginx or similar)
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+
+""" Database connection is specified by url from env:
+Examples:
+    postgres://USER:PASSWORD@HOST:PORT/NAME
+    mysql://USER:PASSWORD@HOST:PORT/NAME
+    sqlite:////full/path/to/your/database/file.sqlite
+"""
+DATABASES = {
+    'default': dj_database_url.config('DJANGO_DB_URL',
+                                      default='sqlite:///cognitive.sqlite',
+                                      conn_max_age=int(os.environ.get('DJANGO_DB_CONN_MAX_AGE', '600')))
+}
 
 
 # Application definition
@@ -45,9 +60,6 @@ INSTALLED_APPS = [
     'django_cleanup',
     'sortedm2m',
     'sorl.thumbnail',
-
-    # CI
-    'django_jenkins',
 ]
 
 REST_FRAMEWORK = {
@@ -86,49 +98,32 @@ TEMPLATES = [
 
 # added to fix template first string being empty
 # FILE_CHARSET = 'utf-8-sig'
-
 WSGI_APPLICATION = 'web.wsgi.application'
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
-
-LANGUAGE_CODE = 'ru-RU'
-TIME_ZONE = 'UTC'
+LANGUAGE_CODE = os.environ.get('DJANGO_LANGUAGE_CODE', 'ru-RU')
+TIME_ZONE = os.environ.get('DJANGO_TIME_ZONE', 'UTC')
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.10/howto/static-files/
-
-
 STATIC_URL = '/static/'
-MEDIA_URL = '/media/'
+STATIC_ROOT = os.environ.get('DJANGO_STATIC_ROOT')
 
-JENKINS_TASKS = ('django_jenkins.tasks.run_pylint',
-                 'django_jenkins.tasks.run_pep8',
-                 'django_jenkins.tasks.run_pyflakes',)
+# Media files (cover images, avatars...)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.environ.get('DJANGO_MEDIA_ROOT')
 
 LOGGING = {
     'version': 1,
@@ -177,5 +172,3 @@ logging._defaultFormatter = logging.Formatter(u"%(message)s")
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination'
 }
-
-from local_settings import *
