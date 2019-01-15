@@ -11,6 +11,7 @@ services:
       VIRTUAL_PORT: ${COGNITIVE_PORT:-8000}
       VIRTUAL_HOST: ${COGNITIVE_HOST}
       VIRTUAL_PROTO: ${COGNITIVE_PROTO:-uwsgi}
+      LETSENCRYPT_HOST: ${COGNITIVE_HOST}
     command: ${COGNITIVE_CMD:-run}
     restart: always
     volumes:
@@ -24,6 +25,7 @@ services:
     expose:
       - ${COGNITIVE_PORT:-8000}
     networks:
+      - webproxy
       - db_network
     depends_on:
       - db
@@ -46,3 +48,6 @@ services:
 networks:
   db_network:
     driver: bridge
+  webproxy:
+    external:
+      name: ${COGNITIVE_NETWORK:-webproxy}
