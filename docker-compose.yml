@@ -9,6 +9,7 @@ services:
       DJANGO_DEBUG: ${COGNITIVE_DJANGO_DEBUG:-False}
       PORT: ${COGNITIVE_PORT:-8000}
       VIRTUAL_PORT: ${COGNITIVE_PORT:-8000}
+      VIRTUAL_HOST: ${COGNITIVE_HOST}
     command: ${COGNITIVE_CMD:-run}
     restart: always
     volumes:
