@@ -8,10 +8,6 @@ services:
       DJANGO_DB_URL: ${COGNITIVE_DJANGO_DB_URL:-mysql://cognitive:cognitive@db:3306/cognitive}
       DJANGO_DEBUG: ${COGNITIVE_DJANGO_DEBUG:-False}
       PORT: ${COGNITIVE_PORT:-8000}
-      VIRTUAL_PORT: ${COGNITIVE_PORT:-8000}
-      VIRTUAL_HOST: ${COGNITIVE_HOST}
-      VIRTUAL_PROTO: ${COGNITIVE_PROTO:-uwsgi}
-      LETSENCRYPT_HOST: ${COGNITIVE_HOST}
     command: ${COGNITIVE_CMD:-run}
     restart: always
     volumes:
@@ -25,8 +21,8 @@ services:
     expose:
       - ${COGNITIVE_PORT:-8000}
     networks:
-      - webproxy
       - db_network
+      - webproxy
     depends_on:
       - db
 
@@ -50,4 +46,4 @@ networks:
     driver: bridge
   webproxy:
     external:
-      name: ${COGNITIVE_NETWORK:-webproxy}
+      name: ${COGNITIVE_NETWORK:-bridge}
