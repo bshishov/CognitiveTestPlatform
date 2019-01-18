@@ -11,11 +11,11 @@ services:
     command: ${COGNITIVE_CMD:-run}
     restart: always
     volumes:
-      - ${COGNITIVE_DATA_PATH:-./data}/static:/var/cognitive/static
-      - ${COGNITIVE_DATA_PATH:-./data}/media:/var/cognitive/media
-      - ${COGNITIVE_DATA_PATH:-./data}/modules:/var/cognitive/modules
-      - ${COGNITIVE_DATA_PATH:-./data}/results:/var/cognitive/results
-      - ${COGNITIVE_DATA_PATH:-./data}/logs:/var/log/cognitive
+      - ${COGNITIVE_STATIC_PATH:-./data/static}:/var/cognitive/static
+      - ${COGNITIVE_MEDIA_PATH:-./data/media}:/var/cognitive/media
+      - ${COGNITIVE_MODULES_PATH:-./data/modules}:/var/cognitive/modules
+      - ${COGNITIVE_RESULTS_PATH:-./data/results}:/var/cognitive/results
+      - ${COGNITIVE_LOGS_PATH:-./data/logs}:/var/log/cognitive
     ports:
       - ${COGNITIVE_PORT:-8000}:${COGNITIVE_PORT:-8000}
     expose:
@@ -37,7 +37,7 @@ services:
       MYSQL_PASSWORD: ${COGNITIVE_MYSQL_PASSWORD:-cognitive}
     hostname: ${COGNITIVE_MYSQL_HOSTNAME:-db}
     volumes:
-      - ${COGNITIVE_DATA_PATH:-./data}/mysql:/var/lib/mysql
+      - ${COGNITIVE_MYSQL_DATA_PATH:-./data/mysql}:/var/lib/mysql
     networks:
       - db_network
 
