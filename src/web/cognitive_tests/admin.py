@@ -28,6 +28,7 @@ def start_processing(modeladmin, request, queryset):
             item.process()
 start_processing.short_description = _('Start processing')
 
+
 @admin.register(models.Module)
 class ModuleAdmin(admin.ModelAdmin):
     class ModuleForm(forms.ModelForm):
