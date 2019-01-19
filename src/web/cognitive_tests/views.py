@@ -1,4 +1,5 @@
 import mimetypes
+import logging
 
 from django.core import urlresolvers
 from django.http import Http404
@@ -9,6 +10,9 @@ from django.views.decorators.http import require_GET, require_http_methods
 from cognitive_tests.api.serializers import ParticipantSerializer
 from .models import *
 from .utils import participant_required, redirect_with_args
+
+
+logger = logging.getLogger('Views')
 
 
 def context_processor(request):
@@ -243,7 +247,8 @@ def test_embed(request, test_pk, path):
 
     abs_path = os.path.join(test.get_web_directory_path(), path)
     if not os.path.exists(abs_path):
-        return Http404('Embed file does not exist')
+        logger.error('Embed file: {0} does not exist'.format(abs_path))
+        raise Http404('Embed file does not exist')
     file = open(abs_path, 'rb')
     content = file.read()
     file.close()
