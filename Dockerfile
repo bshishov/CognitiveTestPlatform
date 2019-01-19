@@ -1,5 +1,5 @@
 # Python 3.4 using Debian Jessie
-FROM python:3.4-jessie
+FROM python:3.4-alpine3.8
 
 MAINTAINER Boris Shishov <borisshishov@gmail.com>
 
@@ -39,8 +39,6 @@ COPY ./src/web $PROJECT_PATH
 WORKDIR $PROJECT_PATH
 
 # Upgrade pip and install all required python dependencies
-RUN pip install --upgrade pip setuptools wheel
-RUN apt-get install python3-numpy
 RUN pip install --no-cache-dir -r $PROJECT_PATH/requirements.txt
 
 # Project port (both for uwsgi setup or for http setup)
