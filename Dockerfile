@@ -40,7 +40,7 @@ WORKDIR $PROJECT_PATH
 
 # Upgrade pip and install all required python dependencies
 RUN pip install --upgrade pip setuptools wheel
-RUN sudo apt-get install python3-numpy
+RUN apt-get install python3-numpy
 RUN pip install --no-cache-dir -r $PROJECT_PATH/requirements.txt
 
 # Project port (both for uwsgi setup or for http setup)
