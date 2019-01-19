@@ -38,7 +38,8 @@ VOLUME ["$COGNITIVE_MODULES_ROOT", \
 COPY ./src/web $PROJECT_PATH
 WORKDIR $PROJECT_PATH
 
-# Install all required python dependencies
+# Upgrade pip and install all required python dependencies
+RUN pip install --upgrade pip setuptools wheel
 RUN pip install --no-cache-dir -r $PROJECT_PATH/requirements.txt
 
 # Project port (both for uwsgi setup or for http setup)
