@@ -1,5 +1,5 @@
 # Python 3.4 using Debian Jessie
-FROM python:3.4-alpine3.8
+FROM python:3.4-jessie
 
 MAINTAINER Boris Shishov <borisshishov@gmail.com>
 
