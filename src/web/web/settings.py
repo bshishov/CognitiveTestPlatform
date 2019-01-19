@@ -29,6 +29,11 @@ TESTS_RESULTS_DIR = os.environ.get('COGNITIVE_RESULTS_ROOT')
 # Local only (must be proxied with nginx or similar)
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
+# DJANGO_HOST specifies additional hosts for django, comma separated
+additional_hosts = os.environ.get('DJANGO_HOST', None)
+if additional_hosts is not None:
+    ALLOWED_HOSTS += list(map(str.strip, additional_hosts.split(',')))
+
 """ Database connection is specified by url from env:
 Examples:
     postgres://USER:PASSWORD@HOST:PORT/NAME

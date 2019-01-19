@@ -7,6 +7,7 @@ services:
       DJANGO_SECRET_KEY: ${COGNITIVE_DJANGO_SECRET_KEY:-super-secret-key}
       DJANGO_DB_URL: ${COGNITIVE_DJANGO_DB_URL:-mysql://cognitive:cognitive@db:3306/cognitive}
       DJANGO_DEBUG: ${COGNITIVE_DJANGO_DEBUG:-False}
+      DJANGO_HOST: ${COGNITIVE_DJANGO_HOST}
       PORT: ${COGNITIVE_PORT:-8000}
     command: ${COGNITIVE_CMD:-run}
     restart: always
