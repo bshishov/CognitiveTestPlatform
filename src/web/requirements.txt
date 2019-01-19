@@ -25,4 +25,4 @@ Pillow
 gunicorn
 dj-database-url
 mysql-connector-python
-mysqlclient
+mysqlclient=1.3.14
