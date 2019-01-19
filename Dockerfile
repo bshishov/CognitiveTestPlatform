@@ -19,7 +19,7 @@ RUN echo "Image project path: $PROJECT_PATH"
 RUN echo "Image user-data path: $PROJECT_USER_DATA"
 
 # Create necessary directories
-RUN mkdir $PROJECT_PATH \
+RUN mkdir -p -v $PROJECT_PATH \
     $PROJECT_USER_DATA \
     $COGNITIVE_MODULES_ROOT \
     $COGNITIVE_RESULTS_ROOT \
