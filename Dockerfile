@@ -3,9 +3,14 @@ FROM python:3.4-jessie
 
 MAINTAINER Boris Shishov <borisshishov@gmail.com>
 
-# ALL In-container paths
-# PLEASE NOTE: SOME OF THESE PATHS ARE USED IN DJANGO SETTINGS MODULE
 ENV PYTHONUNBUFFERED 1
+
+# Separate install call so image will be cached with built numpy
+# As early as possible :) So that only first build is slow
+RUN pip install numpy
+
+# In-container environmental settings
+# PLEASE NOTE: THESE VARIABLES ARE USED IN DJANGO SETTINGS MODULE
 ENV PORT=8000
 ENV PROJECT_PATH=/opt/cognitive
 ENV PROJECT_USER_DATA=/var/cognitive
@@ -37,6 +42,8 @@ VOLUME ["$COGNITIVE_MODULES_ROOT", \
 # Copy src files (entrypoint included)
 COPY ./src/web $PROJECT_PATH
 WORKDIR $PROJECT_PATH
+
+
 
 # Upgrade pip and install all required python dependencies
 RUN pip install --no-cache-dir -r $PROJECT_PATH/requirements.txt
