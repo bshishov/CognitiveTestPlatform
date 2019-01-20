@@ -29,27 +29,8 @@ services:
 
   db:
     image: mysql
-    command: --default-authentication-plugin=mysql_native_password \
-      --skip-locking \
-      --key_buffer=16K \
-      --max_allowed_packet=1M \
-      --table_cache=4 \
-      --sort_buffer_size=64K \
-      --read_buffer_size=256K \
-      --read_rnd_buffer_size=256K \
-      --net_buffer_length=2K \
-      --thread_stack=64K \
-      --innodb_data_home_dir=/var/lib/mysql/ \
-      --innodb_data_file_path=ibdata1:10M:autoextend \
-      --innodb_log_group_home_dir=/var/lib/mysql/ \
-      --innodb_log_arch_dir=/var/lib/mysql/ \
-      --innodb_buffer_pool_size=64M \
-      --innodb_additional_mem_pool_size=2M \
-      --innodb_log_file_size=5M \
-      --innodb_log_buffer_size=8M \
-      --innodb_flush_log_at_trx_commit=1 \
-      --innodb_lock_wait_timeout=50
-    restart: always
+    command: --default-authentication-plugin=mysql_native_password
+    restart: on-failure
     environment:
       MYSQL_ROOT_PASSWORD: ${COGNITIVE_MYSQL_ROOT_PASSWORD:-strong-one-mysql-password}
       MYSQL_DATABASE: ${COGNITIVE_MYSQL_DATABASE:-cognitive}
@@ -58,6 +39,7 @@ services:
     hostname: ${COGNITIVE_MYSQL_HOSTNAME:-db}
     volumes:
       - ${COGNITIVE_MYSQL_DATA_PATH:-./data/mysql}:/var/lib/mysql
+      - ${COGNITIVE_MYSQL_DATA_CONF:-./data/my.cnf}:/etc/mysql/my.cnf
     networks:
       - db_network
 
