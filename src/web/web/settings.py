@@ -69,7 +69,8 @@ INSTALLED_APPS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),
-    'PAGE_SIZE': 10
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 10,
 }
 
 MIDDLEWARE = [
@@ -138,7 +139,7 @@ LOGGING = {
             'format': u'%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
         },
         'simple': {
-            'format': u'%(levelname)s %(message)s'
+            'format': u'%(levelname)s %(asctime)s %(module)s %(message)s'
         },
     },
     'filters': {
@@ -150,30 +151,16 @@ LOGGING = {
         'console': {
             'class': 'logging.StreamHandler',
             'formatter': 'simple',
-        },
-        'console_debug': {
-            'level': 'DEBUG',
-            'filters': ['require_debug_true'],
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple',
-        },
+        }
     },
     'loggers': {
-        'django': {
+        '': {
             'handlers': ['console'],
             'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
-        },
-        'cognitive_tests.models': {
-            'handlers': ['console_debug'],
-            'level': 'DEBUG',
-        },
+        }
     },
 }
 
 # PATCH LOGGING UNICODE
 import logging
 logging._defaultFormatter = logging.Formatter(u"%(message)s")
-
-REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination'
-}
