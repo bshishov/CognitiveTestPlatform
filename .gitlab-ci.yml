@@ -6,9 +6,7 @@ services:
 
 image: docker
 before_script:
-  - apk update
-  - apk add apk add gcc libc-dev g++
-  - apk add py-pip
+  - apk add --update python python-dev py-pip build-base
   - pip install docker-compose
 
 deploy:
