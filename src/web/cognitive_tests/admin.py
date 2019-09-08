@@ -22,10 +22,12 @@ logger = logging.getLogger(__name__)
 admin.site.site_header = _('Cognitive test platform')
 
 
-def start_processing(modeladmin, request, queryset):
+def start_processing(model_admin, request, queryset):
     for item in queryset:
         if hasattr(item, 'process'):
             item.process()
+
+
 start_processing.short_description = _('Start processing')
 
 

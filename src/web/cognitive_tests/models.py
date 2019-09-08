@@ -120,20 +120,22 @@ class ModuleProcessor(models.Model):
         logger.debug('Marks: %s' % repr(marks))
 
         if not isinstance(instance, ProcessableModel):
-            raise TypeError('ProcessableModel expected')
+            logger.warning(f'ProcessableModel expected while processing: {instance}')
+            return
 
         try:
-            instance.begin_process(self)
-            process_globals = run(self.processor, inputs=arguments, work_dir=self.module.path)
+            instance.on_processing_started(self)
+            results = run(self.processor, inputs=arguments, work_dir=self.module.path)
+            logger.info(f'Processed results for {instance}:\n{results}')
             for mark in marks:
-                if mark.key not in process_globals:
-                    raise LookupError('Key %s was nit found in result globals' % mark.key)
-                mark.values.create(result=instance, value=process_globals[mark.key],
-                                   comment=process_globals.get(mark.key + '_comment', ''))
-            instance.end_process(self)
+                if mark.key not in results:
+                    raise LookupError(f'Key \"{mark.key}\" was not found in results')
+                mark.values.create(result=instance, value=results[mark.key],
+                                   comment=results.get(mark.key + '_comment', ''))
+            instance.on_processing_ended(self)
         except Exception as err:
             logger.exception(err)
-            instance.processing_failed(self)
+            instance.on_processing_failed(self)
 
 
 class ProcessableModel(models.Model):
@@ -143,12 +145,14 @@ class ProcessableModel(models.Model):
     class Meta:
         abstract = True
 
-    def begin_process(self, processor):
+    def on_processing_started(self, processor):
         if self.is_processed:
-            raise RuntimeError('Can\'t begin processing: instance is already processed')
+            logger.warning('Can\'t begin processing: instance is already processed')
+            return
 
         if self.is_processing_started:
-            raise RuntimeError('Can\'t begin processing: processing of this instance is already started')
+            logger.warning('Can\'t begin processing: processing of this instance is already started')
+            return
 
         self.processing_started = timezone.now()
         self.save()
@@ -156,11 +160,11 @@ class ProcessableModel(models.Model):
     def process(self):
         raise NotImplementedError('This method is abstract')
 
-    def end_process(self, processor):
+    def on_processing_ended(self, processor):
         self.processing_ended = timezone.now()
         self.save()
 
-    def processing_failed(self, processor):
+    def on_processing_failed(self, processor):
         self.processing_started = None
         self.processing_ended = None
         self.save()
@@ -532,17 +536,17 @@ class SurveyResult(TimeStampedModel, ProcessableModel):
     def process(self):
         if not self.is_completed:
             raise RuntimeError('Can not start processing, survey is not completed')
-        arguments = {}
+        test_results = {}
         for test in self.survey.tests.all():
             test_result = test.get_result_for(self.participant)
             if test_result is None:
                 raise RuntimeError('No result for %s' % test_result)
             result_values = test_result.values.all()
-            test_values_dict = {}
+            test_mark_values = {}
             for val in result_values:
-                test_values_dict[val.mark.key] = val.value
-            arguments[test.key] = test_values_dict
-        self.survey.process(self, {'test_results': arguments})
+                test_mark_values[val.mark.key] = val.value
+            test_results[test.key] = test_mark_values
+        self.survey.process(self, {'test_results': test_results})
 
     @property
     def incomplete_tests(self):
