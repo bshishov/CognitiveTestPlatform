@@ -124,10 +124,6 @@ class ModuleProcessor(models.Model):
 
         try:
             instance.begin_process(self)
-            """
-            process_globals = runpy.run_path(self.get_processor_path(), init_globals=arguments,
-                                             run_name='__%s__' % run_name)
-            """
             process_globals = run(self.processor, inputs=arguments, work_dir=self.module.path)
             for mark in marks:
                 if mark.key not in process_globals:

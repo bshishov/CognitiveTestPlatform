@@ -24,7 +24,7 @@ def run(command: str, inputs: dict, work_dir=None) -> dict:
         })
         logger.info(f'Working directory: {work_dir}')
         logger.info(f'Running command: {formatted_command}')
-        subprocess.run(formatted_command, cwd=work_dir, check=True)
+        subprocess.run(formatted_command, cwd=work_dir, check=True, shell=True)
 
         if not os.path.exists(output_filename):
             raise FileNotFoundError(f'No command results found after execution of \"{command}\". '
