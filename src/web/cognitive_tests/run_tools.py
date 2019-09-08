@@ -22,7 +22,8 @@ def run(command: str, inputs: dict, work_dir=None) -> dict:
             'input_filename': input_filename,
             'output_filename': output_filename
         })
-        logger.info(f'Running: {formatted_command}')
+        logger.info(f'Working directory: {work_dir}')
+        logger.info(f'Running command: {formatted_command}')
         subprocess.run(formatted_command, cwd=work_dir, check=True)
 
         if not os.path.exists(output_filename):

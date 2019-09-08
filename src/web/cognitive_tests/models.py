@@ -137,6 +137,7 @@ class ModuleProcessor(models.Model):
             instance.end_process(self)
         except Exception as err:
             logger.exception(err)
+            instance.processing_failed(self)
 
 
 class ProcessableModel(models.Model):
@@ -161,6 +162,11 @@ class ProcessableModel(models.Model):
 
     def end_process(self, processor):
         self.processing_ended = timezone.now()
+        self.save()
+
+    def processing_failed(self, processor):
+        self.processing_started = None
+        self.processing_ended = None
         self.save()
 
     @property
