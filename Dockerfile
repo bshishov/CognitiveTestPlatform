@@ -1,5 +1,5 @@
-# Python 3.4 using Debian Jessie
-FROM python:3.4-jessie
+# Python 3.7 using Debian 10 (buster)
+FROM python:3.7-buster
 
 MAINTAINER Boris Shishov <borisshishov@gmail.com>
 

@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 import os
 import shutil
 import logging
-import runpy
 import zipfile
 
 from django.db import models
@@ -16,10 +15,12 @@ from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import post_save, post_delete, pre_save
 from django.dispatch import receiver, Signal
 
-from .tasks import run_async
 from jsonfield import JSONField
 from sortedm2m.fields import SortedManyToManyField
 from sorl.thumbnail import ImageField
+
+from .tasks import run_async
+from .run_tools import run
 
 logger = logging.getLogger(__name__)
 
@@ -75,8 +76,8 @@ class Module(TimeStampedModel):
     objects = ModuleManager()
 
     info = JSONField(verbose_name=_('information'))
-    path = models.FilePathField(path=settings.TESTS_MODULES_DIR, allow_files=False,
-                                allow_folders=True, recursive=False, verbose_name=_('path'))
+    path: str = models.FilePathField(path=settings.TESTS_MODULES_DIR, allow_files=False,
+                                     allow_folders=True, recursive=False, verbose_name=_('path'))
 
     class Meta:
         ordering = ('-created',)
@@ -96,8 +97,8 @@ def __post_module_delete(sender, instance, **kwargs):
 
 class ModuleProcessor(models.Model):
     """ Base class for models that can process results, e.g. Test and Survey """
-    module = models.ForeignKey(Module, blank=False, null=False, verbose_name=_('module'))
-    processor = models.CharField(max_length=255, blank=False, null=False, verbose_name=_('processor'))
+    module: 'Module' = models.ForeignKey(Module, blank=False, null=False, verbose_name=_('module'))
+    processor: str = models.CharField(max_length=255, blank=False, null=False, verbose_name=_('processor'))
 
     class Meta:
         abstract = True
@@ -112,7 +113,7 @@ class ModuleProcessor(models.Model):
         return os.path.join(self.module.path, self.processor)
 
     @run_async
-    def process(self, instance, arguments=None, run_name='main'):
+    def process(self, instance: 'ProcessableModel', arguments: dict = None, run_name='main'):
         logger.info('Processing of %s by %s' % (repr(instance), repr(self)))
 
         marks = list(self.marks.all())
@@ -123,8 +124,11 @@ class ModuleProcessor(models.Model):
 
         try:
             instance.begin_process(self)
+            """
             process_globals = runpy.run_path(self.get_processor_path(), init_globals=arguments,
                                              run_name='__%s__' % run_name)
+            """
+            process_globals = run(self.processor, inputs=arguments, work_dir=self.module.path)
             for mark in marks:
                 if mark.key not in process_globals:
                     raise LookupError('Key %s was nit found in result globals' % mark.key)
@@ -262,7 +266,7 @@ class TestManager(models.Manager):
 
     def active_web(self):
         """ Filter only active tests with web directory set """
-        return self.get_queryset().filter(active=True)\
+        return self.get_queryset().filter(active=True) \
             .exclude(web_directory__isnull=True).exclude(web_directory__exact='')
 
 
@@ -378,7 +382,8 @@ def __test_result_pre_save(sender, instance, **kwargs):
 
 class TestResultFile(models.Model):
     def get_filename(self, filename):
-        return 'results/%s_test%s_p%s/raw/%s' % (self.result.id, self.result.test.id, self.result.participant.id, filename)
+        return 'results/%s_test%s_p%s/raw/%s' % (
+        self.result.id, self.result.test.id, self.result.participant.id, filename)
 
     name = models.CharField(max_length=255, verbose_name=_('file name'))
     result = models.ForeignKey(TestResult, related_name='files', verbose_name=_('result'))
@@ -477,7 +482,7 @@ class Survey(TimeStampedModel, ModuleProcessor):
         verbose_name_plural = _('surveys')
 
     def __str__(self):  # __unicode__ on Python 2
-        return '%s' % (self.name, )
+        return '%s' % (self.name,)
 
     def get_result_for(self, participant):
         try:
