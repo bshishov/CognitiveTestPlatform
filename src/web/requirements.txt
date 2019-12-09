@@ -10,7 +10,7 @@ django-markdown-deux==1.0.5
 django-nested-inline==0.3.6
 django-pagedown==1.0.4
 django-sortedm2m==2.0.0
-djangorestframework==3.5.2
+djangorestframework==3.9.1
 gunicorn==19.9.0
 isort==4.2.5
 jsonfield==2.0.2
