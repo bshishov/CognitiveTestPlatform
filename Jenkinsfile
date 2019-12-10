@@ -7,10 +7,12 @@ pipeline {
   stages {
     stage('Deploy') {
       steps {
-        docker.withServer("${env.TARGET_INSTANCE}", "${env.TARGET_CREDENTIALS_ID}") {
-          sh "docker-compose build"
-          sh "docker-compose down"
-          sh "docker-compose up -d --force-recreate"
+        script {
+          docker.withServer("${env.TARGET_INSTANCE}", "${env.TARGET_CREDENTIALS_ID}") {
+            sh "docker-compose build"
+            sh "docker-compose down"
+            sh "docker-compose up -d --force-recreate"
+          }
         }
       }
     }
