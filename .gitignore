@@ -6,3 +6,4 @@ sdk/
 .idea/
 
 .env
+/venv/

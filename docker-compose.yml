@@ -24,7 +24,6 @@ services:
       - ${COGNITIVE_PORT:-8000}
     networks:
       - db_network
-      - webproxy
     depends_on:
       - db
 
@@ -47,6 +46,3 @@ services:
 networks:
   db_network:
     driver: bridge
-  webproxy:
-    external:
-      name: ${COGNITIVE_NETWORK:-bridge}
