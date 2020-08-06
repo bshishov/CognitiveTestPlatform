@@ -3,34 +3,24 @@ FROM python:3.7-buster
 
 MAINTAINER Boris Shishov <borisshishov@gmail.com>
 
-ENV PYTHONUNBUFFERED 1
-
-# Separate install call so image will be cached with built numpy
-# As early as possible :) So that only first build is slow
-RUN pip install numpy
-
 # In-container environmental settings
 # PLEASE NOTE: THESE VARIABLES ARE USED IN DJANGO SETTINGS MODULE
-ENV PORT=8000
-ENV PROJECT_PATH=/opt/cognitive
-ENV PROJECT_USER_DATA=/var/cognitive
-ENV COGNITIVE_MODULES_ROOT=$PROJECT_USER_DATA/modules
-ENV COGNITIVE_RESULTS_ROOT=$PROJECT_USER_DATA/results
-ENV DJANGO_STATIC_ROOT=$PROJECT_USER_DATA/static
-ENV DJANGO_MEDIA_ROOT=$PROJECT_USER_DATA/media
-ENV PROJECT_LOGS_ROOT=/var/log/cognitive
+ENV PYTHONUNBUFFERED=1 \
+    PORT=8000 \
+    PROJECT_PATH=/opt/cognitive \
+    COGNITIVE_MODULES_ROOT=/var/cognitive/modules \
+    COGNITIVE_RESULTS_ROOT=/var/cognitive/results \
+    DJANGO_STATIC_ROOT=/var/cognitive/static \
+    DJANGO_MEDIA_ROOT=/var/cognitive/media \
+    PROJECT_LOGS_ROOT=/var/log/cognitive
 
-RUN echo "Image project path: $PROJECT_PATH"
-RUN echo "Image user-data path: $PROJECT_USER_DATA"
-
-# Create necessary directories
-RUN mkdir -p -v $PROJECT_PATH \
-    $PROJECT_USER_DATA \
-    $COGNITIVE_MODULES_ROOT \
-    $COGNITIVE_RESULTS_ROOT \
-    $DJANGO_STATIC_ROOT \
-    $DJANGO_MEDIA_ROOT \
-    $PROJECT_LOGS_ROOT
+RUN export DJANGO_SECRET_KEY=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1) && \
+    mkdir -p -v $PROJECT_PATH \
+      $COGNITIVE_MODULES_ROOT \
+      $COGNITIVE_RESULTS_ROOT \
+      $DJANGO_STATIC_ROOT \
+      $DJANGO_MEDIA_ROOT \
+      $PROJECT_LOGS_ROOT
 
 # Volumes
 VOLUME ["$COGNITIVE_MODULES_ROOT", \
@@ -42,8 +32,6 @@ VOLUME ["$COGNITIVE_MODULES_ROOT", \
 # Copy src files (entrypoint included)
 COPY ./src/web $PROJECT_PATH
 WORKDIR $PROJECT_PATH
-
-
 
 # Upgrade pip and install all required python dependencies
 RUN pip install --no-cache-dir -r $PROJECT_PATH/requirements.txt
