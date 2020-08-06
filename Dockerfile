@@ -16,25 +16,22 @@ ENV PYTHONUNBUFFERED=1 \
 
 RUN export DJANGO_SECRET_KEY=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1) && \
     mkdir -p -v $PROJECT_PATH \
-      $COGNITIVE_MODULES_ROOT \
-      $COGNITIVE_RESULTS_ROOT \
-      $DJANGO_STATIC_ROOT \
-      $DJANGO_MEDIA_ROOT \
-      $PROJECT_LOGS_ROOT
+                $COGNITIVE_MODULES_ROOT \
+                $COGNITIVE_RESULTS_ROOT \
+                $DJANGO_STATIC_ROOT \
+                $DJANGO_MEDIA_ROOT \
+                $PROJECT_LOGS_ROOT && \
+    pip install --no-cache-dir -r $PROJECT_PATH/requirements.txt
 
-# Volumes
-VOLUME ["$COGNITIVE_MODULES_ROOT", \
-        "$COGNITIVE_RESULTS_ROOT", \
-        "$DJANGO_STATIC_ROOT", \
-        "$DJANGO_MEDIA_ROOT", \
-        "$PROJECT_LOGS_ROOT"]
+VOLUME $COGNITIVE_MODULES_ROOT \
+       $COGNITIVE_RESULTS_ROOT \
+       $DJANGO_STATIC_ROOT \
+       $DJANGO_MEDIA_ROOT \
+       $PROJECT_LOGS_ROOT
 
 # Copy src files (entrypoint included)
 COPY ./src/web $PROJECT_PATH
 WORKDIR $PROJECT_PATH
-
-# Upgrade pip and install all required python dependencies
-RUN pip install --no-cache-dir -r $PROJECT_PATH/requirements.txt
 
 # Project port (both for uwsgi setup or for http setup)
 EXPOSE $PORT

@@ -1,0 +1,5 @@
+#@data/values
+---
+name: cognitive
+image: registry.shishov.ml/bshishov/cognitive:latest
+host: test.shishov.ml
