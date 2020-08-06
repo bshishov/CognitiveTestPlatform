@@ -17,7 +17,7 @@ spec:
       containers:
       - name: #@ data.values.name
         image: #@ data.values.image
-        args: ['run']  # See entrypoint for an image
+        args: ['run']
         ports:
         - containerPort: 8000
           protocol: TCP
