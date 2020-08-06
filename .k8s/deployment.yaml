@@ -3,6 +3,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: #@ data.values.name
+  labels:
+    app: #@ data.values.name
 spec:
   selector:
     matchLabels:
@@ -10,12 +12,12 @@ spec:
   template:
     metadata:
       labels:
-          app: #@ data.values.name
+        app: #@ data.values.name
     spec:
       containers:
       - name: #@ data.values.name
         image: #@ data.values.image
-        command: run
+        command: ['run']
         ports:
         - containerPort: 8000
           protocol: TCP
