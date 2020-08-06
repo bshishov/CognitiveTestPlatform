@@ -43,9 +43,10 @@ metadata:
   labels:
     app: #@ data.values.name
 spec:
+  tls:
   - hosts:
       - #@ data.values.host
-      secretName: letsencrypt-wildcard-shishov-ml-tls
+    secretName: letsencrypt-wildcard-shishov-ml-tls
   rules:
   - host: #@ data.values.host
     http:
