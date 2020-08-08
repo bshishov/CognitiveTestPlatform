@@ -23,10 +23,10 @@ jobs:
     #needs: build
     steps:
       - uses: actions/checkout@v2
-      - name: Install ytt (yaml templating)
-        run: |
-          wget -q https://github.com/k14s/ytt/releases/download/v0.28.0/ytt-linux-amd64
-          chmod +x ytt-linux-amd64
+      #- name: Install ytt (yaml templating)
+      #  run: |
+      #    wget -q https://github.com/k14s/ytt/releases/download/v0.28.0/ytt-linux-amd64
+      #    chmod +x ytt-linux-amd64
       #- name: Generate deployment
       #  run: ./ytt-linux-amd64 -f .k8s/ > deployment.rendered.yml
       - name: Init kube config
