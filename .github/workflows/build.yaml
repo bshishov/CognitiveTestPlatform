@@ -35,4 +35,4 @@ jobs:
         run: printf "$KUBECONFIG" > .kubeconfig
       - name: K8S apply
         run: |
-          docker run --rm -v ${PWD}/.kubeconfig:/.kube/config -v ${PWD}/deployment.yml:/opt/deployment.yml bitnami/kubectl apply -f /opt/deployment.yml
+          docker run --rm -v ${PWD}/.kubeconfig:/.kube/config -v ${PWD}/.k8s/deployment.yml:/opt/deployment.yml bitnami/kubectl apply -f /opt/deployment.yml
