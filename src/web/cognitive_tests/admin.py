@@ -31,6 +31,29 @@ def start_processing(model_admin, request, queryset):
 start_processing.short_description = _('Start processing')
 
 
+class IsProcessedListFilter(admin.SimpleListFilter):
+    parameter_name = 'is_processed'
+    title = _('Is processed')
+
+    def lookups(self, request, model_admin):
+        return (
+            (True, _('True')),
+            (False, _('False')),
+        )
+
+    def queryset(self, request, queryset):
+        """
+        Returns the filtered queryset based on the value
+        provided in the query string and retrievable via
+        `self.value()`.
+        """
+        if self.value() in {True, 'True', 'true'}:
+            return queryset.filter(processing_ended__isnull=False)
+
+        if self.value() in {False, 'False', 'false'}:
+            return queryset.filter(processing_ended__isnull=True)
+
+
 @admin.register(models.Module)
 class ModuleAdmin(admin.ModelAdmin):
     class ModuleForm(forms.ModelForm):
@@ -111,11 +134,14 @@ class TestResultAdmin(admin.ModelAdmin):
         model = models.TestResultValue
         extra = 0
 
-    list_display = ('participant', 'test', 'created')
-    list_filter = ('participant', 'test', 'created')
+    list_display = ('participant', 'test', 'created', 'is_processed')
+    list_filter = (IsProcessedListFilter, 'test', 'created', 'participant')
     search_fields = ['test__name', 'participant__name', ]
     inlines = [FilesInlineForm, TextDataInlineForm, ValuesInlineForm]
     actions = [start_processing, ]
+
+    def is_processed(self, obj):
+        return obj.is_processed
 
 
 @admin.register(models.TestResultFile)
@@ -166,11 +192,14 @@ class SurveyResultAdmin(admin.ModelAdmin):
         model = models.SurveyResultValue
         extra = 0
 
-    list_display = ('participant', 'survey', 'is_completed', 'created')
-    list_filter = ('participant', 'survey', 'is_completed', 'created')
+    list_display = ('participant', 'survey', 'is_completed', 'created', 'is_processed')
+    list_filter = (IsProcessedListFilter, 'survey', 'is_completed', 'created', 'participant')
     search_fields = ['survey__name', 'participant__name', ]
     inlines = [ValuesInlineForm, ]
     actions = [start_processing, ]
+
+    def is_processed(self, obj):
+        return obj.is_processed
 
 
 @admin.register(models.SurveyResultValue)
