@@ -1,6 +1,6 @@
 from rest_framework import status
 from rest_framework import viewsets
-from rest_framework.decorators import detail_route, list_route
+from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from cognitive_tests import models
@@ -8,6 +8,7 @@ from cognitive_tests import utils
 from cognitive_tests.api import permissions
 from cognitive_tests.api import serializers
 
+from django.core.handlers.wsgi import WSGIRequest
 import numpy as np
 
 
@@ -48,6 +49,11 @@ class FilteredModelViewSet(viewsets.ModelViewSet):
                 raise RuntimeError('Method %s can\'t be proceeded' % request.method)
             action = getattr(viewset, mapping[str.lower(request.method)])
             return action(request)
+
+        # Backward compatibility hack: since Django in newer versions asserts that
+        # the request is actually a django http request and not a DRF one
+        # Thus we get internal WSGI request from DRF to exec the view
+        request: WSGIRequest = request._request
         return cls.as_view(mapping, queryset=queryset, filter_kwargs=kwargs)(request)
 
 
@@ -85,7 +91,7 @@ class TestResultValueViewSet(FilteredModelViewSet):
 
 
 class MarkViewSetMixin(viewsets.ModelViewSet):
-    @detail_route(methods=['get'])
+    @action(detail=True, methods=['get'])
     def stats(self, request, pk=None):
         mark = self.get_object()
         values = mark.values.all()
@@ -104,7 +110,7 @@ class MarkViewSetMixin(viewsets.ModelViewSet):
                              'std': np.std(raw)})
         return Response({'values': raw, 'len': len(raw)})
 
-    @detail_route(methods=['get'])
+    @action(detail=True, methods=['get'])
     def percentile(self, request, pk=None):
         mark = self.get_object()
         score = request.GET.get('score', None)
@@ -133,7 +139,7 @@ class TestMarkViewSet(MarkViewSetMixin, FilteredModelViewSet):
     serializer_class = serializers.TestMarkSerializer
     permission_classes = [permissions.IsStaffOrReadOnly, ]
 
-    @detail_route(methods=['get'])
+    @action(detail=True, methods=['get'])
     def values(self, request, pk=None):
         return TestResultValueViewSet.proceed_filtered(request, mark=self.get_object())
 
@@ -194,11 +200,11 @@ class TestViewSet(FilteredModelViewSet):
     serializer_class = serializers.TestSerializer
     permission_classes = [permissions.IsParticipantOrStaff, ]
 
-    @detail_route(methods=['get', 'post', 'options'])
+    @action(detail=True, methods=['get', 'post', 'options'])
     def results(self, request, pk=None):
         return TestResultViewSet.proceed_filtered(request, test=self.get_object())
 
-    @detail_route(methods=['get', 'options'])
+    @action(detail=True, methods=['get', 'options'])
     def marks(self, request, pk=None):
         return TestMarkViewSet.proceed_filtered(request, test=self.get_object())
 
@@ -232,7 +238,7 @@ class SurveyMarkViewSet(MarkViewSetMixin, FilteredModelViewSet):
     serializer_class = serializers.SurveyMarkSerializer
     permission_classes = [permissions.IsStaffOrReadOnly, ]
 
-    @detail_route(methods=['get', 'options'])
+    @action(detail=True, methods=['get', 'options'])
     def values(self, request, pk=None):
         return SurveyResultValueViewSet.proceed_filtered(request, mark=self.get_object())
 
@@ -242,15 +248,15 @@ class SurveyViewSet(FilteredModelViewSet):
     serializer_class = serializers.SurveySerializer
     permission_classes = [permissions.IsStaffOrReadOnly, ]
 
-    @detail_route(methods=['get', 'options'])
+    @action(detail=True, methods=['get', 'options'])
     def results(self, request, pk=None):
         return SurveyResultViewSet.proceed_filtered(request, survey=self.get_object())
 
-    @detail_route(methods=['get', 'options'])
+    @action(detail=True, methods=['get', 'options'])
     def tests(self, request, pk=None):
         return TestViewSet.proceed_filtered(request, queryset=self.get_object().tests)
 
-    @detail_route(methods=['get', 'options'])
+    @action(detail=True, methods=['get', 'options'])
     def marks(self, request, pk=None):
         return SurveyMarkViewSet.proceed_filtered(request, survey=self.get_object())
 
@@ -260,11 +266,11 @@ class ModuleViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.ModuleSerializer
     permission_classes = [permissions.IsStaff, ]
 
-    @detail_route(methods=['get', 'options'])
+    @action(detail=True, methods=['get', 'options'])
     def tests(self, request, pk=None):
         return TestViewSet.proceed_filtered(request, module=self.get_object())
 
-    @detail_route(methods=['get', 'options'])
+    @action(detail=True, methods=['get', 'options'])
     def surveys(self, request, pk=None):
         return SurveyViewSet.proceed_filtered(request, module=self.get_object())
 
@@ -274,15 +280,15 @@ class ParticipantViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.ParticipantSerializer
     permission_classes = [permissions.IsParticipantOrStaff, ]
 
-    @detail_route(methods=['get', 'options'])
+    @action(detail=True, methods=['get', 'options'])
     def testresults(self, request, pk=None):
         return TestResultViewSet.proceed_filtered(request, participant=self.get_object())
 
-    @detail_route(methods=['get', 'options'])
+    @action(detail=True, methods=['get', 'options'])
     def surveyresults(self, request, pk=None):
         return SurveyResultViewSet.proceed_filtered(request, participant=self.get_object())
 
-    @list_route(methods=['get', 'post', 'delete'])
+    @action(detail=False, methods=['get', 'post', 'delete'])
     def current(self, request):
         participant = models.Participant.from_request(request)
         if request.method == 'GET':

@@ -24,6 +24,7 @@ devenv/
 reports/
 media/
 modules/
+static/
 
 # compiles messages
 *.mo
