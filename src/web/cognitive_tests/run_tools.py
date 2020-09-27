@@ -24,7 +24,16 @@ def run(command: str, inputs: dict, work_dir=None) -> dict:
         })
         logger.info(f'Working directory: {work_dir}')
         logger.info(f'Running command: {formatted_command}')
-        subprocess.run(formatted_command, cwd=work_dir, check=True, shell=True)
+        result = subprocess.run(formatted_command,
+                                cwd=work_dir,
+                                shell=True,
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.STDOUT)
+
+        logger.info(result.stdout.decode('utf-8', errors='ignore'))
+
+        if result.returncode != 0:
+            raise RuntimeError(f'Processing failed with return code: {result.returncode}')
 
         if not os.path.exists(output_filename):
             raise FileNotFoundError(f'No command results found after execution of \"{command}\". '
